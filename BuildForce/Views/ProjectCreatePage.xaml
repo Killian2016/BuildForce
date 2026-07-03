@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.ProjectCreatePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,24,16,40" Spacing="16">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*">
+                <Button Text="Cancel"
+                        BackgroundColor="Transparent"
+                        TextColor="#6b7280"
+                        FontSize="14"
+                        Clicked="OnCancel"
+                        HorizontalOptions="Start" />
+                <Label Text="NEW PROJECT"
+                       FontSize="11" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="2"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Grid.Column="1" />
+            </Grid>
+
+            <!-- Project Name -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="PROJECT NAME" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <Entry x:Name="NameEntry"
+                           Placeholder="e.g. Kitchen Remodel"
+                           PlaceholderColor="#6b7280"
+                           TextColor="White"
+                           BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Customer Picker -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="CUSTOMER" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="4,0">
+                    <Picker x:Name="CustomerPicker"
+                            Title="Select Customer"
+                            TextColor="White"
+                            TitleColor="#6b7280"
+                            BackgroundColor="Transparent"
+                            Margin="10,0" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Location -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="LOCATION / ADDRESS" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <Entry x:Name="LocationEntry"
+                           Placeholder="Job site address"
+                           PlaceholderColor="#6b7280"
+                           TextColor="White"
+                           BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Status -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="STATUS" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="4,0">
+                    <Picker x:Name="StatusPicker"
+                            Title="Select Status"
+                            TextColor="White"
+                            TitleColor="#6b7280"
+                            BackgroundColor="Transparent"
+                            Margin="10,0" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Budget -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="BUDGET" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <Entry x:Name="BudgetEntry"
+                           Placeholder="0.00"
+                           Keyboard="Numeric"
+                           PlaceholderColor="#6b7280"
+                           TextColor="White"
+                           BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Start Date -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="START DATE" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <DatePicker x:Name="StartDatePicker"
+                                TextColor="White"
+                                BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Description -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="DESCRIPTION" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,10">
+                    <Editor x:Name="DescriptionEditor"
+                            Placeholder="Scope of work..."
+                            PlaceholderColor="#6b7280"
+                            TextColor="White"
+                            BackgroundColor="Transparent"
+                            MinimumHeightRequest="80"
+                            AutoSize="TextChanges" />
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Status Message -->
+            <Label x:Name="StatusLabel"
+                   Text=""
+                   FontSize="12"
+                   TextColor="#f59e0b"
+                   HorizontalOptions="Center"
+                   IsVisible="False" />
+
+            <!-- Create Button -->
+            <Button x:Name="CreateBtn"
+                    Text="Create Project"
+                    BackgroundColor="#22c55e"
+                    TextColor="Black"
+                    FontSize="16" FontAttributes="Bold"
+                    HeightRequest="54"
+                    CornerRadius="14"
+                    Margin="0,8,0,0"
+                    Clicked="OnCreate" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

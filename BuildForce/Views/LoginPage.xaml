@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.LoginPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="28,60,28,40" Spacing="0">
+
+            <!-- Logo -->
+            <HorizontalStackLayout Spacing="12" Margin="0,0,0,48">
+                <Border BackgroundColor="#f0a500"
+                        StrokeShape="RoundRectangle 12"
+                        WidthRequest="44" HeightRequest="44"
+                        Stroke="Transparent">
+                    <Label Text="🏗" FontSize="22"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Label Text="BuildForce"
+                       FontSize="24" FontAttributes="Bold"
+                       TextColor="White" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <!-- Heading -->
+            <Label Text="Sign in to"
+                   FontSize="34" FontAttributes="Bold"
+                   TextColor="White" LineHeight="1.1" />
+            <Label Text="your workspace"
+                   FontSize="34" FontAttributes="Bold"
+                   TextColor="#c8e63c" Margin="0,0,0,8" />
+            <Label Text="Enter your credentials to access your dashboard"
+                   FontSize="14" TextColor="#6b7280"
+                   Margin="0,0,0,40" />
+
+            <!-- Email -->
+            <Label Text="EMAIL ADDRESS"
+                   FontSize="11" FontAttributes="Bold"
+                   TextColor="#6b7280" CharacterSpacing="1.5"
+                   Margin="0,0,0,8" />
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Margin="0,0,0,20">
+                <Entry x:Name="EmailEntry"
+                       Placeholder="you@company.com"
+                       PlaceholderColor="#6b7280"
+                       TextColor="White"
+                       BackgroundColor="Transparent"
+                       Keyboard="Email"
+                       Margin="16,12" />
+            </Border>
+
+            <!-- Password -->
+            <Label Text="PASSWORD"
+                   FontSize="11" FontAttributes="Bold"
+                   TextColor="#6b7280" CharacterSpacing="1.5"
+                   Margin="0,0,0,8" />
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Margin="0,0,0,8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry x:Name="PasswordEntry"
+                           Placeholder="••••••••••"
+                           PlaceholderColor="#6b7280"
+                           TextColor="White"
+                           BackgroundColor="Transparent"
+                           IsPassword="True"
+                           Margin="16,12,0,12"
+                           Grid.Column="0" />
+                    <Label x:Name="ToggleEye"
+                           Text="👁"
+                           FontSize="18"
+                           TextColor="#6b7280"
+                           VerticalOptions="Center"
+                           Margin="0,0,16,0"
+                           Grid.Column="1">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTogglePassword" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+            </Border>
+
+            <!-- Forgot Password -->
+            <Label Text="Forgot password?"
+                   FontSize="13" TextColor="#c8e63c"
+                   FontAttributes="Bold"
+                   HorizontalOptions="End"
+                   Margin="0,0,0,28">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnForgotPassword" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <!-- Error Label -->
+            <Label x:Name="ErrorLabel"
+                   TextColor="#ef4444"
+                   FontSize="13"
+                   IsVisible="False"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,16" />
+
+            <!-- Sign In Button -->
+            <Border BackgroundColor="#c8e63c"
+                    StrokeShape="RoundRectangle 16"
+                    Stroke="Transparent">
+                <Button Text="Sign In →"
+                        BackgroundColor="Transparent"
+                        TextColor="#000000"
+                        FontSize="16" FontAttributes="Bold"
+                        Clicked="OnLoginClicked"
+                        HeightRequest="56" />
+            </Border>
+
+            <!-- Loading -->
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="False"
+                               IsVisible="False"
+                               Color="#c8e63c"
+                               Margin="0,16,0,0" />
+
+            <!-- Register -->
+            <HorizontalStackLayout HorizontalOptions="Center" Margin="0,24,0,0" Spacing="4">
+                <Label Text="Don't have an account?"
+                       FontSize="13" TextColor="#6b7280" />
+                <Label Text="Start free trial"
+                       FontSize="13" TextColor="#c8e63c" FontAttributes="Bold">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRegisterTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

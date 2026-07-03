@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:BuildForce.Views"
+             x:Class="BuildForce.Views.MainShellPage"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <Grid RowDefinitions="*, Auto">
+
+        <!-- Page Content Area -->
+        <ContentView x:Name="PageContent" Grid.Row="0" />
+
+        <!-- Native Bottom Dock -->
+        <Grid Grid.Row="1"
+              BackgroundColor="#070e1d"
+              Padding="0,10,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Home -->
+            <VerticalStackLayout Grid.Column="0" Spacing="3"
+                                 HorizontalOptions="Center" VerticalOptions="Center">
+                <Label x:Name="IcoHome" Text="⌂" FontSize="24"
+                       TextColor="#c8e63c" HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="NavHome_Tapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label x:Name="LblHome" Text="Home" FontSize="9" FontAttributes="Bold"
+                       TextColor="#c8e63c" HorizontalOptions="Center" CharacterSpacing="0.5" />
+            </VerticalStackLayout>
+
+            <!-- Projects -->
+            <VerticalStackLayout Grid.Column="1" Spacing="3"
+                                 HorizontalOptions="Center" VerticalOptions="Center">
+                <Label x:Name="IcoProjects" Text="📋" FontSize="22"
+                       TextColor="#6b7280" HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="NavProjects_Tapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label x:Name="LblProjects" Text="Projects" FontSize="9" FontAttributes="Bold"
+                       TextColor="#6b7280" HorizontalOptions="Center" CharacterSpacing="0.5" />
+            </VerticalStackLayout>
+
+            <!-- GPS Clock (raised) -->
+            <VerticalStackLayout Grid.Column="2" Spacing="3"
+                                 HorizontalOptions="Center" VerticalOptions="End"
+                                 Margin="0,-20,0,0">
+                <Border x:Name="ClockBtn"
+                        BackgroundColor="#c8e63c"
+                        StrokeShape="RoundRectangle 30"
+                        WidthRequest="60" HeightRequest="60"
+                        Stroke="Transparent"
+                        HorizontalOptions="Center">
+                    <Border.Shadow>
+                        <Shadow Brush="#c8e63c" Offset="0,6" Radius="16" Opacity="0.4" />
+                    </Border.Shadow>
+                    <Label x:Name="ClockLabel"
+                           Text="GPS" FontSize="12" FontAttributes="Bold"
+                           TextColor="#000000"
+                           HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="NavClock_Tapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="NavClock_Tapped" />
+                    </Border.GestureRecognizers>
+                </Border>
+                <Label x:Name="LblClock" Text="Clock" FontSize="9" FontAttributes="Bold"
+                       TextColor="#c8e63c" HorizontalOptions="Center" CharacterSpacing="0.5" />
+            </VerticalStackLayout>
+
+            <!-- Invoices -->
+            <VerticalStackLayout Grid.Column="3" Spacing="3"
+                                 HorizontalOptions="Center" VerticalOptions="Center">
+                <Label x:Name="IcoInvoices" Text="💰" FontSize="22"
+                       TextColor="#6b7280" HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="NavInvoices_Tapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label x:Name="LblInvoices" Text="Invoices" FontSize="9" FontAttributes="Bold"
+                       TextColor="#6b7280" HorizontalOptions="Center" CharacterSpacing="0.5" />
+            </VerticalStackLayout>
+
+            <!-- More -->
+            <VerticalStackLayout Grid.Column="4" Spacing="3"
+                                 HorizontalOptions="Center" VerticalOptions="Center">
+                <Label x:Name="IcoMore" Text="☰" FontSize="22"
+                       TextColor="#6b7280" HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="NavMore_Tapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label x:Name="LblMore" Text="More" FontSize="9" FontAttributes="Bold"
+                       TextColor="#6b7280" HorizontalOptions="Center" CharacterSpacing="0.5" />
+            </VerticalStackLayout>
+
+        </Grid>
+    </Grid>
+</ContentPage>

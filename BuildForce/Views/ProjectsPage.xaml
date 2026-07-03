@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.ProjectsPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <VerticalStackLayout Grid.Row="0" Padding="16,16,16,0" Spacing="12">
+            <Label Text="Projects"
+                   FontSize="22" FontAttributes="Bold" TextColor="White" />
+            <Border BackgroundColor="#111f38" Stroke="#1e3a5f"
+                    StrokeShape="RoundRectangle 14" Padding="16,12"
+                    Margin="0,0,0,12">
+                <Label Text="🔍  Search projects..."
+                       FontSize="13" TextColor="#6b7280" />
+            </Border>
+        </VerticalStackLayout>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout x:Name="ProjectList" Padding="16,0,16,16" Spacing="8">
+                <ActivityIndicator x:Name="Loading"
+                                   IsRunning="True" IsVisible="True"
+                                   Color="#c8e63c" Margin="0,20" />
+                <Border BackgroundColor="#c8e63c"
+                        StrokeShape="RoundRectangle 16"
+                        Stroke="Transparent" Margin="0,8,0,0">
+                    <Label Text="+ Create New Project"
+                           FontSize="15" FontAttributes="Bold"
+                           TextColor="#000000" HorizontalOptions="Center"
+                           Padding="0,16">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCreateProject" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

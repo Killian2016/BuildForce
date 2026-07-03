@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.TimesheetDetailPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,24,16,100" Spacing="16">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*">
+                <Button Text="Back"
+                        BackgroundColor="Transparent"
+                        TextColor="#c8e63c"
+                        FontSize="14"
+                        Clicked="OnBackClicked"
+                        HorizontalOptions="Start" />
+                <Label Text="TIMESHEET DETAIL"
+                       FontSize="11" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="2"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Grid.Column="1" />
+            </Grid>
+
+            <!-- Status Card -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20,16">
+                <VerticalStackLayout Spacing="8">
+                    <Label x:Name="StatusLabel"
+                           Text="Loading..."
+                           FontSize="12" FontAttributes="Bold"
+                           TextColor="#f59e0b"
+                           CharacterSpacing="1"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="HoursLabel"
+                           Text="0.0h"
+                           FontSize="48" FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="DateLabel"
+                           Text="--"
+                           FontSize="13"
+                           TextColor="#6b7280"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Project Info -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="PROJECT"
+                           FontSize="10" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Label x:Name="ProjectNameLabel"
+                           Text="--"
+                           FontSize="16" FontAttributes="Bold"
+                           TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Clock In / Out Times -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="16">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="CLOCK IN"
+                               FontSize="10" FontAttributes="Bold"
+                               TextColor="#6b7280" CharacterSpacing="1" />
+                        <Label x:Name="ClockInLabel"
+                               Text="--"
+                               FontSize="20" FontAttributes="Bold"
+                               TextColor="White" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="6" Grid.Column="1">
+                        <Label Text="CLOCK OUT"
+                               FontSize="10" FontAttributes="Bold"
+                               TextColor="#6b7280" CharacterSpacing="1" />
+                        <Label x:Name="ClockOutLabel"
+                               Text="--"
+                               FontSize="20" FontAttributes="Bold"
+                               TextColor="White" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Regular / Overtime Hours -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="16">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="REGULAR"
+                               FontSize="10" FontAttributes="Bold"
+                               TextColor="#6b7280" CharacterSpacing="1" />
+                        <Label x:Name="RegularHoursLabel"
+                               Text="0.0h"
+                               FontSize="24" FontAttributes="Bold"
+                               TextColor="#22c55e" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="6" Grid.Column="1">
+                        <Label Text="OVERTIME"
+                               FontSize="10" FontAttributes="Bold"
+                               TextColor="#6b7280" CharacterSpacing="1" />
+                        <Label x:Name="OvertimeHoursLabel"
+                               Text="0.0h"
+                               FontSize="24" FontAttributes="Bold"
+                               TextColor="#f0a500" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Location Info -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="LOCATION"
+                           FontSize="10" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Label x:Name="ClockInLocationLabel"
+                           Text="Clock In: --"
+                           FontSize="13"
+                           TextColor="#6b7280" />
+                    <Label x:Name="ClockOutLocationLabel"
+                           Text="Clock Out: --"
+                           FontSize="13"
+                           TextColor="#6b7280" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Notes -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="NOTES"
+                           FontSize="10" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Label x:Name="DescriptionLabel"
+                           Text="--"
+                           FontSize="13"
+                           TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

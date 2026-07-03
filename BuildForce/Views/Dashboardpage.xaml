@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.DashboardPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,16" Spacing="12">
+
+            <!-- FCC Card -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="20">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="FINANCIAL COMMAND CENTER"
+                           FontSize="10" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="2" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label x:Name="CompanyLabel"
+                               Text="Mezano Construction"
+                               FontSize="22" FontAttributes="Bold"
+                               TextColor="White" VerticalOptions="Center" />
+                        <Border BackgroundColor="#0d2e1a"
+                                Stroke="#22c55e" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 20"
+                                Padding="8,4">
+                            <Label Text="● LIVE" FontSize="11" FontAttributes="Bold"
+                                   TextColor="#22c55e" />
+                        </Border>
+                        <Label x:Name="TimerLabel"
+                               Text="00:00:00"
+                               FontSize="18" FontAttributes="Bold"
+                               TextColor="#c8e63c" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label x:Name="WelcomeLabel"
+                           Text="Welcome back"
+                           FontSize="13" TextColor="#6b7280" />
+                    <Label x:Name="DateLabel"
+                           Text=""
+                           FontSize="12" TextColor="#6b7280" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Search Bar -->
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="16,12">
+                <Label Text="🔍  Search projects, invoices, customers..."
+                       FontSize="13" TextColor="#6b7280" />
+            </Border>
+
+            <!-- Quick Actions -->
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto"
+                  ColumnSpacing="10" RowSpacing="10">
+
+                <Border Grid.Row="0" Grid.Column="0"
+                        BackgroundColor="#111f38" Stroke="#1e3a5f"
+                        StrokeShape="RoundRectangle 14" Padding="14">
+                    <HorizontalStackLayout Spacing="10">
+                        <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
+                                Stroke="Transparent" Padding="8">
+                            <Label Text="📄" FontSize="16" />
+                        </Border>
+                        <Label Text="New Invoice" FontSize="12" FontAttributes="Bold"
+                               TextColor="#c8e63c" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnNewInvoice" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1"
+                        BackgroundColor="#111f38" Stroke="#1e3a5f"
+                        StrokeShape="RoundRectangle 14" Padding="14">
+                    <HorizontalStackLayout Spacing="10">
+                        <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
+                                Stroke="Transparent" Padding="8">
+                            <Label Text="📁" FontSize="16" />
+                        </Border>
+                        <Label Text="New Project" FontSize="12" FontAttributes="Bold"
+                               TextColor="#c8e63c" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnNewProject" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="0"
+                        BackgroundColor="#111f38" Stroke="#1e3a5f"
+                        StrokeShape="RoundRectangle 14" Padding="14">
+                    <HorizontalStackLayout Spacing="10">
+                        <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
+                                Stroke="Transparent" Padding="8">
+                            <Label Text="📊" FontSize="16" />
+                        </Border>
+                        <Label Text="New Estimate" FontSize="12" FontAttributes="Bold"
+                               TextColor="#c8e63c" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnNewEstimate" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="1"
+                        BackgroundColor="#111f38" Stroke="#1e3a5f"
+                        StrokeShape="RoundRectangle 14" Padding="14">
+                    <HorizontalStackLayout Spacing="10">
+                        <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
+                                Stroke="Transparent" Padding="8">
+                            <Label Text="💳" FontSize="16" />
+                        </Border>
+                        <Label Text="Log Expense" FontSize="12" FontAttributes="Bold"
+                               TextColor="#c8e63c" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLogExpense" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+            </Grid>
+
+            <!-- Revenue Card -->
+            <Border BackgroundColor="#111f38" Stroke="#1e3a5f"
+                    StrokeShape="RoundRectangle 18" Padding="18">
+                <VerticalStackLayout Spacing="6">
+                    <Border BackgroundColor="#0d2e1a" StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
+                            HorizontalOptions="Start">
+                        <Label Text="📈" FontSize="18" />
+                    </Border>
+                    <Label x:Name="RevenueLabel" Text="$0"
+                           FontSize="28" FontAttributes="Bold" TextColor="#22c55e" />
+                    <Label Text="REVENUE" FontSize="11" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Border BackgroundColor="#0f1f14" StrokeShape="RoundRectangle 20"
+                            Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
+                        <Label x:Name="RevBadge" Text="✅ 0 paid invoices · Collected"
+                               FontSize="10" TextColor="#6b7280" />
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Pending Card -->
+            <Border BackgroundColor="#111f38" Stroke="#1e3a5f"
+                    StrokeShape="RoundRectangle 18" Padding="18">
+                <VerticalStackLayout Spacing="6">
+                    <Border BackgroundColor="#2e1f0d" StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
+                            HorizontalOptions="Start">
+                        <Label Text="⏳" FontSize="18" />
+                    </Border>
+                    <Label x:Name="PendingLabel" Text="$0"
+                           FontSize="28" FontAttributes="Bold" TextColor="#f59e0b" />
+                    <Label Text="PENDING" FontSize="11" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Border BackgroundColor="#1f1600" StrokeShape="RoundRectangle 20"
+                            Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
+                        <Label x:Name="PendBadge" Text="🕐 0 invoices out · Outstanding"
+                               FontSize="10" TextColor="#6b7280" />
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Expenses Card -->
+            <Border BackgroundColor="#111f38" Stroke="#1e3a5f"
+                    StrokeShape="RoundRectangle 18" Padding="18">
+                <VerticalStackLayout Spacing="6">
+                    <Border BackgroundColor="#2e0d0d" StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
+                            HorizontalOptions="Start">
+                        <Label Text="💸" FontSize="18" />
+                    </Border>
+                    <Label x:Name="ExpensesLabel" Text="$0"
+                           FontSize="28" FontAttributes="Bold" TextColor="#ef4444" />
+                    <Label Text="EXPENSES" FontSize="11" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Border BackgroundColor="#1f0808" StrokeShape="RoundRectangle 20"
+                            Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
+                        <Label Text="📋 Total recorded"
+                               FontSize="10" TextColor="#6b7280" />
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Net Profit Card -->
+            <Border BackgroundColor="#111f38" Stroke="#1e3a5f"
+                    StrokeShape="RoundRectangle 18" Padding="18">
+                <VerticalStackLayout Spacing="6">
+                    <Border BackgroundColor="#0d1f2e" StrokeShape="RoundRectangle 10"
+                            Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
+                            HorizontalOptions="Start">
+                        <Label Text="🏆" FontSize="18" />
+                    </Border>
+                    <Label x:Name="ProfitLabel" Text="$0"
+                           FontSize="28" FontAttributes="Bold" TextColor="#60a5fa" />
+                    <Label Text="NET PROFIT" FontSize="11" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Border BackgroundColor="#08121f" StrokeShape="RoundRectangle 20"
+                            Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
+                        <Label Text="✅ Revenue minus costs · All clear"
+                               FontSize="10" TextColor="#6b7280" />
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Recent Projects Header -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,4">
+                <Label Text="Recent Projects"
+                       FontSize="16" FontAttributes="Bold"
+                       TextColor="White"
+                       Grid.Column="0" />
+                <Label Text="View All →"
+                       FontSize="12" FontAttributes="Bold"
+                       TextColor="#c8e63c"
+                       Grid.Column="1">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnViewAllProjects" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+
+            <VerticalStackLayout x:Name="ProjectsList" Spacing="8" />
+
+            <ActivityIndicator x:Name="Loading"
+                               IsRunning="True" IsVisible="True"
+                               Color="#c8e63c" Margin="0,20" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
