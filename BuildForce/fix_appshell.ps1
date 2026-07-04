@@ -1,4 +1,7 @@
-﻿namespace BuildForce;
+$path = "C:\Users\mezan\source\repos\BuildForce\BuildForce\AppShell.xaml.cs"
+
+@'
+namespace BuildForce;
 public partial class AppShell : Shell
 {
     public AppShell()
@@ -11,3 +14,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("ExpenseCreatePage", typeof(Views.ExpenseCreatePage));
     }
 }
+'@ | Set-Content -Path $path -Encoding UTF8
+
+Write-Host "DONE: AppShell.xaml.cs overwritten with all route registrations" -ForegroundColor Green

@@ -29,12 +29,31 @@ public partial class ProjectCreatePage : ContentPage
 
     private async void LoadCustomers()
     {
-        _customers = await _api.GetCustomersAsync();
-        CustomerPicker.Items.Clear();
-        CustomerPicker.Items.Add("Select Customer");
-        foreach (var c in _customers)
-            CustomerPicker.Items.Add(c.Name);
-        CustomerPicker.SelectedIndex = 0;
+        try
+        {
+            _customers = await _api.GetCustomersAsync();
+            CustomerPicker.Items.Clear();
+            CustomerPicker.Items.Add("Select Customer");
+            foreach (var c in _customers)
+                CustomerPicker.Items.Add(c.Name);
+            CustomerPicker.SelectedIndex = 0;
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Could not load customers: {ex.Message}", "OK");
+        }
+    }
+
+    private async Task ClosePageAsync()
+    {
+        try
+        {
+            await Application.Current!.MainPage!.Navigation.PopModalAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ClosePage error: {ex}");
+        }
     }
 
     private async void OnCreate(object sender, EventArgs e)
@@ -65,33 +84,43 @@ public partial class ProjectCreatePage : ContentPage
         StatusLabel.Text = "Creating project...";
         StatusLabel.TextColor = Color.FromArgb("#f59e0b");
 
-        var result = await _api.CreateProjectAsync(
-            _customers[customerIdx].Id,
-            NameEntry.Text,
-            DescriptionEditor.Text,
-            LocationEntry.Text,
-            status,
-            budget,
-            StartDatePicker.Date,
-            null);
-
-        if (result != null)
+        try
         {
-            StatusLabel.Text = "Project created!";
-            StatusLabel.TextColor = Color.FromArgb("#22c55e");
-            await DisplayAlert("Success", $"Project \"{result.Name}\" created.", "OK");
-            await Shell.Current.GoToAsync("..");
+            var result = await _api.CreateProjectAsync(
+                _customers[customerIdx].Id,
+                NameEntry.Text,
+                DescriptionEditor.Text,
+                LocationEntry.Text,
+                status,
+                budget,
+                StartDatePicker.Date,
+                null);
+
+            if (result != null)
+            {
+                StatusLabel.Text = "Project created!";
+                StatusLabel.TextColor = Color.FromArgb("#22c55e");
+                await DisplayAlert("Success", $"Project \"{result.Name}\" created.", "OK");
+                await ClosePageAsync();
+            }
+            else
+            {
+                CreateBtn.IsEnabled = true;
+                StatusLabel.Text = "Could not create project. Please try again.";
+                StatusLabel.TextColor = Color.FromArgb("#ef4444");
+            }
         }
-        else
+        catch (Exception ex)
         {
             CreateBtn.IsEnabled = true;
-            StatusLabel.Text = "Could not create project. Please try again.";
+            StatusLabel.Text = "Could not create project.";
             StatusLabel.TextColor = Color.FromArgb("#ef4444");
+            await DisplayAlert("Error", ex.Message, "OK");
         }
     }
 
     private async void OnCancel(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("..");
+        await ClosePageAsync();
     }
 }

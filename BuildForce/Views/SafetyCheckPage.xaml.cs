@@ -1,0 +1,47 @@
+﻿namespace BuildForce.Views;
+
+public partial class SafetyCheckPage : ContentPage
+{
+    public SafetyCheckPage()
+    {
+        InitializeComponent();
+        PpeSwitch.Toggled += OnSwitchToggled;
+        FitSwitch.Toggled += OnSwitchToggled;
+        SafetyPlanSwitch.Toggled += OnSwitchToggled;
+        WorkAreaSwitch.Toggled += OnSwitchToggled;
+    }
+
+    private void OnSwitchToggled(object? sender, ToggledEventArgs e)
+    {
+        bool allConfirmed = PpeSwitch.IsToggled &&
+                            FitSwitch.IsToggled &&
+                            SafetyPlanSwitch.IsToggled &&
+                            WorkAreaSwitch.IsToggled;
+
+        ProceedBtn.IsEnabled = allConfirmed;
+        ProceedBtn.BackgroundColor = allConfirmed
+            ? Color.FromArgb("#22c55e")
+            : Color.FromArgb("#374151");
+        ProceedBtn.TextColor = allConfirmed ? Colors.Black : Color.FromArgb("#6b7280");
+
+        StatusLabel.Text = allConfirmed
+            ? "All safety items confirmed - ready to clock in"
+            : "Please confirm all safety items above";
+        StatusLabel.TextColor = allConfirmed
+            ? Color.FromArgb("#22c55e")
+            : Color.FromArgb("#f59e0b");
+    }
+
+    private async void OnProceed(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..", new Dictionary<string, object>
+        {
+            { "SafetyPassed", true }
+        });
+    }
+
+    private async void OnCancel(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+    }
+}

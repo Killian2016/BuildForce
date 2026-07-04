@@ -17,18 +17,14 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
-        // HTTP Client
         builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
         {
             BaseAddress = new Uri("https://mezanocm.com"),
             Timeout = TimeSpan.FromSeconds(30)
         });
-        // Services
         builder.Services.AddSingleton<AuthService>();
         builder.Services.AddSingleton<ApiService>();
-        // App
         builder.Services.AddSingleton<App>();
-        // Pages
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<MainShellPage>();
         builder.Services.AddTransient<DashboardPage>();
@@ -36,6 +32,10 @@ public static class MauiProgram
         builder.Services.AddTransient<ProjectsPage>();
         builder.Services.AddTransient<TimeClockPage>();
         builder.Services.AddTransient<TimesheetDetailPage>();
+        builder.Services.AddTransient<SafetyCheckPage>();
+        builder.Services.AddTransient<InjuryReportPage>();
+        builder.Services.AddTransient<ProjectCreatePage>();
+        builder.Services.AddTransient<ExpenseCreatePage>();
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

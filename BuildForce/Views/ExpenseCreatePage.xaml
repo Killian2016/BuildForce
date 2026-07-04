@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.ExpenseCreatePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,24,16,40" Spacing="16">
+
+            <Grid ColumnDefinitions="Auto,*">
+                <Button Text="Cancel"
+                        BackgroundColor="Transparent"
+                        TextColor="#6b7280"
+                        FontSize="14"
+                        Clicked="OnCancel"
+                        HorizontalOptions="Start" />
+                <Label Text="LOG EXPENSE"
+                       FontSize="11" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="2"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Grid.Column="1" />
+            </Grid>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="PROJECT" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="4,0">
+                    <Picker x:Name="ProjectPicker"
+                            Title="Select Project"
+                            TextColor="White"
+                            TitleColor="#6b7280"
+                            BackgroundColor="Transparent"
+                            Margin="10,0" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="DESCRIPTION" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <Entry x:Name="DescriptionEntry"
+                           Placeholder="e.g. Lumber for framing"
+                           PlaceholderColor="#6b7280"
+                           TextColor="White"
+                           BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="AMOUNT" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <Entry x:Name="AmountEntry"
+                           Placeholder="0.00"
+                           Keyboard="Numeric"
+                           PlaceholderColor="#6b7280"
+                           TextColor="White"
+                           BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="CATEGORY" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="4,0">
+                    <Picker x:Name="CategoryPicker"
+                            Title="Select Category"
+                            TextColor="White"
+                            TitleColor="#6b7280"
+                            BackgroundColor="Transparent"
+                            Margin="10,0" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="VENDOR" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <Entry x:Name="VendorEntry"
+                           Placeholder="e.g. Home Depot"
+                           PlaceholderColor="#6b7280"
+                           TextColor="White"
+                           BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="EXPENSE DATE" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,4">
+                    <DatePicker x:Name="ExpenseDatePicker"
+                                TextColor="White"
+                                BackgroundColor="Transparent" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="6">
+                <Label Text="NOTES" FontSize="10" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="1" />
+                <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,10">
+                    <Editor x:Name="NotesEditor"
+                            Placeholder="Optional notes..."
+                            PlaceholderColor="#6b7280"
+                            TextColor="White"
+                            BackgroundColor="Transparent"
+                            MinimumHeightRequest="70"
+                            AutoSize="TextChanges" />
+                </Border>
+            </VerticalStackLayout>
+
+            <Label x:Name="StatusLabel"
+                   Text=""
+                   FontSize="12"
+                   TextColor="#f59e0b"
+                   HorizontalOptions="Center"
+                   IsVisible="False" />
+
+            <Button x:Name="SaveBtn"
+                    Text="Log Expense"
+                    BackgroundColor="#22c55e"
+                    TextColor="Black"
+                    FontSize="16" FontAttributes="Bold"
+                    HeightRequest="54"
+                    CornerRadius="14"
+                    Margin="0,8,0,0"
+                    Clicked="OnSave" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

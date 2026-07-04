@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1416
+#pragma warning disable CA1416
 using BuildForce.Services;
 namespace BuildForce.Views;
 public partial class LoginPage : ContentPage
@@ -14,11 +14,11 @@ public partial class LoginPage : ContentPage
     {
         _passwordVisible = !_passwordVisible;
         PasswordEntry.IsPassword = !_passwordVisible;
-        ToggleEye.Text = _passwordVisible ? "🙈" : "👁";
+        ToggleEye.Text = _passwordVisible ? "HIDE" : "SHOW";
     }
     private async void OnForgotPassword(object sender, TappedEventArgs e)
     {
-        await Browser.OpenAsync("https://mezanoconstructionmanagementplatform.com/Account/ForgotPassword");
+        await Browser.OpenAsync("https://mezanocm.com/Account/ForgotPassword");
     }
     private async void OnLoginClicked(object sender, EventArgs e)
     {
@@ -60,6 +60,6 @@ public partial class LoginPage : ContentPage
     }
     private async void OnRegisterTapped(object sender, TappedEventArgs e)
     {
-        await Browser.OpenAsync("https://mezanoconstructionmanagementplatform.com/Account/Register");
+        await Browser.OpenAsync("https://mezanocm.com/Account/Register");
     }
 }

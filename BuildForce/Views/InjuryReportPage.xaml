@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.InjuryReportPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,24,16,40" Spacing="16">
+
+            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                <Label Text="CLOCK OUT REPORT"
+                       FontSize="11" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="2"
+                       HorizontalOptions="Center" />
+                <Label Text="End of Shift Summary"
+                       FontSize="22" FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
+                <Label Text="Please complete before clocking out"
+                       FontSize="13" TextColor="#6b7280"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="20,16">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="SHIFT DURATION"
+                               FontSize="10" FontAttributes="Bold"
+                               TextColor="#6b7280" CharacterSpacing="1" />
+                        <Label x:Name="HoursLabel"
+                               Text="0.0h"
+                               FontSize="28" FontAttributes="Bold"
+                               TextColor="White" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="4" Grid.Column="1">
+                        <Label Text="PROJECT"
+                               FontSize="10" FontAttributes="Bold"
+                               TextColor="#6b7280" CharacterSpacing="1" />
+                        <Label x:Name="ProjectLabel"
+                               Text="--"
+                               FontSize="14" FontAttributes="Bold"
+                               TextColor="#c8e63c" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="TIME ACCURACY"
+                           FontSize="10" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="The hours recorded are accurate"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="White" />
+                            <Label Text="I confirm this reflects my actual work time"
+                                   FontSize="11" TextColor="#6b7280" />
+                        </VerticalStackLayout>
+                        <Switch x:Name="AccurateSwitch"
+                                Grid.Column="1"
+                                OnColor="#22c55e"
+                                ThumbColor="White"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="INJURY REPORT"
+                           FontSize="10" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1" />
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="I was not injured during this shift"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="White" />
+                            <Label Text="No accidents, injuries, or near-misses occurred"
+                                   FontSize="11" TextColor="#6b7280" />
+                        </VerticalStackLayout>
+                        <Switch x:Name="NoInjurySwitch"
+                                Grid.Column="1"
+                                OnColor="#22c55e"
+                                ThumbColor="White"
+                                VerticalOptions="Center"
+                                Toggled="OnInjuryToggled" />
+                    </Grid>
+
+                    <Border x:Name="InjuryDetailPanel"
+                            BackgroundColor="#2e0d0d"
+                            Stroke="#ef4444" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="14"
+                            IsVisible="False">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Please describe what happened:"
+                                   FontSize="13" FontAttributes="Bold"
+                                   TextColor="#ef4444" />
+                            <Editor x:Name="InjuryEditor"
+                                    Placeholder="Describe the injury or incident..."
+                                    PlaceholderColor="#6b7280"
+                                    TextColor="White"
+                                    BackgroundColor="Transparent"
+                                    MinimumHeightRequest="80"
+                                    AutoSize="TextChanges" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label x:Name="StatusLabel"
+                   Text="Please confirm time accuracy and injury status"
+                   FontSize="12"
+                   TextColor="#f59e0b"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center" />
+
+            <Button x:Name="ClockOutBtn"
+                    Text="Complete Clock Out"
+                    BackgroundColor="#374151"
+                    TextColor="#6b7280"
+                    FontSize="16" FontAttributes="Bold"
+                    HeightRequest="54"
+                    CornerRadius="14"
+                    IsEnabled="False"
+                    Clicked="OnClockOut" />
+
+            <Button Text="Cancel"
+                    BackgroundColor="Transparent"
+                    TextColor="#6b7280"
+                    FontSize="14"
+                    HeightRequest="44"
+                    Clicked="OnCancel" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

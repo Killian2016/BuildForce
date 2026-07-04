@@ -17,23 +17,28 @@
                     <Label Text="FINANCIAL COMMAND CENTER"
                            FontSize="10" FontAttributes="Bold"
                            TextColor="#6b7280" CharacterSpacing="2" />
-                    <HorizontalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
                         <Label x:Name="CompanyLabel"
                                Text="Mezano Construction"
-                               FontSize="22" FontAttributes="Bold"
-                               TextColor="White" VerticalOptions="Center" />
+                               FontSize="20" FontAttributes="Bold"
+                               TextColor="White" VerticalOptions="Center"
+                               LineBreakMode="TailTruncation"
+                               Grid.Column="0" />
                         <Border BackgroundColor="#0d2e1a"
                                 Stroke="#22c55e" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 20"
-                                Padding="8,4">
-                            <Label Text="● LIVE" FontSize="11" FontAttributes="Bold"
+                                Padding="8,4"
+                                VerticalOptions="Center"
+                                Grid.Column="1">
+                            <Label Text="&#x25CF; LIVE" FontSize="11" FontAttributes="Bold"
                                    TextColor="#22c55e" />
                         </Border>
                         <Label x:Name="TimerLabel"
                                Text="00:00:00"
-                               FontSize="18" FontAttributes="Bold"
-                               TextColor="#c8e63c" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
+                               FontSize="15" FontAttributes="Bold"
+                               TextColor="#c8e63c" VerticalOptions="Center"
+                               Grid.Column="2" />
+                    </Grid>
                     <Label x:Name="WelcomeLabel"
                            Text="Welcome back"
                            FontSize="13" TextColor="#6b7280" />
@@ -48,7 +53,7 @@
                     Stroke="#1e3a5f" StrokeThickness="1"
                     StrokeShape="RoundRectangle 14"
                     Padding="16,12">
-                <Label Text="🔍  Search projects, invoices, customers..."
+                <Label Text="&#x1F50D;  Search projects, invoices, customers..."
                        FontSize="13" TextColor="#6b7280" />
             </Border>
 
@@ -62,7 +67,7 @@
                     <HorizontalStackLayout Spacing="10">
                         <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
                                 Stroke="Transparent" Padding="8">
-                            <Label Text="📄" FontSize="16" />
+                            <Label Text="&#x1F4C4;" FontSize="16" />
                         </Border>
                         <Label Text="New Invoice" FontSize="12" FontAttributes="Bold"
                                TextColor="#c8e63c" VerticalOptions="Center" />
@@ -78,7 +83,7 @@
                     <HorizontalStackLayout Spacing="10">
                         <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
                                 Stroke="Transparent" Padding="8">
-                            <Label Text="📁" FontSize="16" />
+                            <Label Text="&#x1F4C1;" FontSize="16" />
                         </Border>
                         <Label Text="New Project" FontSize="12" FontAttributes="Bold"
                                TextColor="#c8e63c" VerticalOptions="Center" />
@@ -94,7 +99,7 @@
                     <HorizontalStackLayout Spacing="10">
                         <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
                                 Stroke="Transparent" Padding="8">
-                            <Label Text="📊" FontSize="16" />
+                            <Label Text="&#x1F4CA;" FontSize="16" />
                         </Border>
                         <Label Text="New Estimate" FontSize="12" FontAttributes="Bold"
                                TextColor="#c8e63c" VerticalOptions="Center" />
@@ -110,7 +115,7 @@
                     <HorizontalStackLayout Spacing="10">
                         <Border BackgroundColor="#1a2e14" StrokeShape="RoundRectangle 8"
                                 Stroke="Transparent" Padding="8">
-                            <Label Text="💳" FontSize="16" />
+                            <Label Text="&#x1F4B3;" FontSize="16" />
                         </Border>
                         <Label Text="Log Expense" FontSize="12" FontAttributes="Bold"
                                TextColor="#c8e63c" VerticalOptions="Center" />
@@ -129,7 +134,7 @@
                     <Border BackgroundColor="#0d2e1a" StrokeShape="RoundRectangle 10"
                             Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
                             HorizontalOptions="Start">
-                        <Label Text="📈" FontSize="18" />
+                        <Label Text="&#x1F4C8;" FontSize="18" />
                     </Border>
                     <Label x:Name="RevenueLabel" Text="$0"
                            FontSize="28" FontAttributes="Bold" TextColor="#22c55e" />
@@ -137,7 +142,7 @@
                            TextColor="#6b7280" CharacterSpacing="1" />
                     <Border BackgroundColor="#0f1f14" StrokeShape="RoundRectangle 20"
                             Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
-                        <Label x:Name="RevBadge" Text="✅ 0 paid invoices · Collected"
+                        <Label x:Name="RevBadge" Text="0 paid invoices &#xB7; Collected"
                                FontSize="10" TextColor="#6b7280" />
                     </Border>
                 </VerticalStackLayout>
@@ -150,7 +155,7 @@
                     <Border BackgroundColor="#2e1f0d" StrokeShape="RoundRectangle 10"
                             Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
                             HorizontalOptions="Start">
-                        <Label Text="⏳" FontSize="18" />
+                        <Label Text="&#x23F3;" FontSize="18" />
                     </Border>
                     <Label x:Name="PendingLabel" Text="$0"
                            FontSize="28" FontAttributes="Bold" TextColor="#f59e0b" />
@@ -158,7 +163,7 @@
                            TextColor="#6b7280" CharacterSpacing="1" />
                     <Border BackgroundColor="#1f1600" StrokeShape="RoundRectangle 20"
                             Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
-                        <Label x:Name="PendBadge" Text="🕐 0 invoices out · Outstanding"
+                        <Label x:Name="PendBadge" Text="0 invoices out &#xB7; Outstanding"
                                FontSize="10" TextColor="#6b7280" />
                     </Border>
                 </VerticalStackLayout>
@@ -171,7 +176,7 @@
                     <Border BackgroundColor="#2e0d0d" StrokeShape="RoundRectangle 10"
                             Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
                             HorizontalOptions="Start">
-                        <Label Text="💸" FontSize="18" />
+                        <Label Text="&#x1F4B8;" FontSize="18" />
                     </Border>
                     <Label x:Name="ExpensesLabel" Text="$0"
                            FontSize="28" FontAttributes="Bold" TextColor="#ef4444" />
@@ -179,7 +184,7 @@
                            TextColor="#6b7280" CharacterSpacing="1" />
                     <Border BackgroundColor="#1f0808" StrokeShape="RoundRectangle 20"
                             Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
-                        <Label Text="📋 Total recorded"
+                        <Label Text="&#x1F4CB; Total recorded"
                                FontSize="10" TextColor="#6b7280" />
                     </Border>
                 </VerticalStackLayout>
@@ -192,7 +197,7 @@
                     <Border BackgroundColor="#0d1f2e" StrokeShape="RoundRectangle 10"
                             Stroke="Transparent" Padding="10" WidthRequest="42" HeightRequest="42"
                             HorizontalOptions="Start">
-                        <Label Text="🏆" FontSize="18" />
+                        <Label Text="&#x1F3C6;" FontSize="18" />
                     </Border>
                     <Label x:Name="ProfitLabel" Text="$0"
                            FontSize="28" FontAttributes="Bold" TextColor="#60a5fa" />
@@ -200,7 +205,7 @@
                            TextColor="#6b7280" CharacterSpacing="1" />
                     <Border BackgroundColor="#08121f" StrokeShape="RoundRectangle 20"
                             Stroke="Transparent" Padding="8,4" HorizontalOptions="Start">
-                        <Label Text="✅ Revenue minus costs · All clear"
+                        <Label Text="Revenue minus costs &#xB7; All clear"
                                FontSize="10" TextColor="#6b7280" />
                     </Border>
                 </VerticalStackLayout>
@@ -212,7 +217,7 @@
                        FontSize="16" FontAttributes="Bold"
                        TextColor="White"
                        Grid.Column="0" />
-                <Label Text="View All →"
+                <Label Text="View All &#x2192;"
                        FontSize="12" FontAttributes="Bold"
                        TextColor="#c8e63c"
                        Grid.Column="1">

@@ -1,3 +1,6 @@
+$path = "C:\Users\mezan\source\repos\BuildForce\BuildForce\Views\Dashboardpage.xaml.cs"
+
+@'
 #pragma warning disable CA1416
 using BuildForce.Services;
 
@@ -25,7 +28,7 @@ public partial class DashboardPage : ContentPage
 
     private void StartClock()
     {
-        DateLabel.Text = $"- {DateTime.Now:dddd, MMMM d, yyyy}";
+        DateLabel.Text = $"— {DateTime.Now:dddd, MMMM d, yyyy}";
         var name = Preferences.Get("full_name", "");
         var email = Preferences.Get("email", "");
         WelcomeLabel.Text = $"Welcome back, {(string.IsNullOrEmpty(name) ? email : name)}";
@@ -51,9 +54,9 @@ public partial class DashboardPage : ContentPage
             if (data != null)
             {
                 RevenueLabel.Text = data.TotalRevenue.ToString("C0");
-                RevBadge.Text = $"{data.PaidInvoices} paid invoices - Collected";
+                RevBadge.Text = $"✅ {data.PaidInvoices} paid invoices · Collected";
                 PendingLabel.Text = data.OutstandingBalance.ToString("C0");
-                PendBadge.Text = $"{data.PendingInvoices} invoices out - Outstanding";
+                PendBadge.Text = $"🕐 {data.PendingInvoices} invoices out · Outstanding";
                 ExpensesLabel.Text = data.Expenses.ToString("C0");
                 ProfitLabel.Text = data.NetProfit.ToString("C0");
 
@@ -100,10 +103,7 @@ public partial class DashboardPage : ContentPage
                 }
             }
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Dashboard LoadData error: {ex}");
-        }
+        catch { }
         finally
         {
             Loading.IsRunning = false;
@@ -111,42 +111,13 @@ public partial class DashboardPage : ContentPage
         }
     }
 
-    private static Page? HostPage => Application.Current?.MainPage;
-
-    private static async Task ShowErrorAsync(string title, string message)
-    {
-        var host = HostPage;
-        if (host != null)
-            await host.DisplayAlert(title, message, "OK");
-    }
-
-    // NATIVE: open in-app project creation form (modal - works with dock architecture)
+    // NATIVE: navigate to in-app project creation form
     private async void OnNewProject(object sender, TappedEventArgs e)
-    {
-        try
-        {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new ProjectCreatePage(_api));
-        }
-        catch (Exception ex)
-        {
-            await ShowErrorAsync("Navigation Error", $"Could not open Project form: {ex.Message}");
-        }
-    }
+        => await Shell.Current.GoToAsync("ProjectCreatePage");
 
-    // NATIVE: open in-app expense logging form (modal - works with dock architecture)
+    // NATIVE: navigate to in-app expense logging form
     private async void OnLogExpense(object sender, TappedEventArgs e)
-    {
-        try
-        {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new ExpenseCreatePage(_api));
-        }
-        catch (Exception ex)
-        {
-            await ShowErrorAsync("Navigation Error", $"Could not open Expense form: {ex.Message}");
-        }
-    }
+        => await Shell.Current.GoToAsync("ExpenseCreatePage");
 
     // NOT YET NATIVE: Invoices don't have a create API endpoint yet.
     private async void OnNewInvoice(object sender, TappedEventArgs e)
@@ -158,14 +129,11 @@ public partial class DashboardPage : ContentPage
 
     private async void OnViewAllProjects(object sender, TappedEventArgs e)
     {
-        try
-        {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new ProjectsPage());
-        }
-        catch (Exception ex)
-        {
-            await ShowErrorAsync("Navigation Error", $"Could not open Projects: {ex.Message}");
-        }
+        var projectsPage = Handler?.MauiContext?.Services.GetService<ProjectsPage>();
+        if (projectsPage != null)
+            await Navigation.PushAsync(projectsPage);
     }
 }
+'@ | Set-Content -Path $path -Encoding UTF8
+
+Write-Host "DONE: Dashboardpage.xaml.cs overwritten with native navigation" -ForegroundColor Green

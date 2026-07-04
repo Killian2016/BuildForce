@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.SafetyCheckPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0a1628">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,24,16,40" Spacing="16">
+
+            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                <Label Text="SAFETY CHECK"
+                       FontSize="11" FontAttributes="Bold"
+                       TextColor="#6b7280" CharacterSpacing="2"
+                       HorizontalOptions="Center" />
+                <Label Text="Before You Clock In"
+                       FontSize="22" FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
+                <Label Text="Please confirm the following before starting work"
+                       FontSize="13" TextColor="#6b7280"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <Border BackgroundColor="#1a2e14"
+                    Stroke="#22c55e" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 50"
+                    WidthRequest="80" HeightRequest="80"
+                    HorizontalOptions="Center">
+                <Label Text="SAFETY" FontSize="16" FontAttributes="Bold"
+                       TextColor="#22c55e"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <Border BackgroundColor="#111f38"
+                    Stroke="#1e3a5f" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="16">
+                <VerticalStackLayout Spacing="0">
+
+                    <Label Text="PPE AND EQUIPMENT"
+                           FontSize="10" FontAttributes="Bold"
+                           TextColor="#6b7280" CharacterSpacing="1"
+                           Margin="0,0,0,12" />
+
+                    <Grid ColumnDefinitions="*,Auto" Padding="0,12,0,12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Do you have your required PPE?"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="White" />
+                            <Label Text="Hard hat, safety vest, steel-toed boots"
+                                   FontSize="11" TextColor="#6b7280" />
+                        </VerticalStackLayout>
+                        <Switch x:Name="PpeSwitch"
+                                Grid.Column="1"
+                                OnColor="#22c55e"
+                                ThumbColor="White"
+                                VerticalOptions="Center" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#1e3a5f" />
+
+                    <Grid ColumnDefinitions="*,Auto" Padding="0,12,0,12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Are you fit for duty today?"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="White" />
+                            <Label Text="Not impaired, rested, physically ready"
+                                   FontSize="11" TextColor="#6b7280" />
+                        </VerticalStackLayout>
+                        <Switch x:Name="FitSwitch"
+                                Grid.Column="1"
+                                OnColor="#22c55e"
+                                ThumbColor="White"
+                                VerticalOptions="Center" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#1e3a5f" />
+
+                    <Grid ColumnDefinitions="*,Auto" Padding="0,12,0,12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Reviewed today's safety plan?"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="White" />
+                            <Label Text="Hazard assessment and job briefing complete"
+                                   FontSize="11" TextColor="#6b7280" />
+                        </VerticalStackLayout>
+                        <Switch x:Name="SafetyPlanSwitch"
+                                Grid.Column="1"
+                                OnColor="#22c55e"
+                                ThumbColor="White"
+                                VerticalOptions="Center" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#1e3a5f" />
+
+                    <Grid ColumnDefinitions="*,Auto" Padding="0,12,0,0">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Is your work area clear and safe?"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="White" />
+                            <Label Text="No trip hazards, proper lighting, clear exits"
+                                   FontSize="11" TextColor="#6b7280" />
+                        </VerticalStackLayout>
+                        <Switch x:Name="WorkAreaSwitch"
+                                Grid.Column="1"
+                                OnColor="#22c55e"
+                                ThumbColor="White"
+                                VerticalOptions="Center" />
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <Label x:Name="StatusLabel"
+                   Text="Please confirm all safety items above"
+                   FontSize="12"
+                   TextColor="#f59e0b"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center" />
+
+            <Button x:Name="ProceedBtn"
+                    Text="Confirm and Clock In"
+                    BackgroundColor="#374151"
+                    TextColor="#6b7280"
+                    FontSize="16" FontAttributes="Bold"
+                    HeightRequest="54"
+                    CornerRadius="14"
+                    IsEnabled="False"
+                    Clicked="OnProceed" />
+
+            <Button Text="Cancel"
+                    BackgroundColor="Transparent"
+                    TextColor="#6b7280"
+                    FontSize="14"
+                    HeightRequest="44"
+                    Clicked="OnCancel" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

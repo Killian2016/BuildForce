@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1416
+#pragma warning disable CA1416
 using BuildForce.Services;
 
 namespace BuildForce.Views;
@@ -11,6 +11,12 @@ public partial class ProjectsPage : ContentPage
     {
         InitializeComponent();
         _api = new ApiService();
+        LoadProjects();
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
         LoadProjects();
     }
 
@@ -54,13 +60,13 @@ public partial class ProjectsPage : ContentPage
                     StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 10 },
                     Stroke = Colors.Transparent,
                     Padding = new Thickness(8),
-                    Content = new Label { Text = "🏢", FontSize = 16 }
+                    Content = new Label { Text = "\U0001F3E2", FontSize = 16 }
                 };
 
                 var info = new VerticalStackLayout { Spacing = 2 };
-                info.Add(new Label { Text = p.Name, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Colors.White });
+                info.Add(new Label { Text = p.Name, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Colors.White, LineBreakMode = LineBreakMode.TailTruncation });
                 info.Add(new Label { Text = p.Client, FontSize = 11, TextColor = Color.FromArgb("#6b7280") });
-                info.Add(new Label { Text = p.Location, FontSize = 11, TextColor = Color.FromArgb("#6b7280") });
+                info.Add(new Label { Text = p.Location, FontSize = 11, TextColor = Color.FromArgb("#6b7280"), LineBreakMode = LineBreakMode.TailTruncation });
 
                 var badge = new Border
                 {
@@ -99,9 +105,15 @@ public partial class ProjectsPage : ContentPage
                     Padding = new Thickness(0, 16)
                 }
             };
+            var tap = new TapGestureRecognizer();
+            tap.Tapped += OnCreateProject;
+            createBtn.GestureRecognizers.Add(tap);
             ProjectList.Children.Add(createBtn);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ProjectsPage LoadProjects error: {ex}");
+        }
         finally
         {
             Loading.IsRunning = false;
@@ -109,6 +121,20 @@ public partial class ProjectsPage : ContentPage
         }
     }
 
-    private async void OnCreateProject(object sender, TappedEventArgs e)
-        => await Browser.OpenAsync("https://mezanoconstructionmanagementplatform.com/Project/Create");
+    // NATIVE: open in-app project creation form (modal - same pattern as Dashboard)
+    private async void OnCreateProject(object? sender, TappedEventArgs e)
+    {
+        try
+        {
+            var host = Application.Current?.MainPage
+                ?? throw new InvalidOperationException("No main page available.");
+            await host.Navigation.PushModalAsync(new ProjectCreatePage(_api));
+        }
+        catch (Exception ex)
+        {
+            var host = Application.Current?.MainPage;
+            if (host != null)
+                await host.DisplayAlert("Navigation Error", $"Could not open Project form: {ex.Message}", "OK");
+        }
+    }
 }
