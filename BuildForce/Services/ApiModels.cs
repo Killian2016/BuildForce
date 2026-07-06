@@ -1,4 +1,4 @@
-﻿namespace BuildForce.Services;
+namespace BuildForce.Services;
 public class DashboardData
 {
     public decimal TotalRevenue { get; set; }
@@ -80,6 +80,8 @@ public class TimesheetEntry
     public double? ClockInLongitude { get; set; }
     public double? ClockOutLatitude { get; set; }
     public double? ClockOutLongitude { get; set; }
+    public DateTime? BreakStartTime { get; set; }
+    public int BreakMinutes { get; set; }
     public string? EmployeeName { get; set; }
     public string? ProjectName { get; set; }
 }
@@ -90,6 +92,13 @@ public class ClockInResult
     public DateTime Date { get; set; }
     public string Status { get; set; } = "";
     public DateTime? ClockInTime { get; set; }
+    public string Message { get; set; } = "";
+}
+public class BreakResult
+{
+    public int TimesheetId { get; set; }
+    public DateTime? BreakStartTime { get; set; }
+    public int BreakMinutes { get; set; }
     public string Message { get; set; } = "";
 }
 public class ClockOutResult

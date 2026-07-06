@@ -3,217 +3,289 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BuildForce.Views.TimeClockPage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#0a1628">
+             BackgroundColor="#eef1f8">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16,20,16,100" Spacing="14">
+    <Grid RowDefinitions="4,*">
 
-            <!-- Header -->
-            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
-                <Label Text="TIME CLOCK"
-                       FontSize="11" FontAttributes="Bold"
-                       TextColor="#6b7280" CharacterSpacing="2"
-                       VerticalOptions="Center" />
-                <Border x:Name="ClockedInBadge"
-                        BackgroundColor="#0d2e1a"
-                        Stroke="#22c55e" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 20"
-                        Padding="10,5"
-                        Grid.Column="1"
-                        IsVisible="False">
-                    <Label Text="LIVE" FontSize="10"
-                           FontAttributes="Bold" TextColor="#22c55e" />
-                </Border>
-            </Grid>
+        <!-- Gradient stripe -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+            <BoxView Color="#f0a500" />
+            <BoxView Color="#0ea5e9" Grid.Column="1" />
+            <BoxView Color="#10b981" Grid.Column="2" />
+        </Grid>
 
-            <!-- Employee Card -->
-            <Border BackgroundColor="#111f38"
-                    Stroke="#1e3a5f" StrokeThickness="1"
-                    StrokeShape="RoundRectangle 14"
-                    Padding="14,12">
-                <Grid ColumnDefinitions="Auto,*">
-                    <Border BackgroundColor="#1e3a5f"
-                            StrokeShape="RoundRectangle 22"
-                            Stroke="Transparent"
-                            WidthRequest="44" HeightRequest="44">
-                        <Label Text="👷" FontSize="22"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,16,16,100" Spacing="14">
+
+                <!-- Breadcrumb + live badge -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="FIELD &#x203A; TIME CLOCK"
+                           FontSize="11" FontAttributes="Bold"
+                           TextColor="#64748b" CharacterSpacing="2"
+                           VerticalOptions="Center" />
+                    <Border x:Name="ClockedInBadge"
+                            BackgroundColor="#e7f8f1"
+                            Stroke="#10b981" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="10,4"
+                            Grid.Column="1"
+                            IsVisible="False">
+                        <Label Text="LIVE" FontSize="10"
+                               FontAttributes="Bold" TextColor="#10b981" />
                     </Border>
-                    <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0"
-                                        Spacing="2" VerticalOptions="Center">
-                        <Label x:Name="EmployeeNameLabel"
-                               Text="Loading..."
-                               FontSize="15" FontAttributes="Bold"
-                               TextColor="White" />
-                        <Label Text="Field Employee"
-                               FontSize="11" TextColor="#6b7280" />
+                </Grid>
+
+                <!-- Employee card -->
+                <Border BackgroundColor="White"
+                        Stroke="#e2e8f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="14,12">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <Border BackgroundColor="#fdf3dd"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 22"
+                                WidthRequest="44" HeightRequest="44">
+                            <Label x:Name="AvatarLabel" Text="--"
+                                   FontSize="15" FontAttributes="Bold"
+                                   TextColor="#f0a500"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0"
+                                             Spacing="2" VerticalOptions="Center">
+                            <Label x:Name="EmployeeNameLabel"
+                                   Text="Loading..."
+                                   FontSize="15" FontAttributes="Bold"
+                                   TextColor="#1a2233" />
+                            <Label x:Name="NowDateLabel"
+                                   Text=""
+                                   FontSize="11" TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Timer card with progress ring -->
+                <Border BackgroundColor="White"
+                        Stroke="#e2e8f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="18,22">
+                    <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+
+                        <Label x:Name="StatusLabel"
+                               Text="NOT CLOCKED IN"
+                               FontSize="12" FontAttributes="Bold"
+                               TextColor="#64748b"
+                               CharacterSpacing="1"
+                               HorizontalOptions="Center" />
+
+                        <Grid WidthRequest="230" HeightRequest="230"
+                              HorizontalOptions="Center">
+                            <GraphicsView x:Name="RingView"
+                                          WidthRequest="230" HeightRequest="230" />
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="3">
+                                <Label x:Name="TimerLabel"
+                                       Text="00:00:00"
+                                       FontSize="34" FontAttributes="Bold"
+                                       TextColor="#1a2233"
+                                       HorizontalOptions="Center" />
+                                <Label Text="SHIFT ELAPSED"
+                                       FontSize="9" FontAttributes="Bold"
+                                       TextColor="#94a3b8" CharacterSpacing="2"
+                                       HorizontalOptions="Center" />
+                                <Border x:Name="StatusChip"
+                                        BackgroundColor="#eef1f8"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 20"
+                                        Padding="12,4"
+                                        HorizontalOptions="Center"
+                                        Margin="0,6,0,0">
+                                    <Label x:Name="StatusChipLabel"
+                                           Text="CLOCKED OUT"
+                                           FontSize="10" FontAttributes="Bold"
+                                           TextColor="#64748b"
+                                           CharacterSpacing="1" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Buttons -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8"
+                              WidthRequest="320">
+                            <Button x:Name="ClockInBtn"
+                                    Text="Clock In"
+                                    BackgroundColor="#cbd5e1"
+                                    TextColor="#64748b"
+                                    FontSize="14" FontAttributes="Bold"
+                                    HeightRequest="52"
+                                    CornerRadius="12"
+                                    IsEnabled="False"
+                                    Clicked="OnClockIn" />
+                            <Button x:Name="BreakBtn"
+                                    Text="Break"
+                                    BackgroundColor="White"
+                                    TextColor="#94a3b8"
+                                    BorderColor="#e2e8f0"
+                                    BorderWidth="1"
+                                    FontSize="14" FontAttributes="Bold"
+                                    HeightRequest="52"
+                                    CornerRadius="12"
+                                    IsEnabled="False"
+                                    Grid.Column="1"
+                                    Clicked="OnBreak" />
+                            <Button x:Name="ClockOutBtn"
+                                    Text="Clock Out"
+                                    BackgroundColor="#fca5a5"
+                                    TextColor="White"
+                                    FontSize="14" FontAttributes="Bold"
+                                    HeightRequest="52"
+                                    CornerRadius="12"
+                                    IsEnabled="False"
+                                    Grid.Column="2"
+                                    Clicked="OnClockOut" />
+                        </Grid>
+
                     </VerticalStackLayout>
-                </Grid>
-            </Border>
-
-            <!-- Project Picker -->
-            <Border BackgroundColor="#111f38"
-                    Stroke="#1e3a5f" StrokeThickness="1"
-                    StrokeShape="RoundRectangle 14"
-                    Padding="4,0">
-                <Grid ColumnDefinitions="Auto,*">
-                    <Label Text="🏗" FontSize="16"
-                           Margin="14,0,0,0"
-                           VerticalOptions="Center" />
-                    <Picker x:Name="ProjectPicker"
-                            Title="Select Project"
-                            TextColor="White"
-                            TitleColor="#6b7280"
-                            BackgroundColor="Transparent"
-                            Grid.Column="1"
-                            Margin="4,0" />
-                </Grid>
-            </Border>
-
-            <!-- Cost Code Picker -->
-            <Border BackgroundColor="#111f38"
-                    Stroke="#1e3a5f" StrokeThickness="1"
-                    StrokeShape="RoundRectangle 14"
-                    Padding="4,0">
-                <Grid ColumnDefinitions="Auto,*">
-                    <Label Text="Cost Code:"
-                           FontSize="13" TextColor="#6b7280"
-                           Margin="14,0,0,0"
-                           VerticalOptions="Center" />
-                    <Picker x:Name="CostCodePicker"
-                            Title="Select..."
-                            TextColor="White"
-                            TitleColor="#6b7280"
-                            BackgroundColor="Transparent"
-                            Grid.Column="1"
-                            Margin="4,0" />
-                </Grid>
-            </Border>
-
-            <!-- GPS + Geofence Pills Row -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                <Border x:Name="LocationPill"
-                        BackgroundColor="#0d1f38"
-                        Stroke="#1e3a5f" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 20"
-                        Padding="10,6"
-                        IsVisible="False">
-                    <Label x:Name="LocationLabel"
-                           Text="Getting GPS..."
-                           FontSize="10" TextColor="#22c55e"
-                           HorizontalOptions="Center" />
                 </Border>
-                <Border x:Name="GeofencePill"
-                        BackgroundColor="#0d1f38"
-                        Stroke="#1e3a5f" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 20"
-                        Padding="10,6"
-                        IsVisible="False"
-                        Grid.Column="1">
-                    <Label x:Name="GeofenceLabel"
-                           Text="Checking..."
-                           FontSize="10" TextColor="#f59e0b"
-                           HorizontalOptions="Center" />
+
+                <!-- Project picker -->
+                <Border BackgroundColor="White"
+                        Stroke="#e2e8f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="14,4">
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="PROJECT"
+                               FontSize="9" FontAttributes="Bold"
+                               TextColor="#94a3b8" CharacterSpacing="2"
+                               Margin="0,8,0,0" />
+                        <Picker x:Name="ProjectPicker"
+                                Title="Select Project"
+                                TextColor="#1a2233"
+                                TitleColor="#94a3b8"
+                                BackgroundColor="Transparent" />
+                    </VerticalStackLayout>
                 </Border>
-            </Grid>
 
-            <!-- Retry Location Button -->
-            <Button x:Name="RetryLocationBtn"
-                    Text="🔄 Retry Location Check"
-                    BackgroundColor="#1e3a5f"
-                    TextColor="White"
-                    FontSize="12"
-                    HeightRequest="40"
-                    CornerRadius="10"
-                    IsVisible="False"
-                    Clicked="OnRetryLocation" />
+                <!-- Cost code picker -->
+                <Border BackgroundColor="White"
+                        Stroke="#e2e8f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="14,4">
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="COST CODE"
+                               FontSize="9" FontAttributes="Bold"
+                               TextColor="#94a3b8" CharacterSpacing="2"
+                               Margin="0,8,0,0" />
+                        <Picker x:Name="CostCodePicker"
+                                Title="Select..."
+                                TextColor="#1a2233"
+                                TitleColor="#94a3b8"
+                                BackgroundColor="Transparent" />
+                    </VerticalStackLayout>
+                </Border>
 
-            <!-- Main Timer Card -->
-            <Border BackgroundColor="#111f38"
-                    Stroke="#1e3a5f" StrokeThickness="1"
-                    StrokeShape="RoundRectangle 20"
-                    Padding="20,24">
-                <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                <!-- GPS / geofence card -->
+                <Border BackgroundColor="White"
+                        Stroke="#e2e8f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="14,12">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="SITE GEOFENCE"
+                               FontSize="9" FontAttributes="Bold"
+                               TextColor="#94a3b8" CharacterSpacing="2" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border x:Name="GeoIconBox"
+                                    BackgroundColor="#fdf3dd"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 10"
+                                    WidthRequest="40" HeightRequest="40">
+                                <Label x:Name="GeoIconLabel" Text="&#x25CE;"
+                                       FontSize="18" TextColor="#f0a500"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2"
+                                                 VerticalOptions="Center">
+                                <Label x:Name="GeofenceLabel"
+                                       Text="Waiting for GPS..."
+                                       FontSize="13" FontAttributes="Bold"
+                                       TextColor="#f0a500" />
+                                <Label x:Name="LocationLabel"
+                                       Text="Getting location..."
+                                       FontSize="11" TextColor="#64748b" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Button x:Name="RetryLocationBtn"
+                                Text="Retry Location Check"
+                                BackgroundColor="#eef1f8"
+                                TextColor="#1a2233"
+                                FontSize="12"
+                                HeightRequest="38"
+                                CornerRadius="10"
+                                IsVisible="False"
+                                Clicked="OnRetryLocation" />
+                    </VerticalStackLayout>
+                </Border>
 
-                    <Label x:Name="StatusLabel"
-                           Text="NOT CLOCKED IN"
-                           FontSize="12" FontAttributes="Bold"
-                           TextColor="#6b7280"
-                           CharacterSpacing="1"
-                           HorizontalOptions="Center" />
+                <!-- Stats card -->
+                <Border BackgroundColor="White"
+                        Stroke="#e2e8f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="16,14">
+                    <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto"
+                          RowSpacing="4">
+                        <Label Text="TODAY"
+                               FontSize="9" FontAttributes="Bold"
+                               TextColor="#94a3b8" CharacterSpacing="1" />
+                        <Label Text="THIS WEEK" Grid.Column="1"
+                               FontSize="9" FontAttributes="Bold"
+                               TextColor="#94a3b8" CharacterSpacing="1" />
+                        <Label Text="BREAK" Grid.Column="2"
+                               FontSize="9" FontAttributes="Bold"
+                               TextColor="#94a3b8" CharacterSpacing="1" />
+                        <Label x:Name="TodayHoursLabel"
+                               Text="0.0h" Grid.Row="1"
+                               FontSize="20" FontAttributes="Bold"
+                               TextColor="#10b981" />
+                        <Label x:Name="WeekHoursLabel"
+                               Text="0.0h" Grid.Row="1" Grid.Column="1"
+                               FontSize="20" FontAttributes="Bold"
+                               TextColor="#0ea5e9" />
+                        <Label x:Name="BreakTotalLabel"
+                               Text="0m" Grid.Row="1" Grid.Column="2"
+                               FontSize="20" FontAttributes="Bold"
+                               TextColor="#f0a500" />
+                        <Label x:Name="ActiveCostCodeLabel"
+                               Text="Cost code: none" Grid.Row="2" Grid.ColumnSpan="3"
+                               FontSize="11" TextColor="#64748b"
+                               Margin="0,4,0,0" />
+                    </Grid>
+                </Border>
 
-                    <Label x:Name="TimerLabel"
-                           Text="00:00:00"
-                           FontSize="52" FontAttributes="Bold"
-                           TextColor="White"
-                           HorizontalOptions="Center" />
+                <!-- Week bars -->
+                <Border BackgroundColor="White"
+                        Stroke="#e2e8f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="16,14">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="THIS WEEK BY DAY"
+                               FontSize="9" FontAttributes="Bold"
+                               TextColor="#94a3b8" CharacterSpacing="2" />
+                        <Grid x:Name="WeekBarsGrid" HeightRequest="100"
+                              ColumnSpacing="8" />
+                    </VerticalStackLayout>
+                </Border>
 
-                    <!-- Clock In Button -->
-                    <Button x:Name="ClockInBtn"
-                            Text="Clock In"
-                            BackgroundColor="#374151"
-                            TextColor="#6b7280"
-                            FontSize="16" FontAttributes="Bold"
-                            HeightRequest="54"
-                            CornerRadius="14"
-                            IsEnabled="False"
-                            Margin="0,4,0,0"
-                            Clicked="OnClockIn" />
+                <!-- Recent entries -->
+                <Label Text="RECENT ENTRIES"
+                       FontSize="10" FontAttributes="Bold"
+                       TextColor="#64748b" CharacterSpacing="2"
+                       Margin="4,6,0,0" />
 
-                    <!-- Clock Out Button -->
-                    <Button x:Name="ClockOutBtn"
-                            Text="Clock Out"
-                            BackgroundColor="#ef4444"
-                            TextColor="White"
-                            FontSize="16" FontAttributes="Bold"
-                            HeightRequest="54"
-                            CornerRadius="14"
-                            IsVisible="False"
-                            Margin="0,4,0,0"
-                            Clicked="OnClockOut" />
+                <VerticalStackLayout x:Name="HistoryList" Spacing="8" />
 
-                </VerticalStackLayout>
-            </Border>
-
-            <!-- Summary Bar -->
-            <Border BackgroundColor="#111f38"
-                    Stroke="#1e3a5f" StrokeThickness="1"
-                    StrokeShape="RoundRectangle 16"
-                    Padding="18,14">
-                <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" RowSpacing="4">
-                    <Label Text="TODAY" Grid.Column="0"
-                           FontSize="10" FontAttributes="Bold"
-                           TextColor="#6b7280" CharacterSpacing="1" />
-                    <Label Text="THIS WEEK" Grid.Column="1"
-                           FontSize="10" FontAttributes="Bold"
-                           TextColor="#6b7280" CharacterSpacing="1" />
-                    <Label Text="COST CODE" Grid.Column="2"
-                           FontSize="10" FontAttributes="Bold"
-                           TextColor="#6b7280" CharacterSpacing="1" />
-                    <Label x:Name="TodayHoursLabel"
-                           Text="0.0h" Grid.Row="1" Grid.Column="0"
-                           FontSize="22" FontAttributes="Bold"
-                           TextColor="White" />
-                    <Label x:Name="WeekHoursLabel"
-                           Text="0.0h" Grid.Row="1" Grid.Column="1"
-                           FontSize="22" FontAttributes="Bold"
-                           TextColor="White" />
-                    <Label x:Name="ActiveCostCodeLabel"
-                           Text="None" Grid.Row="1" Grid.Column="2"
-                           FontSize="15" FontAttributes="Bold"
-                           TextColor="#c8e63c" />
-                </Grid>
-            </Border>
-
-            <!-- Recent Entries -->
-            <Label Text="RECENT ENTRIES"
-                   FontSize="10" FontAttributes="Bold"
-                   TextColor="#6b7280" CharacterSpacing="2"
-                   Margin="4,6,0,0" />
-
-            <VerticalStackLayout x:Name="HistoryList" Spacing="8" />
-
-        </VerticalStackLayout>
-    </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

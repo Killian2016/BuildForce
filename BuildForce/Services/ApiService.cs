@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1416
+#pragma warning disable CA1416
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -423,6 +423,50 @@ public class ApiService
         catch { return null; }
     }
 
+    public async Task<BreakResult?> StartBreakAsync(int timesheetId)
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsync($"/api/mobile/timesheets/break/start/{timesheetId}", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = await response.Content.ReadAsStringAsync();
+                return null;
+            }
+            var json = await response.Content.ReadAsStringAsync();
+            return System.Text.Json.JsonSerializer.Deserialize<BreakResult>(json,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
+    public async Task<BreakResult?> EndBreakAsync(int timesheetId)
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsync($"/api/mobile/timesheets/break/end/{timesheetId}", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = await response.Content.ReadAsStringAsync();
+                return null;
+            }
+            var json = await response.Content.ReadAsStringAsync();
+            return System.Text.Json.JsonSerializer.Deserialize<BreakResult>(json,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
     public async Task<ClockInResult?> ClockInAsync(int projectId, double lat, double lng, string? description = null)
     {
         try
@@ -451,7 +495,7 @@ public class ApiService
         }
     }
 
-    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng)
+    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng, bool injuryReported = false, string? injuryDetails = null)
     {
         try
         {
@@ -459,7 +503,9 @@ public class ApiService
             var response = await _client.PostAsJsonAsync($"/api/mobile/timesheets/clockout/{timesheetId}", new
             {
                 latitude = lat,
-                longitude = lng
+                longitude = lng,
+                injuryReported,
+                injuryDetails
             });
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"ClockOut response ({response.StatusCode}): {json}");

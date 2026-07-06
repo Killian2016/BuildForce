@@ -1,10 +1,16 @@
-﻿namespace BuildForce.Views;
+namespace BuildForce.Views;
 
-[QueryProperty(nameof(ElapsedHours), "hours")]
-[QueryProperty(nameof(ProjectName), "project")]
-[QueryProperty(nameof(TimesheetId), "timesheetId")]
+public class InjuryReportResult
+{
+    public bool Confirmed { get; set; }
+    public bool InjuryReported { get; set; }
+    public string InjuryDetails { get; set; } = "";
+}
+
 public partial class InjuryReportPage : ContentPage
 {
+    public TaskCompletionSource<InjuryReportResult> Result { get; } = new();
+
     public string ElapsedHours
     {
         set => HoursLabel.Text = value;
@@ -40,13 +46,11 @@ public partial class InjuryReportPage : ContentPage
         bool ready = AccurateSwitch.IsToggled &&
                      (NoInjurySwitch.IsToggled ||
                       (!NoInjurySwitch.IsToggled && !string.IsNullOrWhiteSpace(InjuryEditor.Text)));
-
         ClockOutBtn.IsEnabled = ready;
         ClockOutBtn.BackgroundColor = ready
             ? Color.FromArgb("#ef4444")
             : Color.FromArgb("#374151");
         ClockOutBtn.TextColor = ready ? Colors.White : Color.FromArgb("#6b7280");
-
         StatusLabel.Text = ready
             ? "Ready to complete clock out"
             : "Please confirm all items above";
@@ -67,16 +71,24 @@ public partial class InjuryReportPage : ContentPage
                 "OK");
         }
 
-        await Shell.Current.GoToAsync("..", new Dictionary<string, object>
+        Result.TrySetResult(new InjuryReportResult
         {
-            { "ClockOutConfirmed", true },
-            { "InjuryReported", injuryReported },
-            { "InjuryDetails", injuryDetails }
+            Confirmed = true,
+            InjuryReported = injuryReported,
+            InjuryDetails = injuryDetails
         });
+        await Navigation.PopModalAsync();
     }
 
     private async void OnCancel(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("..");
+        Result.TrySetResult(new InjuryReportResult { Confirmed = false });
+        await Navigation.PopModalAsync();
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        Result.TrySetResult(new InjuryReportResult { Confirmed = false });
+        return base.OnBackButtonPressed();
     }
 }
