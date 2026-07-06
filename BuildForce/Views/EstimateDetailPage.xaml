@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.EstimateDetailPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#eef1f8">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="12">
+
+            <Border BackgroundColor="White" Stroke="Transparent"
+                    StrokeShape="RoundRectangle 16" Padding="0">
+                <Border.Shadow>
+                    <Shadow Brush="#1a2340" Offset="0,2" Radius="10" Opacity="0.08" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+                    <Grid HeightRequest="5">
+                        <Grid.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#f0a500" Offset="0.0" />
+                                <GradientStop Color="#0ea5e9" Offset="0.5" />
+                                <GradientStop Color="#10b981" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                    </Grid>
+                    <VerticalStackLayout Padding="18,14,18,16" Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="SALES  &#x203A;  ESTIMATES  &#x203A;  DETAILS"
+                                   FontSize="10" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="2"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1"
+                                    BackgroundColor="#eef1f8" Stroke="#d8deeb" StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 18" Padding="12,6">
+                                <Label Text="&#x2190; Back" FontSize="12" FontAttributes="Bold"
+                                       TextColor="#1a2340" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBack" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
+                        <Label x:Name="TitleLabel" Text="Loading..."
+                               FontSize="22" FontAttributes="Bold" TextColor="#1a2340" />
+                        <HorizontalStackLayout Spacing="8">
+                            <Border x:Name="StatusPill"
+                                    BackgroundColor="#e8ecf3" Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20" Padding="10,4">
+                                <Label x:Name="StatusLabel" Text="" FontSize="10"
+                                       FontAttributes="Bold" TextColor="#5b6472" />
+                            </Border>
+                            <Label x:Name="MetaLabel" Text="" FontSize="12"
+                                   TextColor="#6b7280" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True"
+                               Color="#f0a500" Margin="0,12" />
+
+            <Border x:Name="InfoCard" BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14" IsVisible="False">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="2" Grid.Column="0">
+                            <Label Text="PROJECT" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="ProjectLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="2" Grid.Column="1">
+                            <Label Text="CUSTOMER" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="CustomerLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="2" Grid.Column="0">
+                            <Label Text="ESTIMATE DATE" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="DateLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="2" Grid.Column="1">
+                            <Label Text="VALID UNTIL" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="ValidLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="NOTES" FontSize="9" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Label x:Name="NotesLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="ItemsCard" BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14" IsVisible="False">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="LINE ITEMS" FontSize="10" FontAttributes="Bold"
+                           TextColor="#8a93a8" CharacterSpacing="1" />
+                    <VerticalStackLayout x:Name="ItemsList" Spacing="8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border x:Name="TotalsCard" BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14" IsVisible="False">
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Subtotal" FontSize="13" TextColor="#6b7280" />
+                        <Label x:Name="SubtotalLabel" Text="$0.00" FontSize="13"
+                               TextColor="#1a2340" Grid.Column="1" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Discount" FontSize="13" TextColor="#6b7280" />
+                        <Label x:Name="DiscountLabel" Text="-$0.00" FontSize="13"
+                               TextColor="#b45309" Grid.Column="1" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Tax" FontSize="13" TextColor="#6b7280" />
+                        <Label x:Name="TaxLabel" Text="$0.00" FontSize="13"
+                               TextColor="#1a2340" Grid.Column="1" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#e2e7f0" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Total" FontSize="15" FontAttributes="Bold" TextColor="#1a2340" />
+                        <Label x:Name="TotalLabel" Text="$0.00" FontSize="19" FontAttributes="Bold"
+                               TextColor="#0d7a4f" Grid.Column="1" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" x:Name="DeliveryRow" IsVisible="False">
+                <Border Grid.Column="0" BackgroundColor="#f0a500" Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12" Padding="0,13">
+                    <Label Text="&#x2709; Email to Customer" FontSize="13" FontAttributes="Bold"
+                           TextColor="#1a1a1a" HorizontalOptions="Center" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnEmail" />
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" BackgroundColor="White" Stroke="#0ea5e9" StrokeThickness="1.5"
+                        StrokeShape="RoundRectangle 12" Padding="0,13">
+                    <Label Text="&#x2193; Download PDF" FontSize="13" FontAttributes="Bold"
+                           TextColor="#0284c7" HorizontalOptions="Center" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnDownloadPdf" />
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+            <Label x:Name="DeliveryStatus" Text="" FontSize="12"
+                   TextColor="#b45309" HorizontalOptions="Center" IsVisible="False" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

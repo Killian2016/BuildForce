@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="BuildForce.Views.InvoicesPage"
+             x:Class="BuildForce.Views.ExpensesPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#eef1f8">
 
@@ -25,13 +25,27 @@
                         </Grid.Background>
                     </Grid>
                     <VerticalStackLayout Padding="18,14,18,16" Spacing="4">
-                        <Label Text="SALES  &#x203A;  INVOICES"
-                               FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="2" />
-                        <Label Text="Invoices"
-                               FontSize="24" FontAttributes="Bold" TextColor="#1a2340" />
-                        <Label x:Name="SubtitleLabel" Text=""
-                               FontSize="12" TextColor="#6b7280" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="OPERATIONS  &#x203A;  EXPENSES"
+                                       FontSize="10" FontAttributes="Bold"
+                                       TextColor="#8a93a8" CharacterSpacing="2" />
+                                <Label Text="Expenses"
+                                       FontSize="24" FontAttributes="Bold" TextColor="#1a2340" />
+                                <Label x:Name="SubtitleLabel" Text=""
+                                       FontSize="12" TextColor="#6b7280" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1"
+                                    BackgroundColor="#eef1f8" Stroke="#d8deeb" StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 18" Padding="12,6"
+                                    VerticalOptions="Start">
+                                <Label Text="&#x2190; Back" FontSize="12" FontAttributes="Bold"
+                                       TextColor="#1a2340" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBack" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
@@ -39,15 +53,11 @@
             <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                     StrokeShape="RoundRectangle 12" Padding="14,2">
                 <Entry x:Name="SearchEntry"
-                       Placeholder="Search by number, project, or customer..."
+                       Placeholder="Search by description, vendor, or category..."
                        PlaceholderColor="#9aa3b8" TextColor="#1a2340"
                        BackgroundColor="Transparent" FontSize="13"
                        TextChanged="OnSearchChanged" />
             </Border>
-
-            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
-                <HorizontalStackLayout x:Name="FilterRow" Spacing="8" />
-            </ScrollView>
 
         </VerticalStackLayout>
 
@@ -55,8 +65,8 @@
             <VerticalStackLayout Padding="16,4,16,24" Spacing="8">
                 <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True"
                                    Color="#f0a500" Margin="0,20" />
-                <VerticalStackLayout x:Name="InvoiceList" Spacing="8" />
-                <Label x:Name="EmptyLabel" Text="No invoices match."
+                <VerticalStackLayout x:Name="ExpenseList" Spacing="8" />
+                <Label x:Name="EmptyLabel" Text="No expenses match."
                        FontSize="13" TextColor="#8a93a8"
                        HorizontalOptions="Center" Margin="0,16" IsVisible="False" />
                 <Border BackgroundColor="#f0a500" Stroke="Transparent"
@@ -64,11 +74,11 @@
                     <Border.Shadow>
                         <Shadow Brush="#f0a500" Offset="0,4" Radius="12" Opacity="0.3" />
                     </Border.Shadow>
-                    <Label Text="+ Create New Invoice"
+                    <Label Text="+ Log New Expense"
                            FontSize="15" FontAttributes="Bold"
                            TextColor="#1a1a1a" HorizontalOptions="Center" Padding="0,15">
                         <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnCreateInvoice" />
+                            <TapGestureRecognizer Tapped="OnCreateExpense" />
                         </Label.GestureRecognizers>
                     </Label>
                 </Border>

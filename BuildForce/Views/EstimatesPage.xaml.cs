@@ -4,28 +4,28 @@ using Microsoft.Maui.Controls.Shapes;
 
 namespace BuildForce.Views;
 
-public partial class InvoicesPage : ContentPage
+public partial class EstimatesPage : ContentPage
 {
     private readonly ApiService _api;
-    private List<InvoiceSummary> _all = new();
+    private List<EstimateSummary> _all = new();
     private string _statusFilter = "All";
-    private readonly string[] _filters = { "All", "Paid", "Pending", "Overdue", "Draft", "Sent" };
+    private readonly string[] _filters = { "All", "Draft", "Sent", "Approved", "Rejected", "Converted", "Expired" };
     private readonly Dictionary<string, Border> _filterPills = new();
 
-    public InvoicesPage() : this(new ApiService()) { }
+    public EstimatesPage() : this(new ApiService()) { }
 
-    public InvoicesPage(ApiService api)
+    public EstimatesPage(ApiService api)
     {
         InitializeComponent();
         _api = api;
         BuildFilterRow();
-        LoadInvoices();
+        LoadEstimates();
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        LoadInvoices();
+        LoadEstimates();
     }
 
     private void BuildFilterRow()
@@ -71,17 +71,17 @@ public partial class InvoicesPage : ContentPage
         }
     }
 
-    private async void LoadInvoices()
+    private async void LoadEstimates()
     {
         try
         {
-            _all = await _api.GetInvoicesAsync();
-            SubtitleLabel.Text = $"{_all.Count} invoices \u00B7 {_all.Where(i => i.Status != "Paid").Sum(i => i.TotalAmount):C0} outstanding";
+            _all = await _api.GetEstimatesAsync();
+            SubtitleLabel.Text = $"{_all.Count} estimates \u00B7 {_all.Sum(x => x.TotalAmount):C0} quoted";
             Render(SearchEntry.Text);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"InvoicesPage load error: {ex}");
+            System.Diagnostics.Debug.WriteLine($"EstimatesPage load error: {ex}");
         }
         finally
         {
@@ -94,31 +94,33 @@ public partial class InvoicesPage : ContentPage
 
     private void Render(string? filter)
     {
-        InvoiceList.Children.Clear();
+        EstimateList.Children.Clear();
         var term = (filter ?? "").Trim().ToLowerInvariant();
         var items = _all.AsEnumerable();
 
         if (_statusFilter != "All")
-            items = items.Where(i => i.Status == _statusFilter);
+            items = items.Where(x => x.Status == _statusFilter);
 
         if (!string.IsNullOrEmpty(term))
-            items = items.Where(i =>
-                i.Number.ToLowerInvariant().Contains(term) ||
-                i.Project.ToLowerInvariant().Contains(term) ||
-                i.Client.ToLowerInvariant().Contains(term));
+            items = items.Where(x =>
+                x.EstimateNumber.ToLowerInvariant().Contains(term) ||
+                (x.ProjectName ?? "").ToLowerInvariant().Contains(term) ||
+                (x.CustomerName ?? "").ToLowerInvariant().Contains(term));
 
         var list = items.ToList();
         EmptyLabel.IsVisible = list.Count == 0 && _all.Count > 0;
 
-        foreach (var inv in list)
+        foreach (var est in list)
         {
             string amtColor, pillText, pillBg;
-            switch (inv.Status)
+            switch (est.Status)
             {
-                case "Paid":    amtColor = "#0d7a4f"; pillText = "#0d7a4f"; pillBg = "#d8f5e8"; break;
-                case "Overdue": amtColor = "#b3261e"; pillText = "#b3261e"; pillBg = "#fde3e1"; break;
-                case "Draft":   amtColor = "#5b6472"; pillText = "#5b6472"; pillBg = "#e8ecf3"; break;
-                default:        amtColor = "#b45309"; pillText = "#8a6100"; pillBg = "#fdf0d2"; break;
+                case "Approved":
+                case "Converted": amtColor = "#0d7a4f"; pillText = "#0d7a4f"; pillBg = "#d8f5e8"; break;
+                case "Rejected":
+                case "Expired":   amtColor = "#b3261e"; pillText = "#b3261e"; pillBg = "#fde3e1"; break;
+                case "Sent":      amtColor = "#1e50a0"; pillText = "#1e50a0"; pillBg = "#dde9fb"; break;
+                default:          amtColor = "#5b6472"; pillText = "#5b6472"; pillBg = "#e8ecf3"; break;
             }
 
             var card = new Border
@@ -141,13 +143,13 @@ public partial class InvoicesPage : ContentPage
             };
 
             var left = new VerticalStackLayout { Spacing = 2 };
-            left.Add(new Label { Text = $"{inv.Number} \u00B7 {inv.Date:MMM d, yyyy}", FontSize = 11, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#8a93a8") });
-            left.Add(new Label { Text = string.IsNullOrWhiteSpace(inv.Project) ? "(no project)" : inv.Project, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#1a2340"), LineBreakMode = LineBreakMode.TailTruncation });
-            if (!string.IsNullOrWhiteSpace(inv.Client))
-                left.Add(new Label { Text = inv.Client, FontSize = 11, TextColor = Color.FromArgb("#6b7280") });
+            left.Add(new Label { Text = $"{est.EstimateNumber} \u00B7 {est.EstimateDate:MMM d, yyyy}", FontSize = 11, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#8a93a8") });
+            left.Add(new Label { Text = string.IsNullOrWhiteSpace(est.ProjectName) ? "(no project)" : est.ProjectName, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#1a2340"), LineBreakMode = LineBreakMode.TailTruncation });
+            if (!string.IsNullOrWhiteSpace(est.CustomerName))
+                left.Add(new Label { Text = est.CustomerName, FontSize = 11, TextColor = Color.FromArgb("#6b7280") });
 
             var right = new VerticalStackLayout { Spacing = 4, HorizontalOptions = LayoutOptions.End };
-            right.Add(new Label { Text = inv.Amount.ToString("C0"), FontSize = 17, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb(amtColor), HorizontalOptions = LayoutOptions.End });
+            right.Add(new Label { Text = est.TotalAmount.ToString("C0"), FontSize = 17, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb(amtColor), HorizontalOptions = LayoutOptions.End });
             right.Add(new Border
             {
                 BackgroundColor = Color.FromArgb(pillBg),
@@ -155,7 +157,7 @@ public partial class InvoicesPage : ContentPage
                 StrokeShape = new RoundRectangle { CornerRadius = 20 },
                 Padding = new Thickness(9, 3),
                 HorizontalOptions = LayoutOptions.End,
-                Content = new Label { Text = inv.Status, FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb(pillText) }
+                Content = new Label { Text = est.Status, FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb(pillText) }
             });
 
             Grid.SetColumn(left, 0);
@@ -164,12 +166,12 @@ public partial class InvoicesPage : ContentPage
             grid.Children.Add(right);
             card.Content = grid;
 
-            var invId = inv.Id;
+            var estId = est.Id;
             var tap = new TapGestureRecognizer();
-            tap.Tapped += async (s, e) => await OpenDetailAsync(invId);
+            tap.Tapped += async (s, e) => await OpenDetailAsync(estId);
             card.GestureRecognizers.Add(tap);
 
-            InvoiceList.Children.Add(card);
+            EstimateList.Children.Add(card);
         }
     }
 
@@ -177,7 +179,7 @@ public partial class InvoicesPage : ContentPage
     {
         try
         {
-            await Application.Current!.MainPage!.Navigation.PushModalAsync(new InvoiceDetailPage(_api, id));
+            await Application.Current!.MainPage!.Navigation.PushModalAsync(new EstimateDetailPage(_api, id));
         }
         catch (Exception ex)
         {
@@ -187,17 +189,29 @@ public partial class InvoicesPage : ContentPage
         }
     }
 
-    private async void OnCreateInvoice(object sender, TappedEventArgs e)
+    private async void OnCreateEstimate(object sender, TappedEventArgs e)
     {
         try
         {
-            await Application.Current!.MainPage!.Navigation.PushModalAsync(new InvoiceCreatePage(_api));
+            await Application.Current!.MainPage!.Navigation.PushModalAsync(new EstimateCreatePage(_api));
         }
         catch (Exception ex)
         {
             var host = Application.Current?.MainPage;
             if (host != null)
                 await host.DisplayAlert("Navigation Error", ex.Message, "OK");
+        }
+    }
+
+    private async void OnBack(object sender, TappedEventArgs e)
+    {
+        try
+        {
+            await Application.Current!.MainPage!.Navigation.PopModalAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Back error: {ex}");
         }
     }
 }

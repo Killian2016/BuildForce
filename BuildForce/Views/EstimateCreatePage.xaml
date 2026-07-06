@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="BuildForce.Views.ExpenseCreatePage"
+             x:Class="BuildForce.Views.EstimateCreatePage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#eef1f8">
 
@@ -25,7 +25,7 @@
                     </Grid>
                     <VerticalStackLayout Padding="18,14,18,16" Spacing="4">
                         <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="OPERATIONS  &#x203A;  EXPENSES"
+                            <Label Text="SALES  &#x203A;  ESTIMATES"
                                    FontSize="10" FontAttributes="Bold"
                                    TextColor="#8a93a8" CharacterSpacing="2"
                                    VerticalOptions="Center" />
@@ -39,28 +39,13 @@
                                 </Border.GestureRecognizers>
                             </Border>
                         </Grid>
-                        <Label Text="Log Expense"
+                        <Label Text="Create New Estimate"
                                FontSize="22" FontAttributes="Bold" TextColor="#1a2340" />
-                        <Label Text="Record a cost against a project"
+                        <Label Text="Quote a customer for work on a project"
                                FontSize="12" TextColor="#6b7280" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
-
-            <Border BackgroundColor="#0ea5e9" Stroke="Transparent"
-                    StrokeShape="RoundRectangle 12" Padding="0,14">
-                <Border.Shadow>
-                    <Shadow Brush="#0ea5e9" Offset="0,4" Radius="12" Opacity="0.3" />
-                </Border.Shadow>
-                <Label Text="&#x1F4F7;  SCAN RECEIPT" FontSize="14" FontAttributes="Bold"
-                       TextColor="White" HorizontalOptions="Center" />
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnScanReceipt" />
-                </Border.GestureRecognizers>
-            </Border>
-            <Label Text="Snap a photo of a receipt and the form fills itself in."
-                   FontSize="11" TextColor="#8a93a8"
-                   HorizontalOptions="Center" Margin="0,-6,0,0" />
 
             <Border BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
                     StrokeShape="RoundRectangle 14" Padding="16,14">
@@ -77,62 +62,61 @@
                         </Border>
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="DESCRIPTION *" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10" Padding="12,2">
-                            <Entry x:Name="DescriptionEntry"
-                                   Placeholder="e.g. Lumber for framing"
-                                   PlaceholderColor="#9aa3b8" TextColor="#1a2340"
-                                   BackgroundColor="Transparent" />
-                        </Border>
-                    </VerticalStackLayout>
-
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                         <VerticalStackLayout Spacing="6" Grid.Column="0">
-                            <Label Text="AMOUNT *" FontSize="10" FontAttributes="Bold"
+                            <Label Text="ESTIMATE DATE" FontSize="10" FontAttributes="Bold"
                                    TextColor="#8a93a8" CharacterSpacing="1" />
                             <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="12,2">
-                                <Entry x:Name="AmountEntry" Placeholder="0.00"
-                                       Keyboard="Numeric" PlaceholderColor="#9aa3b8"
-                                       TextColor="#1a2340" BackgroundColor="Transparent" />
+                                <DatePicker x:Name="EstimateDatePicker" TextColor="#1a2340"
+                                            BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
                         <VerticalStackLayout Spacing="6" Grid.Column="1">
-                            <Label Text="EXPENSE DATE" FontSize="10" FontAttributes="Bold"
+                            <Label Text="VALID UNTIL" FontSize="10" FontAttributes="Bold"
                                    TextColor="#8a93a8" CharacterSpacing="1" />
                             <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="12,2">
-                                <DatePicker x:Name="ExpenseDatePicker" TextColor="#1a2340"
+                                <DatePicker x:Name="ValidUntilPicker" TextColor="#1a2340"
                                             BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
                     </Grid>
 
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="CATEGORY" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10" Padding="6,0">
-                            <Picker x:Name="CategoryPicker" Title="&#8212; Select Category &#8212;"
-                                    TextColor="#1a2340" TitleColor="#9aa3b8"
-                                    BackgroundColor="Transparent" Margin="8,0" />
-                        </Border>
-                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
 
+            <Border BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="LINE ITEMS *" FontSize="10" FontAttributes="Bold"
+                           TextColor="#8a93a8" CharacterSpacing="1" />
+                    <VerticalStackLayout x:Name="LineItemsList" Spacing="10" />
+                    <Border BackgroundColor="White" Stroke="#0ea5e9" StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 10" Padding="0,11">
+                        <Label Text="+ Add Line Item" FontSize="13" FontAttributes="Bold"
+                               TextColor="#0284c7" HorizontalOptions="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAddLineItem" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14">
+                <VerticalStackLayout Spacing="14">
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="VENDOR" FontSize="10" FontAttributes="Bold"
+                        <Label Text="DISCOUNT %" FontSize="10" FontAttributes="Bold"
                                TextColor="#8a93a8" CharacterSpacing="1" />
                         <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="12,2">
-                            <Entry x:Name="VendorEntry" Placeholder="e.g. Home Depot"
-                                   PlaceholderColor="#9aa3b8" TextColor="#1a2340"
-                                   BackgroundColor="Transparent" />
+                            <Entry x:Name="DiscountEntry" Placeholder="0"
+                                   Keyboard="Numeric" PlaceholderColor="#9aa3b8"
+                                   TextColor="#1a2340" BackgroundColor="Transparent"
+                                   TextChanged="OnDiscountChanged" />
                         </Border>
                     </VerticalStackLayout>
-
                     <VerticalStackLayout Spacing="6">
                         <Label Text="NOTES" FontSize="10" FontAttributes="Bold"
                                TextColor="#8a93a8" CharacterSpacing="1" />
@@ -144,7 +128,31 @@
                                     MinimumHeightRequest="64" AutoSize="TextChanges" />
                         </Border>
                     </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
 
+            <Border BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14">
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Subtotal" FontSize="13" TextColor="#6b7280" />
+                        <Label x:Name="SubtotalLabel" Text="$0.00" FontSize="13"
+                               TextColor="#1a2340" Grid.Column="1" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Discount" FontSize="13" TextColor="#6b7280" />
+                        <Label x:Name="DiscountLabel" Text="-$0.00" FontSize="13"
+                               TextColor="#b45309" Grid.Column="1" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#e2e7f0" />
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Total before tax" FontSize="14" FontAttributes="Bold"
+                               TextColor="#1a2340" />
+                        <Label x:Name="TotalLabel" Text="$0.00" FontSize="17" FontAttributes="Bold"
+                               TextColor="#0d7a4f" Grid.Column="1" />
+                    </Grid>
+                    <Label Text="Sales tax is added automatically from your company settings when the estimate is saved."
+                           FontSize="11" TextColor="#8a93a8" />
                 </VerticalStackLayout>
             </Border>
 
@@ -156,7 +164,7 @@
                 <Border.Shadow>
                     <Shadow Brush="#f0a500" Offset="0,4" Radius="12" Opacity="0.3" />
                 </Border.Shadow>
-                <Label Text="Log Expense" FontSize="15" FontAttributes="Bold"
+                <Label Text="Create Estimate" FontSize="15" FontAttributes="Bold"
                        TextColor="#1a1a1a" HorizontalOptions="Center" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnSave" />

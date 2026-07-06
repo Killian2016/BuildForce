@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.ProjectDetailPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#eef1f8">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="12">
+
+            <Border BackgroundColor="White" Stroke="Transparent"
+                    StrokeShape="RoundRectangle 16" Padding="0">
+                <Border.Shadow>
+                    <Shadow Brush="#1a2340" Offset="0,2" Radius="10" Opacity="0.08" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+                    <Grid HeightRequest="5">
+                        <Grid.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#f0a500" Offset="0.0" />
+                                <GradientStop Color="#0ea5e9" Offset="0.5" />
+                                <GradientStop Color="#10b981" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                    </Grid>
+                    <VerticalStackLayout Padding="18,14,18,16" Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="OPERATIONS  &#x203A;  PROJECTS  &#x203A;  DETAILS"
+                                   FontSize="10" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="2"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1"
+                                    BackgroundColor="#eef1f8" Stroke="#d8deeb" StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 18" Padding="12,6">
+                                <Label Text="&#x2190; Back" FontSize="12" FontAttributes="Bold"
+                                       TextColor="#1a2340" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBack" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
+                        <Label x:Name="TitleLabel" Text="Loading..."
+                               FontSize="22" FontAttributes="Bold"
+                               TextColor="#1a2340" LineBreakMode="WordWrap" />
+                        <HorizontalStackLayout Spacing="8">
+                            <Border x:Name="StatusPill"
+                                    BackgroundColor="#e8ecf3" Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20" Padding="10,4">
+                                <Label x:Name="StatusLabel" Text=""
+                                       FontSize="10" FontAttributes="Bold"
+                                       TextColor="#5b6472" />
+                            </Border>
+                            <Label x:Name="CustomerLabel" Text=""
+                                   FontSize="12" TextColor="#6b7280"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True"
+                               Color="#f0a500" Margin="0,12" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" x:Name="MoneyRow" IsVisible="False">
+                <Border Grid.Column="0" BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="14,12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="TOTAL INVOICED" FontSize="9" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Label x:Name="InvoicedLabel" Text="$0" FontSize="20" FontAttributes="Bold"
+                               TextColor="#0d7a4f" />
+                        <Label x:Name="InvoiceCountLabel" Text="0 invoices" FontSize="10" TextColor="#8a93a8" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Grid.Column="1" BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="14,12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="TOTAL EXPENSES" FontSize="9" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Label x:Name="ExpensesLabel" Text="$0" FontSize="20" FontAttributes="Bold"
+                               TextColor="#b3261e" />
+                        <Label x:Name="ExpenseCountLabel" Text="0 expenses" FontSize="10" TextColor="#8a93a8" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <Border x:Name="InfoCard" BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14" IsVisible="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="PROJECT DETAILS" FontSize="10" FontAttributes="Bold"
+                           TextColor="#8a93a8" CharacterSpacing="1" />
+
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="JOB SITE LOCATION" FontSize="9" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Label x:Name="LocationLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="DESCRIPTION" FontSize="9" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Label x:Name="DescriptionLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="2" Grid.Column="0">
+                            <Label Text="BUDGET" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="BudgetLabel" Text="&#8212;" FontSize="13" FontAttributes="Bold"
+                                   TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="2" Grid.Column="1">
+                            <Label Text="TIMELINE" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="DatesLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" x:Name="ActionRow" IsVisible="False">
+                <Border Grid.Column="0" BackgroundColor="#f0a500" Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12" Padding="0,13">
+                    <Label Text="+ Invoice" FontSize="13" FontAttributes="Bold"
+                           TextColor="#1a1a1a" HorizontalOptions="Center" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnNewInvoice" />
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" BackgroundColor="White" Stroke="#f0a500" StrokeThickness="1.5"
+                        StrokeShape="RoundRectangle 12" Padding="0,13">
+                    <Label Text="+ Expense" FontSize="13" FontAttributes="Bold"
+                           TextColor="#b57c00" HorizontalOptions="Center" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnNewExpense" />
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

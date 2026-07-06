@@ -36,6 +36,8 @@ public static class MauiProgram
         builder.Services.AddTransient<InjuryReportPage>();
         builder.Services.AddTransient<ProjectCreatePage>();
         builder.Services.AddTransient<ExpenseCreatePage>();
+        builder.Services.AddTransient<InvoiceCreatePage>();
+        builder.Services.AddTransient<EstimateCreatePage>();
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

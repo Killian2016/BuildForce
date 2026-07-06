@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.ExpenseDetailPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#eef1f8">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="12">
+
+            <Border BackgroundColor="White" Stroke="Transparent"
+                    StrokeShape="RoundRectangle 16" Padding="0">
+                <Border.Shadow>
+                    <Shadow Brush="#1a2340" Offset="0,2" Radius="10" Opacity="0.08" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="0">
+                    <Grid HeightRequest="5">
+                        <Grid.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#f0a500" Offset="0.0" />
+                                <GradientStop Color="#0ea5e9" Offset="0.5" />
+                                <GradientStop Color="#10b981" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                    </Grid>
+                    <VerticalStackLayout Padding="18,14,18,16" Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="OPERATIONS  &#x203A;  EXPENSES  &#x203A;  DETAILS"
+                                   FontSize="10" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="2"
+                                   VerticalOptions="Center" />
+                            <Border Grid.Column="1"
+                                    BackgroundColor="#eef1f8" Stroke="#d8deeb" StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 18" Padding="12,6">
+                                <Label Text="&#x2190; Back" FontSize="12" FontAttributes="Bold"
+                                       TextColor="#1a2340" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBack" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
+                        <Label x:Name="TitleLabel" Text="Loading..."
+                               FontSize="20" FontAttributes="Bold" TextColor="#1a2340"
+                               LineBreakMode="WordWrap" />
+                        <Label x:Name="AmountLabel" Text=""
+                               FontSize="26" FontAttributes="Bold" TextColor="#b3261e" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True"
+                               Color="#f0a500" Margin="0,12" />
+
+            <Border x:Name="InfoCard" BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,14" IsVisible="False">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="2" Grid.Column="0">
+                            <Label Text="DATE" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="DateLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="2" Grid.Column="1">
+                            <Label Text="CATEGORY" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="CategoryLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <VerticalStackLayout Spacing="2" Grid.Column="0">
+                            <Label Text="VENDOR" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="VendorLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="2" Grid.Column="1">
+                            <Label Text="PROJECT" FontSize="9" FontAttributes="Bold"
+                                   TextColor="#8a93a8" CharacterSpacing="1" />
+                            <Label x:Name="ProjectLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="RECEIPT" FontSize="9" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Label x:Name="ReceiptLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="NOTES" FontSize="9" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Label x:Name="NotesLabel" Text="&#8212;" FontSize="13" TextColor="#1a2340"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
