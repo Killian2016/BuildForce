@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -467,7 +467,7 @@ public class ApiService
         }
     }
 
-    public async Task<ClockInResult?> ClockInAsync(int projectId, double lat, double lng, string? description = null)
+    public async Task<ClockInResult?> ClockInAsync(int projectId, double lat, double lng, string? description = null, string? photoBase64 = null)
     {
         try
         {
@@ -477,7 +477,8 @@ public class ApiService
                 projectId,
                 latitude = lat,
                 longitude = lng,
-                description
+                description,
+                photoBase64
             });
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"ClockIn response ({response.StatusCode}): {json}");
@@ -495,7 +496,7 @@ public class ApiService
         }
     }
 
-    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng, bool injuryReported = false, string? injuryDetails = null)
+    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng, bool injuryReported = false, string? injuryDetails = null, string? photoBase64 = null)
     {
         try
         {
@@ -505,10 +506,16 @@ public class ApiService
                 latitude = lat,
                 longitude = lng,
                 injuryReported,
-                injuryDetails
+                injuryDetails,
+                photoBase64
             });
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"ClockOut response ({response.StatusCode}): {json}");
+            if (!response.IsSuccessStatusCode)
+            {
+                await Microsoft.Maui.Controls.Application.Current!.MainPage!.DisplayAlert("Clock Out Failed",
+                    $"Status: {response.StatusCode}\n{(json.Length > 300 ? json.Substring(0, 300) : json)}", "OK");
+            }
             if (response.IsSuccessStatusCode)
             {
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -550,3 +557,5 @@ public class ApiService
         catch { return null; }
     }
 }
+
+

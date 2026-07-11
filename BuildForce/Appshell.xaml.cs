@@ -1,4 +1,4 @@
-﻿namespace BuildForce;
+namespace BuildForce;
 public partial class AppShell : Shell
 {
     public AppShell()
@@ -9,5 +9,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("InjuryReportPage", typeof(Views.InjuryReportPage));
         Routing.RegisterRoute("ProjectCreatePage", typeof(Views.ProjectCreatePage));
         Routing.RegisterRoute("ExpenseCreatePage", typeof(Views.ExpenseCreatePage));
+        
     }
 }
+

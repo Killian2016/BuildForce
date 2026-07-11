@@ -46,7 +46,7 @@ public partial class SafetyCheckPage : ContentPage
 
     protected override bool OnBackButtonPressed()
     {
-        Result.TrySetResult(false);
-        return base.OnBackButtonPressed();
+        // Swallow back: cancelling a punch must be an explicit Cancel tap.
+        return true;
     }
 }

@@ -63,14 +63,12 @@ public partial class InjuryReportPage : ContentPage
     {
         bool injuryReported = !NoInjurySwitch.IsToggled;
         string injuryDetails = InjuryEditor.Text ?? "";
-
         if (injuryReported)
         {
             await DisplayAlert("Injury Reported",
                 "Your supervisor has been notified. Please report to the site office before leaving.",
                 "OK");
         }
-
         Result.TrySetResult(new InjuryReportResult
         {
             Confirmed = true,
@@ -88,7 +86,7 @@ public partial class InjuryReportPage : ContentPage
 
     protected override bool OnBackButtonPressed()
     {
-        Result.TrySetResult(new InjuryReportResult { Confirmed = false });
-        return base.OnBackButtonPressed();
+        // Swallow back: cancelling a punch must be an explicit Cancel tap.
+        return true;
     }
 }
