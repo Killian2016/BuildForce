@@ -570,56 +570,6 @@ public partial class TimeClockPage : ContentPage
         });
     }
 
-    private async Task<string?> CapturePunchPhotoAsync()
-    {
-        try
-        {
-            if (!MediaPicker.Default.IsCaptureSupported)
-                return null;
-
-            await Task.Delay(400); // let prior modal finish popping
-            await DisplayAlert("Selfie Required",
-                "Please take a quick selfie to verify your punch. Use the front camera and make sure your face is visible.",
-                "Take Selfie");
-
-            var photo = await MediaPicker.Default.CapturePhotoAsync(new MediaPickerOptions
-            {
-                Title = "Take a selfie to verify your punch"
-            });
-            if (photo == null)
-                return null; // user cancelled - punch proceeds without photo
-
-            using var stream = await photo.OpenReadAsync();
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            var bytes = ms.ToArray();
-
-            // Downscale to keep payload small (target max 800px, ~ <200KB jpeg)
-            try
-            {
-                var img = Microsoft.Maui.Graphics.Platform.PlatformImage.FromStream(new MemoryStream(bytes));
-                if (img.Width > 800 || img.Height > 800)
-                {
-                    var resized = img.Downsize(800, disposeOriginal: true);
-                    using var outMs = new MemoryStream();
-                    await resized.SaveAsync(outMs, Microsoft.Maui.Graphics.ImageFormat.Jpeg, quality: 0.75f);
-                    bytes = outMs.ToArray();
-                }
-            }
-            catch
-            {
-                // resize failed - send original; server accepts any size
-            }
-
-            return Convert.ToBase64String(bytes);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Punch photo capture failed: {ex.Message}");
-            return null; // graceful fallback - punch proceeds
-        }
-    }
-
     private async void OnClockIn(object sender, EventArgs e)
     {
         if (_selectedProject == null)
@@ -650,7 +600,6 @@ public partial class TimeClockPage : ContentPage
             return;
         }
 
-        // Safety check gate
         var safetyPage = new SafetyCheckPage();
         await Application.Current!.MainPage!.Navigation.PushModalAsync(safetyPage);
         var safetyPassed = await safetyPage.Result.Task;
@@ -662,8 +611,9 @@ public partial class TimeClockPage : ContentPage
 
         try
         {
-            string? punchPhoto = null; // TEMP: camera disabled pending punch-first redesign
-                var result = await _api.ClockInAsync(
+            string? punchPhoto = null; // camera disabled
+            await DisplayAlert("Debug", punchPhoto == null ? "No photo captured" : $"Photo captured: {punchPhoto.Length / 1024} KB", "OK");
+            var result = await _api.ClockInAsync(
                 _selectedProject.Id,
                 _workerLat, _workerLng,
                 $"Cost Code: {_selectedCostCode}", photoBase64: punchPhoto);
@@ -753,7 +703,6 @@ public partial class TimeClockPage : ContentPage
             return;
         }
 
-        // Injury report gate
         var injuryPage = new InjuryReportPage
         {
             ElapsedHours = TimerLabel.Text,
@@ -768,8 +717,8 @@ public partial class TimeClockPage : ContentPage
 
         try
         {
-            string? punchOutPhoto = null; // TEMP: camera disabled pending punch-first redesign
-                var result = await _api.ClockOutAsync(
+            string? punchOutPhoto = null; // camera disabled
+            var result = await _api.ClockOutAsync(
                 _activeTimesheetId, _workerLat, _workerLng,
                 injuryResult.InjuryReported, injuryResult.InjuryDetails, photoBase64: punchOutPhoto);
 
@@ -970,4 +919,3 @@ public partial class TimeClockPage : ContentPage
 
     public bool IsClockedIn => _isClockedIn;
 }
-
