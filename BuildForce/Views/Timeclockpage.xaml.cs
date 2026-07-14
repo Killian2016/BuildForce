@@ -570,6 +570,45 @@ public partial class TimeClockPage : ContentPage
         });
     }
 
+    private async Task<string?> CapturePunchSelfieAsync(string punchLabel)
+    {
+        PunchCameraPage? camPage = null;
+        try
+        {
+            await Task.Delay(300);
+            camPage = new PunchCameraPage(punchLabel);
+            await Application.Current!.MainPage!.Navigation.PushModalAsync(camPage);
+
+            var done = await Task.WhenAny(camPage.Result.Task, Task.Delay(30000));
+            string? photo = (done == camPage.Result.Task) ? await camPage.Result.Task : null;
+            return photo;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("Selfie capture error: " + ex.Message);
+            return null;
+        }
+        finally
+        {
+            // The caller owns the modal lifecycle. Pop it here, exactly once,
+            // and only if the camera page is still the top modal. This avoids
+            // the modal-stack race that froze the UI when the page popped itself.
+            try
+            {
+                var nav = Application.Current?.MainPage?.Navigation;
+                if (camPage != null && nav != null && nav.ModalStack.Count > 0 &&
+                    nav.ModalStack[nav.ModalStack.Count - 1] == camPage)
+                {
+                    await nav.PopModalAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Selfie pop error: " + ex.Message);
+            }
+        }
+    }
+
     private async void OnClockIn(object sender, EventArgs e)
     {
         if (_selectedProject == null)
@@ -611,8 +650,9 @@ public partial class TimeClockPage : ContentPage
 
         try
         {
-            string? punchPhoto = null; // camera disabled
-            await DisplayAlert("Debug", punchPhoto == null ? "No photo captured" : $"Photo captured: {punchPhoto.Length / 1024} KB", "OK");
+            string? punchPhoto = await CapturePunchSelfieAsync("CLOCK IN VERIFICATION");
+
+            StatusLabel.Text = "CLOCKING IN...";
             var result = await _api.ClockInAsync(
                 _selectedProject.Id,
                 _workerLat, _workerLng,
@@ -717,7 +757,7 @@ public partial class TimeClockPage : ContentPage
 
         try
         {
-            string? punchOutPhoto = null; // camera disabled
+            string? punchOutPhoto = await CapturePunchSelfieAsync("CLOCK OUT VERIFICATION");
             var result = await _api.ClockOutAsync(
                 _activeTimesheetId, _workerLat, _workerLng,
                 injuryResult.InjuryReported, injuryResult.InjuryDetails, photoBase64: punchOutPhoto);

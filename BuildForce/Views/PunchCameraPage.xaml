@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="BuildForce.Views.PunchCameraPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#080b10">
+
+    <Grid RowDefinitions="4,Auto,*,Auto">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+            <BoxView Color="#f0a500" />
+            <BoxView Color="#0ea5e9" Grid.Column="1" />
+            <BoxView Color="#10b981" Grid.Column="2" />
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="1" Padding="18,16,18,10" Spacing="2">
+            <Label x:Name="TitleLabel"
+                   Text="PUNCH VERIFICATION"
+                   FontSize="12" FontAttributes="Bold"
+                   TextColor="#f0a500" CharacterSpacing="2" />
+            <Label x:Name="SubtitleLabel"
+                   Text="Position your face in the frame"
+                   FontSize="13" TextColor="#7d8590" />
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="2" Margin="18,4,18,4">
+            <Border Stroke="#1c2330" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18">
+                <Grid>
+                    <toolkit:CameraView x:Name="Camera" />
+
+                    <Border x:Name="CountdownBadge"
+                            BackgroundColor="#CC080b10"
+                            Stroke="#f0a500" StrokeThickness="2"
+                            StrokeShape="RoundRectangle 60"
+                            WidthRequest="120" HeightRequest="120"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            IsVisible="False">
+                        <Label x:Name="CountdownLabel"
+                               Text="3"
+                               FontSize="64" FontAttributes="Bold"
+                               TextColor="#f0a500"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <Border x:Name="ProcessingOverlay"
+                            BackgroundColor="#CC080b10"
+                            Stroke="Transparent"
+                            IsVisible="False">
+                        <VerticalStackLayout HorizontalOptions="Center"
+                                             VerticalOptions="Center" Spacing="10">
+                            <ActivityIndicator IsRunning="True" Color="#10b981" />
+                            <Label Text="Saving photo..."
+                                   FontSize="13" TextColor="#e6edf3"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="3" Padding="18,10,18,24" Spacing="10">
+            <Label x:Name="HintLabel"
+                   Text="Auto-capture starts in a moment..."
+                   FontSize="12" TextColor="#7d8590"
+                   HorizontalOptions="Center" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button x:Name="CancelBtn"
+                        Text="Cancel"
+                        BackgroundColor="#161b22"
+                        TextColor="#e6edf3"
+                        FontSize="14" FontAttributes="Bold"
+                        HeightRequest="52" CornerRadius="12"
+                        Clicked="OnCancel" />
+                <Button x:Name="RetakeBtn"
+                        Text="Capture Now"
+                        BackgroundColor="#f0a500"
+                        TextColor="#080b10"
+                        FontSize="14" FontAttributes="Bold"
+                        HeightRequest="52" CornerRadius="12"
+                        Grid.Column="1"
+                        Clicked="OnCaptureNow" />
+            </Grid>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>
