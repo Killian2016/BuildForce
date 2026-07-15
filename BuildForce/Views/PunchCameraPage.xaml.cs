@@ -170,19 +170,11 @@ public partial class PunchCameraPage : ContentPage
 
             try
             {
-                var img = Microsoft.Maui.Graphics.Platform.PlatformImage
-                    .FromStream(new MemoryStream(bytes));
-                if (img.Width > 800 || img.Height > 800)
-                {
-                    var resized = img.Downsize(800, disposeOriginal: true);
-                    using var outMs = new MemoryStream();
-                    await resized.SaveAsync(outMs,
-                        Microsoft.Maui.Graphics.ImageFormat.Jpeg, quality: 0.75f);
-                    bytes = outMs.ToArray();
-                }
+                bytes = NormalizePhoto(bytes, 800, 75);
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine("Photo normalize failed: " + ex.Message);
             }
 
             var base64 = Convert.ToBase64String(bytes);
@@ -232,5 +224,79 @@ public partial class PunchCameraPage : ContentPage
     {
         _ = Complete(null);
         return true;
+    }
+
+    // Decodes the JPEG, applies the EXIF orientation to the actual pixels,
+    // downsizes to maxDim, and re-encodes. Re-encoding drops EXIF, so the
+    // rotation MUST be baked into the pixels before saving.
+    private static byte[] NormalizePhoto(byte[] input, int maxDim, int quality)
+    {
+        using var codec = SkiaSharp.SKCodec.Create(new MemoryStream(input));
+        if (codec == null) return input;
+
+        var origin = codec.EncodedOrigin;
+
+        using var original = SkiaSharp.SKBitmap.Decode(codec);
+        if (original == null) return input;
+
+        using var upright = ApplyOrigin(original, origin);
+
+        var w = upright.Width;
+        var h = upright.Height;
+        var scale = 1.0;
+        if (w > maxDim || h > maxDim)
+            scale = (double)maxDim / Math.Max(w, h);
+
+        var targetW = Math.Max(1, (int)Math.Round(w * scale));
+        var targetH = Math.Max(1, (int)Math.Round(h * scale));
+
+        using var final = (scale < 1.0)
+            ? upright.Resize(new SkiaSharp.SKImageInfo(targetW, targetH), SkiaSharp.SKFilterQuality.Medium)
+            : upright.Copy();
+
+        if (final == null) return input;
+
+        using var image = SkiaSharp.SKImage.FromBitmap(final);
+        using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, quality);
+        return data.ToArray();
+    }
+
+    private static SkiaSharp.SKBitmap ApplyOrigin(SkiaSharp.SKBitmap src, SkiaSharp.SKEncodedOrigin origin)
+    {
+        if (origin == SkiaSharp.SKEncodedOrigin.TopLeft || origin == SkiaSharp.SKEncodedOrigin.Default)
+            return src.Copy();
+
+        var swapsDims = origin == SkiaSharp.SKEncodedOrigin.LeftTop
+                     || origin == SkiaSharp.SKEncodedOrigin.RightTop
+                     || origin == SkiaSharp.SKEncodedOrigin.RightBottom
+                     || origin == SkiaSharp.SKEncodedOrigin.LeftBottom;
+
+        var outW = swapsDims ? src.Height : src.Width;
+        var outH = swapsDims ? src.Width : src.Height;
+
+        var dst = new SkiaSharp.SKBitmap(outW, outH, src.ColorType, src.AlphaType);
+        using var canvas = new SkiaSharp.SKCanvas(dst);
+
+        switch (origin)
+        {
+            case SkiaSharp.SKEncodedOrigin.TopRight:
+                canvas.Translate(outW, 0); canvas.Scale(-1, 1); break;
+            case SkiaSharp.SKEncodedOrigin.BottomRight:
+                canvas.Translate(outW, outH); canvas.RotateDegrees(180); break;
+            case SkiaSharp.SKEncodedOrigin.BottomLeft:
+                canvas.Translate(0, outH); canvas.Scale(1, -1); break;
+            case SkiaSharp.SKEncodedOrigin.LeftTop:
+                canvas.RotateDegrees(90); canvas.Scale(1, -1); break;
+            case SkiaSharp.SKEncodedOrigin.RightTop:
+                canvas.Translate(outW, 0); canvas.RotateDegrees(90); break;
+            case SkiaSharp.SKEncodedOrigin.RightBottom:
+                canvas.Translate(outW, outH); canvas.RotateDegrees(-90); canvas.Scale(1, -1); break;
+            case SkiaSharp.SKEncodedOrigin.LeftBottom:
+                canvas.Translate(0, outH); canvas.RotateDegrees(-90); break;
+        }
+
+        canvas.DrawBitmap(src, 0, 0);
+        canvas.Flush();
+        return dst;
     }
 }
