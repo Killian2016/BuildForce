@@ -172,7 +172,7 @@ public partial class PunchCameraPage : ContentPage
             {
                 var img = Microsoft.Maui.Graphics.Platform.PlatformImage
                     .FromStream(new MemoryStream(bytes));
-                if (img.Width > 800 || img.Height > 800)
+                if (false) // TEST: bypass resize to check EXIF orientation
                 {
                     var resized = img.Downsize(800, disposeOriginal: true);
                     using var outMs = new MemoryStream();
