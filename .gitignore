@@ -17,3 +17,16 @@ bld/
 .vscode/
 .DS_Store
 Thumbs.db
+*.keystore
+
+# secrets and local scratch - never commit
+*secret*
+*.bak
+*.bak2
+*.bak3
+*.bakv21
+*.bakm4
+*.broken
+CUsers*.txt
+fix_procore.py
+

@@ -282,3 +282,41 @@ public class ExpenseDetail
     public DateTime CreatedDate { get; set; }
     public string? ProjectName { get; set; }
 }
+
+public class CrewMember
+{
+    public int TimesheetId { get; set; }
+    public int EmployeeId { get; set; }
+    public string? EmployeeName { get; set; }
+    public int ProjectId { get; set; }
+    public string? ProjectName { get; set; }
+    public DateTime? ClockInTime { get; set; }
+    public bool OnBreak { get; set; }
+    public int BreakMinutes { get; set; }
+}
+
+public class ProjectPhoto
+{
+    public int Id { get; set; }
+    public int ProjectId { get; set; }
+    public string ImageUrl { get; set; } = "";
+    public string? ThumbnailUrl { get; set; }
+    public string? Caption { get; set; }
+    public string? AIDescription { get; set; }
+    public string? Category { get; set; }
+    public int? TakenByEmployeeId { get; set; }
+    public string? TakenByName { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public DateTime CreatedDate { get; set; }
+}
+
+public class ProjectPhotoUploadResult
+{
+    public int Id { get; set; }
+    public int ProjectId { get; set; }
+    public string ImageUrl { get; set; } = "";
+    public string? AIDescription { get; set; }
+    public string? Category { get; set; }
+    public string Message { get; set; } = "";
+}

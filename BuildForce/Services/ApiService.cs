@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1416
+#pragma warning disable CA1416
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -555,6 +555,141 @@ public class ApiService
             return JsonSerializer.Deserialize<TimesheetSummary>(json, options);
         }
         catch { return null; }
+    }
+
+    public async Task<List<CrewMember>?> GetActiveCrewAsync()
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync("/api/mobile/timesheets/crew/active");
+            var json = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<List<CrewMember>>(json, options) ?? new List<CrewMember>();
+            }
+            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
+    // ============================================
+    // PROJECT PHOTOS (Step 3)
+    // GET  /api/mobile/projects/{id}/photos   -> list newest-first
+    // POST /api/mobile/projects/{id}/photos   -> upload base64, optional AI tag
+    // ============================================
+    public async Task<List<ProjectPhoto>?> GetProjectPhotosAsync(int projectId)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync($"/api/mobile/projects/{projectId}/photos");
+            var json = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<List<ProjectPhoto>>(json, options) ?? new List<ProjectPhoto>();
+            }
+            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"GetProjectPhotos exception: {ex.Message}");
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
+    public async Task<ProjectPhotoUploadResult?> UploadProjectPhotoAsync(
+        int projectId, string photoBase64, string? caption, string? category,
+        bool analyzeWithAI, double? latitude, double? longitude)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync($"/api/mobile/projects/{projectId}/photos", new
+            {
+                photoBase64,
+                caption,
+                category,
+                analyzeWithAI,
+                latitude,
+                longitude
+            });
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"UploadProjectPhoto response ({response.StatusCode}): {json}");
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<ProjectPhotoUploadResult>(json, options);
+            }
+            LastError = TryParseError(json) ?? $"Server returned {(int)response.StatusCode}";
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"UploadProjectPhoto exception: {ex.Message}");
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
+    // GET /api/mobile/projects/photos/{photoId}/image -> raw jpeg bytes.
+    // The blob container is private; this authenticated proxy is the only
+    // way the app can display project photos.
+    public async Task<byte[]?> GetProjectPhotoImageAsync(int photoId)
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync($"/api/mobile/projects/photos/{photoId}/image");
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"GetProjectPhotoImage exception: {ex.Message}");
+            return null;
+        }
+    }
+
+    // Deletes a project photo (server removes the blob + DB row). Returns null
+    // on success, or an error message to show the user (e.g. the owner-only 403).
+    public async Task<string?> DeleteProjectPhotoAsync(int photoId)
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.DeleteAsync($"/api/mobile/projects/photos/{photoId}");
+            if (response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync();
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(body);
+                if (doc.RootElement.TryGetProperty("error", out var errEl))
+                {
+                    var msg = errEl.GetString();
+                    if (!string.IsNullOrWhiteSpace(msg)) return msg;
+                }
+            }
+            catch { }
+            return "Delete failed (" + (int)response.StatusCode + ")";
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DeleteProjectPhoto exception: {ex.Message}");
+            return "Delete failed: " + ex.Message;
+        }
     }
 }
 

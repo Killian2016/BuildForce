@@ -10,13 +10,7 @@
 
             <!-- Logo -->
             <HorizontalStackLayout Spacing="12" Margin="0,0,0,48">
-                <Border BackgroundColor="#f0a500"
-                        StrokeShape="RoundRectangle 12"
-                        WidthRequest="44" HeightRequest="44"
-                        Stroke="Transparent">
-                    <Label Text="🏗" FontSize="22"
-                           HorizontalOptions="Center" VerticalOptions="Center" />
-                </Border>
+                <Image Source="mezano_round.png" WidthRequest="44" HeightRequest="44" Aspect="AspectFit" VerticalOptions="Center" />
                 <Label Text="BuildForce"
                        FontSize="24" FontAttributes="Bold"
                        TextColor="White" VerticalOptions="Center" />

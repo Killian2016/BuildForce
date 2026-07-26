@@ -13,11 +13,23 @@ public partial class PunchCameraPage : ContentPage
     private bool _captureRequested = false;
     private bool _mediaReceived = false;
     private bool _resultSet = false;
+    private readonly bool _useRear = false;
+    private bool _warmupDone = false;
 
-    public PunchCameraPage(string punchLabel)
+    public PunchCameraPage(string punchLabel) : this(punchLabel, false)
+    {
+    }
+
+    public PunchCameraPage(string punchLabel, bool useRearCamera)
     {
         InitializeComponent();
-        TitleLabel.Text = punchLabel + " [v14]";
+        _useRear = useRearCamera;
+        TitleLabel.Text = punchLabel + " [v19]";
+        if (useRearCamera)
+        {
+            SubtitleLabel.Text = "Frame the site, then capture";
+            HintLabel.Text = "Auto-capture starts in a moment...";
+        }
         Camera.MediaCaptured += OnMediaCaptured;
         Camera.MediaCaptureFailed += OnMediaCaptureFailed;
     }
@@ -37,13 +49,19 @@ public partial class PunchCameraPage : ContentPage
             }
 
             var cameras = await Camera.GetAvailableCameras(CancellationToken.None);
-            var front = cameras.FirstOrDefault(c => c.Position.ToString() == "Front")
-                        ?? cameras.FirstOrDefault();
-            if (front != null)
-                Camera.SelectedCamera = front;
-
+            var wanted = _useRear ? "Rear" : "Front";
+            var pick = cameras.FirstOrDefault(c => c.Position.ToString() == wanted)
+                       ?? cameras.FirstOrDefault();
+            // Stop any auto-started preview BEFORE switching cameras.
+            // On this device the rear camera will not rebind otherwise,
+            // so both the preview and the captured frame stay black.
             try { Camera.StopCameraPreview(); } catch { }
-            await Task.Delay(150);
+            await Task.Delay(300);
+
+            if (pick != null)
+                Camera.SelectedCamera = pick;
+            await Task.Delay(300);
+
             await Camera.StartCameraPreview(CancellationToken.None);
 
             int waited = 0;
@@ -52,6 +70,9 @@ public partial class PunchCameraPage : ContentPage
                 await Task.Delay(250);
                 waited += 250;
             }
+
+            // Rear sensor needs extra time to deliver real frames after (re)bind.
+            await Task.Delay(_useRear ? 1200 : 300);
 
             if (!Camera.IsAvailable)
             {
@@ -149,7 +170,23 @@ public partial class PunchCameraPage : ContentPage
 
     private async void OnMediaCaptured(object? sender, MediaCapturedEventArgs e)
     {
-        if (_completed || _mediaReceived) return;
+        if (_completed) return;
+
+        // Rear camera: the FIRST still frame after (re)binding the camera comes
+        // back black on this device even though the preview is fine (separate
+        // capture surface, unexposed first frame). Discard it and re-capture;
+        // the second still is correctly exposed. Front camera path unchanged.
+        if (_useRear && !_warmupDone)
+        {
+            _warmupDone = true;
+            _captureRequested = false;
+            System.Diagnostics.Debug.WriteLine("PunchCamera: discarding warmup still, re-capturing");
+            await Task.Delay(350);
+            _ = TriggerCaptureAsync();
+            return;
+        }
+
+        if (_mediaReceived) return;
         _mediaReceived = true;
 
         try
@@ -229,7 +266,7 @@ public partial class PunchCameraPage : ContentPage
     // Decodes the JPEG, applies the EXIF orientation to the actual pixels,
     // downsizes to maxDim, and re-encodes. Re-encoding drops EXIF, so the
     // rotation MUST be baked into the pixels before saving.
-    private static byte[] NormalizePhoto(byte[] input, int maxDim, int quality)
+    public static byte[] NormalizePhoto(byte[] input, int maxDim, int quality)
     {
         using var codec = SkiaSharp.SKCodec.Create(new MemoryStream(input));
         if (codec == null) return input;

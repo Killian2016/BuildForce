@@ -1,21 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:views="clr-namespace:BuildForce.Views"
              x:Class="BuildForce.Views.MainShellPage"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False"
-             BackgroundColor="#eef1f8">
+             BackgroundColor="#080b10">
 
     <Grid RowDefinitions="*, Auto">
 
-        <!-- Page Content Area -->
         <ContentView x:Name="PageContent" Grid.Row="0" />
 
-        <!-- Native Bottom Dock (plain grid: no clipping of the raised GPS button) -->
         <Grid Grid.Row="1" RowDefinitions="Auto,Auto" BackgroundColor="Transparent">
-            <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#e2e7f0" />
-            <Grid Grid.Row="1" BackgroundColor="White" Padding="0,8,0,16">
+            <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#1c2330" />
+            <Grid Grid.Row="1" BackgroundColor="#0d1117" Padding="0,8,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -24,7 +22,6 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Home (whole column tappable) -->
                 <VerticalStackLayout x:Name="TabHome" Grid.Column="0" Spacing="3"
                                      HorizontalOptions="Fill" VerticalOptions="Center"
                                      Padding="0,4">
@@ -38,7 +35,6 @@
                            InputTransparent="True" />
                 </VerticalStackLayout>
 
-                <!-- Projects -->
                 <VerticalStackLayout x:Name="TabProjects" Grid.Column="1" Spacing="3"
                                      HorizontalOptions="Fill" VerticalOptions="Center"
                                      Padding="0,4">
@@ -46,13 +42,12 @@
                         <TapGestureRecognizer Tapped="NavProjects_Tapped" />
                     </VerticalStackLayout.GestureRecognizers>
                     <Label x:Name="IcoProjects" Text="&#x25A6;" FontSize="22"
-                           TextColor="#8a93a8" HorizontalOptions="Center" InputTransparent="True" />
+                           TextColor="#7d8590" HorizontalOptions="Center" InputTransparent="True" />
                     <Label x:Name="LblProjects" Text="Projects" FontSize="9" FontAttributes="Bold"
-                           TextColor="#8a93a8" HorizontalOptions="Center" CharacterSpacing="0.5"
+                           TextColor="#7d8590" HorizontalOptions="Center" CharacterSpacing="0.5"
                            InputTransparent="True" />
                 </VerticalStackLayout>
 
-                <!-- GPS Clock (inside dock flow: no clipping) -->
                 <VerticalStackLayout Grid.Column="2" Spacing="3"
                                      HorizontalOptions="Center" VerticalOptions="Center">
                     <Border x:Name="ClockBtn"
@@ -74,34 +69,32 @@
                         </Border.GestureRecognizers>
                     </Border>
                     <Label x:Name="LblClock" Text="Clock" FontSize="9" FontAttributes="Bold"
-                           TextColor="#b57c00" HorizontalOptions="Center" CharacterSpacing="0.5" />
+                           TextColor="#f0a500" HorizontalOptions="Center" CharacterSpacing="0.5" />
                 </VerticalStackLayout>
 
-                <!-- Invoices -->
-                <VerticalStackLayout x:Name="TabInvoices" Grid.Column="3" Spacing="3"
+                <VerticalStackLayout x:Name="TabSchedule" Grid.Column="3" Spacing="3"
                                      HorizontalOptions="Fill" VerticalOptions="Center"
                                      Padding="0,4">
                     <VerticalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="NavInvoices_Tapped" />
+                        <TapGestureRecognizer Tapped="NavSchedule_Tapped" />
                     </VerticalStackLayout.GestureRecognizers>
-                    <Label x:Name="IcoInvoices" Text="&#x0024;" FontSize="22" FontAttributes="Bold"
-                           TextColor="#8a93a8" HorizontalOptions="Center" InputTransparent="True" />
-                    <Label x:Name="LblInvoices" Text="Invoices" FontSize="9" FontAttributes="Bold"
-                           TextColor="#8a93a8" HorizontalOptions="Center" CharacterSpacing="0.5"
+                    <Label x:Name="IcoSchedule" Text="&#x25A4;" FontSize="22"
+                           TextColor="#7d8590" HorizontalOptions="Center" InputTransparent="True" />
+                    <Label x:Name="LblSchedule" Text="Schedule" FontSize="9" FontAttributes="Bold"
+                           TextColor="#7d8590" HorizontalOptions="Center" CharacterSpacing="0.5"
                            InputTransparent="True" />
                 </VerticalStackLayout>
 
-                <!-- More -->
-                <VerticalStackLayout x:Name="TabMore" Grid.Column="4" Spacing="3"
+                <VerticalStackLayout x:Name="TabTools" Grid.Column="4" Spacing="3"
                                      HorizontalOptions="Fill" VerticalOptions="Center"
                                      Padding="0,4">
                     <VerticalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="NavMore_Tapped" />
+                        <TapGestureRecognizer Tapped="NavTools_Tapped" />
                     </VerticalStackLayout.GestureRecognizers>
-                    <Label x:Name="IcoMore" Text="&#x2630;" FontSize="22"
-                           TextColor="#8a93a8" HorizontalOptions="Center" InputTransparent="True" />
-                    <Label x:Name="LblMore" Text="More" FontSize="9" FontAttributes="Bold"
-                           TextColor="#8a93a8" HorizontalOptions="Center" CharacterSpacing="0.5"
+                    <Label x:Name="IcoTools" Text="&#x2699;" FontSize="22"
+                           TextColor="#7d8590" HorizontalOptions="Center" InputTransparent="True" />
+                    <Label x:Name="LblTools" Text="Tools" FontSize="9" FontAttributes="Bold"
+                           TextColor="#7d8590" HorizontalOptions="Center" CharacterSpacing="0.5"
                            InputTransparent="True" />
                 </VerticalStackLayout>
 

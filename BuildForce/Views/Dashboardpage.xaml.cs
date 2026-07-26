@@ -1,208 +1,219 @@
-﻿#pragma warning disable CA1416
+#pragma warning disable CA1416
 using BuildForce.Services;
-using Microsoft.Maui.Controls.Shapes;
 
 namespace BuildForce.Views;
 
 public partial class DashboardPage : ContentPage
 {
     private readonly ApiService _api;
-    private System.Timers.Timer? _clockTimer;
-    private DateTime _sessionStart = DateTime.Now;
+    private readonly AuthService _auth;
 
-    public DashboardPage(ApiService api)
+    public DashboardPage(ApiService api, AuthService auth)
     {
         InitializeComponent();
         _api = api;
-        StartClock();
-        LoadData();
+        _auth = auth;
+        LoadHeader();
+        LoadLive();
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        LoadData();
+        LoadHeader();
+        LoadLive();
     }
 
-    private void StartClock()
+    private void LoadHeader()
     {
-        DateLabel.Text = DateTime.Now.ToString("dddd, MMMM d, yyyy");
         var name = Preferences.Get("full_name", "");
         var email = Preferences.Get("email", "");
-        WelcomeLabel.Text = $"Welcome back, {(string.IsNullOrEmpty(name) ? email : name)}";
+        var display = string.IsNullOrEmpty(name) ? email : name;
+        if (string.IsNullOrEmpty(display)) display = "BuildForce";
 
-        _clockTimer?.Stop();
-        _clockTimer = new System.Timers.Timer(1000);
-        _clockTimer.Elapsed += (s, e) =>
-        {
-            var elapsed = DateTime.Now - _sessionStart;
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                TimerLabel.Text = elapsed.ToString(@"hh\:mm\:ss");
-            });
-        };
-        _clockTimer.Start();
+        UserNameLabel.Text = display;
+        RoleLabel.Text = DateTime.Now.ToString("dddd, MMMM d");
+
+        var parts = display.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string initials;
+        if (parts.Length >= 2)
+            initials = parts[0].Substring(0, 1) + parts[1].Substring(0, 1);
+        else if (display.Length >= 2)
+            initials = display.Substring(0, 2);
+        else
+            initials = "BF";
+        AvatarLabel.Text = initials.ToUpper();
     }
 
-    private async void LoadData()
+    private async void LoadLive()
     {
         try
         {
-            var data = await _api.GetDashboardAsync();
-            if (data != null)
+            var dash = await _api.GetDashboardAsync();
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                RevenueLabel.Text = data.TotalRevenue.ToString("C0");
-                RevBadge.Text = $"{data.PaidInvoices} paid invoices";
-                PendingLabel.Text = data.OutstandingBalance.ToString("C0");
-                PendBadge.Text = $"{data.PendingInvoices} invoices out";
-                ExpensesLabel.Text = data.Expenses.ToString("C0");
-                ProfitLabel.Text = data.NetProfit.ToString("C0");
-
-                ProjectsList.Children.Clear();
-                foreach (var p in data.RecentProjects.Take(3))
+                if (dash != null)
                 {
-                    string pillText, pillBg;
-                    switch (p.Status)
-                    {
-                        case "Active":
-                        case "In Progress": pillText = "#0d7a4f"; pillBg = "#d8f5e8"; break;
-                        case "Planning":    pillText = "#8a6100"; pillBg = "#fdf0d2"; break;
-                        case "On Hold":     pillText = "#9a3412"; pillBg = "#ffe8d9"; break;
-                        case "Completed":   pillText = "#1e50a0"; pillBg = "#dde9fb"; break;
-                        default:            pillText = "#5b6472"; pillBg = "#e8ecf3"; break;
-                    }
-
-                    var row = new Border
-                    {
-                        BackgroundColor = Color.FromArgb("#f7f9fd"),
-                        Stroke = Color.FromArgb("#e2e7f0"),
-                        StrokeThickness = 1,
-                        StrokeShape = new RoundRectangle { CornerRadius = 12 },
-                        Padding = new Thickness(12, 10)
-                    };
-                    var grid = new Grid
-                    {
-                        ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Auto }
-                        }
-                    };
-                    var nameLabel = new Label
-                    {
-                        Text = p.Name,
-                        FontSize = 13,
-                        FontAttributes = FontAttributes.Bold,
-                        TextColor = Color.FromArgb("#1a2340"),
-                        LineBreakMode = LineBreakMode.TailTruncation,
-                        VerticalOptions = LayoutOptions.Center
-                    };
-                    var pill = new Border
-                    {
-                        BackgroundColor = Color.FromArgb(pillBg),
-                        Stroke = Colors.Transparent,
-                        StrokeShape = new RoundRectangle { CornerRadius = 20 },
-                        Padding = new Thickness(9, 3),
-                        VerticalOptions = LayoutOptions.Center,
-                        Content = new Label
-                        {
-                            Text = p.Status,
-                            FontSize = 10,
-                            FontAttributes = FontAttributes.Bold,
-                            TextColor = Color.FromArgb(pillText)
-                        }
-                    };
-                    Grid.SetColumn(nameLabel, 0);
-                    Grid.SetColumn(pill, 1);
-                    grid.Children.Add(nameLabel);
-                    grid.Children.Add(pill);
-                    row.Content = grid;
-                    ProjectsList.Children.Add(row);
+                    RoleLabel.Text = DateTime.Now.ToString("dddd, MMMM d") + "  |  " + dash.ActiveProjects + " active projects";
+                    SyncLabel.Text = "Online";
+                    SyncLabel.TextColor = Color.FromArgb("#10b981");
                 }
+                else
+                {
+                    SyncLabel.Text = "Offline";
+                    SyncLabel.TextColor = Color.FromArgb("#f0a500");
+                }
+            });
+        }
+        catch
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                SyncLabel.Text = "Offline";
+                SyncLabel.TextColor = Color.FromArgb("#f0a500");
+            });
+        }
+
+        try
+        {
+            var active = await _api.GetActiveTimesheetAsync();
+            var summary = await _api.GetTimesheetSummaryAsync();
+            string hours = summary != null ? summary.TotalHours.ToString("F1") + "h this week" : "";
+            bool onClock = active != null && active.Status == "Active";
+            string text = onClock ? "You are on the clock" : "You are not clocked in";
+            if (hours.Length > 0) text = text + "  |  " + hours;
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                CrewSub.Text = text;
+                CrewSub.TextColor = onClock ? Color.FromArgb("#10b981") : Color.FromArgb("#7d8590");
+            });
+        }
+        catch { }
+
+        try
+        {
+            var expenses = await _api.GetExpensesAsync();
+            var monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var recent = expenses.Where(e => e.ExpenseDate >= monthStart).OrderByDescending(e => e.ExpenseDate).ToList();
+            string text;
+            if (recent.Count == 0)
+            {
+                text = "Nothing logged this month";
             }
+            else
+            {
+                var last = recent[0];
+                var who = string.IsNullOrEmpty(last.Vendor) ? last.Description : last.Vendor;
+                text = recent.Count + " this month  |  last " + who;
+            }
+            MainThread.BeginInvokeOnMainThread(() => MaterialsSub.Text = text);
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Dashboard LoadData error: {ex}");
-        }
-        finally
-        {
-            Loading.IsRunning = false;
-            Loading.IsVisible = false;
-        }
+        catch { }
     }
 
     private static Page? HostPage => Application.Current?.MainPage;
 
-    private static async Task ShowErrorAsync(string title, string message)
+    private static async Task AlertAsync(string title, string message)
     {
         var host = HostPage;
         if (host != null)
             await host.DisplayAlert(title, message, "OK");
     }
 
-    private async void OnNewProject(object sender, TappedEventArgs e)
+    private static async Task ComingSoonAsync(string feature)
+    {
+        await AlertAsync(feature, feature + " needs a Mezano CM endpoint before it can go live.");
+    }
+
+    private async void OnTakePicture(object sender, EventArgs e)
     {
         try
         {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new ProjectCreatePage(_api));
+            await Application.Current!.MainPage!.Navigation.PushModalAsync(new ProjectPhotosPage(_api));
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync("Navigation Error", $"Could not open Project form: {ex.Message}");
+            await Application.Current!.MainPage!.DisplayAlert("Navigation error", ex.Message, "OK");
         }
     }
 
-    private async void OnLogExpense(object sender, TappedEventArgs e)
+    private async void OnViewProjects(object sender, EventArgs e)
     {
         try
         {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new ExpenseCreatePage(_api));
+            var host = HostPage;
+            if (host != null)
+                await host.Navigation.PushModalAsync(new ProjectsPage(_api));
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync("Navigation Error", $"Could not open Expense form: {ex.Message}");
+            await AlertAsync("Navigation error", ex.Message);
         }
     }
 
-    private async void OnNewInvoice(object sender, TappedEventArgs e)
+    private async void OnDailyLog(object sender, EventArgs e)
+    {
+        await ComingSoonAsync("Daily site logs");
+    }
+
+    private async void OnDailyLogTap(object sender, TappedEventArgs e)
+    {
+        await ComingSoonAsync("Daily site logs");
+    }
+
+    private async void OnCrew(object sender, TappedEventArgs e)
+    {
+        await ComingSoonAsync("Crew");
+    }
+
+    private async void OnBlueprints(object sender, TappedEventArgs e)
+    {
+        await ComingSoonAsync("Blueprints");
+    }
+
+    private async void OnSearch(object sender, EventArgs e)
+    {
+        await ComingSoonAsync("Search");
+    }
+
+    private async void OnMaterialsReceived(object sender, TappedEventArgs e)
     {
         try
         {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new InvoiceCreatePage(_api));
+            var host = HostPage;
+            if (host != null)
+                await host.Navigation.PushModalAsync(new ExpenseCreatePage(_api));
         }
         catch (Exception ex)
         {
-            await ShowErrorAsync("Navigation Error", $"Could not open Invoice form: {ex.Message}");
+            await AlertAsync("Navigation error", ex.Message);
         }
     }
 
-    private async void OnNewEstimate(object sender, TappedEventArgs e)
+    private async void OnSafetyForms(object sender, TappedEventArgs e)
     {
-        try
-        {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new EstimateCreatePage(_api));
-        }
-        catch (Exception ex)
-        {
-            await ShowErrorAsync("Navigation Error", $"Could not open Estimate form: {ex.Message}");
-        }
+        await ComingSoonAsync("Safety inspection forms");
     }
 
-    private async void OnViewAllProjects(object sender, TappedEventArgs e)
+    private async void OnSubmittals(object sender, TappedEventArgs e)
     {
-        try
-        {
-            var host = HostPage ?? throw new InvalidOperationException("No main page available.");
-            await host.Navigation.PushModalAsync(new ProjectsPage(_api));
-        }
-        catch (Exception ex)
-        {
-            await ShowErrorAsync("Navigation Error", $"Could not open Projects: {ex.Message}");
-        }
+        await ComingSoonAsync("Submittals");
+    }
+
+    private async void OnAccountSettings(object sender, TappedEventArgs e)
+    {
+        await ComingSoonAsync("Account settings");
+    }
+
+    private async void OnSignOut(object sender, TappedEventArgs e)
+    {
+        var host = HostPage;
+        if (host == null) return;
+
+        bool confirm = await host.DisplayAlert("Sign out", "Sign out of BuildForce?", "Sign out", "Cancel");
+        if (!confirm) return;
+
+        Preferences.Clear();
+        Application.Current!.MainPage = new LoginPage(_auth);
     }
 }

@@ -1,33 +1,33 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Application
     x:Class="BuildForce.App"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Colors -->
-            <Color x:Key="Navy">#0a1628</Color>
-            <Color x:Key="Navy2">#0f2040</Color>
-            <Color x:Key="Card">#111f38</Color>
-            <Color x:Key="Card2">#162847</Color>
-            <Color x:Key="Lime">#c8e63c</Color>
+            <!-- Mezano Design System tokens (keys unchanged) -->
+            <Color x:Key="Navy">#080b10</Color>
+            <Color x:Key="Navy2">#0d1117</Color>
+            <Color x:Key="Card">#0d1117</Color>
+            <Color x:Key="Card2">#161b22</Color>
+            <Color x:Key="Lime">#f0a500</Color>
             <Color x:Key="Gold">#f0a500</Color>
-            <Color x:Key="Green">#22c55e</Color>
+            <Color x:Key="Green">#10b981</Color>
             <Color x:Key="Red">#ef4444</Color>
-            <Color x:Key="Amber">#f59e0b</Color>
-            <Color x:Key="Blue">#3b82f6</Color>
-            <Color x:Key="Muted">#6b7280</Color>
-            <Color x:Key="Border">#1e3a5f</Color>
-            <Color x:Key="White">#ffffff</Color>
+            <Color x:Key="Amber">#f0a500</Color>
+            <Color x:Key="Blue">#0ea5e9</Color>
+            <Color x:Key="Muted">#7d8590</Color>
+            <Color x:Key="Border">#1c2330</Color>
+            <Color x:Key="White">#e6edf3</Color>
 
             <!-- Page background -->
             <Style TargetType="Page" ApplyToDerivedTypes="True">
-                <Setter Property="BackgroundColor" Value="#0a1628" />
+                <Setter Property="BackgroundColor" Value="#080b10" />
             </Style>
 
             <!-- Default label -->
             <Style TargetType="Label">
-                <Setter Property="TextColor" Value="#ffffff" />
+                <Setter Property="TextColor" Value="#e6edf3" />
                 <Setter Property="FontFamily" Value="OpenSansRegular" />
             </Style>
         </ResourceDictionary>

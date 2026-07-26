@@ -7,7 +7,7 @@ namespace BuildForce.Views;
 public class RingDrawable : IDrawable
 {
     public float Progress { get; set; } = 0f;
-    public Color RingColor { get; set; } = Color.FromArgb("#cbd5e1");
+    public Color RingColor { get; set; } = Color.FromArgb("#1c2330");
 
     public void Draw(ICanvas canvas, RectF rect)
     {
@@ -17,7 +17,7 @@ public class RingDrawable : IDrawable
 
         canvas.StrokeSize = stroke;
         canvas.StrokeLineCap = LineCap.Round;
-        canvas.StrokeColor = Color.FromArgb("#e2e8f0");
+        canvas.StrokeColor = Color.FromArgb("#1c2330");
         canvas.DrawEllipse(r);
 
         if (Progress > 0.005f)
@@ -51,13 +51,22 @@ public partial class TimeClockPage : ContentPage
 
     private readonly RingDrawable _ring = new();
 
+    private double _projLat;
+    private double _projLng;
+    private bool _geoResolved = false;
+    private int _watchTick = 0;
+    private bool _exitPromptShown = false;
+    private DateTime _watchMuteUntil = DateTime.MinValue;
+    private bool _materialRun = false;
+    private const int MaterialRunMinutes = 60;
+
     private static readonly Color Green = Color.FromArgb("#10b981");
     private static readonly Color Amber = Color.FromArgb("#f0a500");
     private static readonly Color Blue = Color.FromArgb("#0ea5e9");
     private static readonly Color Red = Color.FromArgb("#ef4444");
-    private static readonly Color Muted = Color.FromArgb("#64748b");
-    private static readonly Color Dark = Color.FromArgb("#1a2233");
-    private static readonly Color DisabledBg = Color.FromArgb("#cbd5e1");
+    private static readonly Color Muted = Color.FromArgb("#7d8590");
+    private static readonly Color Dark = Color.FromArgb("#e6edf3");
+    private static readonly Color DisabledBg = Color.FromArgb("#1c2330");
 
     private readonly List<string> _costCodes = new()
     {
@@ -132,6 +141,13 @@ public partial class TimeClockPage : ContentPage
             _isClockedIn = true;
             _breakMinutesAccum = active.BreakMinutes;
 
+            if (!_geoResolved && Preferences.ContainsKey("sw_lat") && Preferences.ContainsKey("sw_lng"))
+            {
+                _projLat = Preferences.Get("sw_lat", 0.0);
+                _projLng = Preferences.Get("sw_lng", 0.0);
+                if (_projLat != 0.0 || _projLng != 0.0) _geoResolved = true;
+            }
+
             if (active.BreakStartTime.HasValue)
             {
                 _onBreak = true;
@@ -168,10 +184,10 @@ public partial class TimeClockPage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            ClockedInBadge.IsVisible = true;
+            ClockedInBadge.IsVisible = true; SiteWatchCard.IsVisible = true; ClockInHint.IsVisible = false;
             ClockInBtn.IsVisible = false;
             ClockOutBtn.IsEnabled = true;
-            ClockOutBtn.BackgroundColor = Red;
+            ClockOutBtn.BackgroundColor = Colors.Transparent;
             BreakBtn.IsEnabled = true;
             ActiveCostCodeLabel.Text = string.IsNullOrEmpty(_selectedCostCode)
                 ? "Cost code: none"
@@ -182,7 +198,7 @@ public partial class TimeClockPage : ContentPage
             {
                 StatusLabel.Text = "ON BREAK";
                 StatusLabel.TextColor = Amber;
-                SetChip("ON BREAK", Color.FromArgb("#fdf3dd"), Amber);
+                SetChip("ON BREAK", Color.FromArgb("#2a2210"), Amber);
                 SetBreakBtnActive(true);
                 _ring.RingColor = Amber;
             }
@@ -190,9 +206,9 @@ public partial class TimeClockPage : ContentPage
             {
                 StatusLabel.Text = "CLOCKED IN";
                 StatusLabel.TextColor = Green;
-                SetChip("ON THE CLOCK", Color.FromArgb("#e7f8f1"), Green);
+                SetChip("ON THE CLOCK", Color.FromArgb("#0f2a22"), Green);
                 SetBreakBtnActive(false);
-                _ring.RingColor = Green;
+                _ring.RingColor = Amber;
             }
             RingView.Invalidate();
         });
@@ -210,16 +226,16 @@ public partial class TimeClockPage : ContentPage
         if (active)
         {
             BreakBtn.Text = "End Break";
-            BreakBtn.BackgroundColor = Color.FromArgb("#fdf3dd");
+            BreakBtn.BackgroundColor = Color.FromArgb("#2a2210");
             BreakBtn.TextColor = Amber;
             BreakBtn.BorderColor = Amber;
         }
         else
         {
             BreakBtn.Text = "Break";
-            BreakBtn.BackgroundColor = Colors.White;
+            BreakBtn.BackgroundColor = Color.FromArgb("#0d1117");
             BreakBtn.TextColor = Dark;
-            BreakBtn.BorderColor = Color.FromArgb("#e2e8f0");
+            BreakBtn.BorderColor = Color.FromArgb("#1c2330");
         }
     }
 
@@ -331,8 +347,8 @@ public partial class TimeClockPage : ContentPage
         {
             var row = new Border
             {
-                BackgroundColor = Colors.White,
-                Stroke = Color.FromArgb("#e2e8f0"),
+                BackgroundColor = Color.FromArgb("#0d1117"),
+                Stroke = Color.FromArgb("#1c2330"),
                 StrokeThickness = 1,
                 StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 12 },
                 Padding = new Thickness(14, 12)
@@ -539,8 +555,8 @@ public partial class TimeClockPage : ContentPage
         MainThread.BeginInvokeOnMainThread(() =>
         {
             ClockInBtn.IsEnabled = canClockIn;
-            ClockInBtn.BackgroundColor = canClockIn ? Green : DisabledBg;
-            ClockInBtn.TextColor = canClockIn ? Colors.White : Muted;
+            ClockInBtn.BackgroundColor = canClockIn ? Amber : DisabledBg;
+            ClockInBtn.TextColor = canClockIn ? Color.FromArgb("#080b10") : Muted;
 
             if (!projectOk)
             {
@@ -668,6 +684,8 @@ public partial class TimeClockPage : ContentPage
 
                 ApplyClockedInUi();
                 StartLocalTimer();
+
+                try { await Permissions.RequestAsync<Permissions.PostNotifications>(); } catch { }
             }
             else
             {
@@ -791,6 +809,21 @@ public partial class TimeClockPage : ContentPage
         {
             var elapsed = CurrentElapsed();
             var breakLive = _breakMinutesAccum + (_onBreak ? (int)(DateTime.Now - _breakStartLocal).TotalMinutes : 0);
+            _watchTick++;
+            if (_watchTick >= 60)
+            {
+                _watchTick = 0;
+                _ = CheckSiteExitAsync();
+            }
+            if (_materialRun)
+            {
+                if (DateTime.Now >= _watchMuteUntil)
+                {
+                    _materialRun = false;
+                    _watchMuteUntil = DateTime.MinValue;
+                }
+                UpdateSiteWatchCard();
+            }
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 TimerLabel.Text = elapsed.ToString(@"hh\:mm\:ss");
@@ -821,7 +854,7 @@ public partial class TimeClockPage : ContentPage
                 {
                     GeofenceLabel.Text = "No address on project";
                     GeofenceLabel.TextColor = Red;
-                    GeoIconBox.BackgroundColor = Color.FromArgb("#fde8e8");
+                    GeoIconBox.BackgroundColor = Color.FromArgb("#2a1515");
                     GeoIconLabel.TextColor = Red;
                 });
                 _isOnSite = false;
@@ -833,7 +866,7 @@ public partial class TimeClockPage : ContentPage
             {
                 GeofenceLabel.Text = "Checking location...";
                 GeofenceLabel.TextColor = Amber;
-                GeoIconBox.BackgroundColor = Color.FromArgb("#fdf3dd");
+                GeoIconBox.BackgroundColor = Color.FromArgb("#2a2210");
                 GeoIconLabel.TextColor = Amber;
             });
 
@@ -861,7 +894,7 @@ public partial class TimeClockPage : ContentPage
                 {
                     GeofenceLabel.Text = "Address not found";
                     GeofenceLabel.TextColor = Red;
-                    GeoIconBox.BackgroundColor = Color.FromArgb("#fde8e8");
+                    GeoIconBox.BackgroundColor = Color.FromArgb("#2a1515");
                     GeoIconLabel.TextColor = Red;
                 });
                 _isOnSite = false;
@@ -875,8 +908,14 @@ public partial class TimeClockPage : ContentPage
             double projLng = double.Parse(first.GetProperty("lon").GetString()!,
                 System.Globalization.CultureInfo.InvariantCulture);
 
+            _projLat = projLat;
+            _projLng = projLng;
+            _geoResolved = true;
+            Preferences.Set("sw_lat", projLat);
+            Preferences.Set("sw_lng", projLng);
+
             double distMeters = HaversineMeters(workerLat, workerLng, projLat, projLng);
-            _isOnSite = distMeters <= 500;
+            _isOnSite = distMeters <= 150;
 
             System.Diagnostics.Debug.WriteLine($"Distance to job site: {distMeters:F0}m - OnSite: {_isOnSite}");
 
@@ -886,14 +925,14 @@ public partial class TimeClockPage : ContentPage
                 {
                     GeofenceLabel.Text = $"On site ({distMeters:F0}m from center)";
                     GeofenceLabel.TextColor = Green;
-                    GeoIconBox.BackgroundColor = Color.FromArgb("#e7f8f1");
+                    GeoIconBox.BackgroundColor = Color.FromArgb("#0f2a22");
                     GeoIconLabel.TextColor = Green;
                 }
                 else
                 {
                     GeofenceLabel.Text = $"Off site ({distMeters:F0}m away)";
                     GeofenceLabel.TextColor = Red;
-                    GeoIconBox.BackgroundColor = Color.FromArgb("#fde8e8");
+                    GeoIconBox.BackgroundColor = Color.FromArgb("#2a1515");
                     GeoIconLabel.TextColor = Red;
                 }
             });
@@ -934,27 +973,124 @@ public partial class TimeClockPage : ContentPage
         _gpsReady = false;
         _onBreak = false;
         _breakMinutesAccum = 0;
+        _exitPromptShown = false;
+        _watchMuteUntil = DateTime.MinValue;
+        _watchTick = 0;
+        _materialRun = false;
+        Preferences.Remove("sw_lat");
+        Preferences.Remove("sw_lng");
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
             StatusLabel.Text = "NOT CLOCKED IN";
             StatusLabel.TextColor = Muted;
             TimerLabel.Text = "00:00:00";
-            SetChip("CLOCKED OUT", Color.FromArgb("#eef1f8"), Muted);
-            ClockedInBadge.IsVisible = false;
+            SetChip("CLOCKED OUT", Color.FromArgb("#161b22"), Muted);
+            ClockedInBadge.IsVisible = false; SiteWatchCard.IsVisible = false; ClockInHint.IsVisible = true;
             ClockInBtn.IsVisible = true;
             ClockInBtn.IsEnabled = false;
             ClockInBtn.BackgroundColor = DisabledBg;
             ClockOutBtn.IsEnabled = false;
-            ClockOutBtn.BackgroundColor = Color.FromArgb("#fca5a5");
+            ClockOutBtn.BackgroundColor = Colors.Transparent;
             BreakBtn.IsEnabled = false;
             SetBreakBtnActive(false);
             _ring.Progress = 0f;
             _ring.RingColor = DisabledBg;
             RingView.Invalidate();
+            ExitSheet.IsVisible = false;
         });
 
         GetLocation();
+    }
+
+    private async void OnSwitchJob(object sender, EventArgs e)
+    {
+        await Application.Current!.MainPage!.DisplayAlert("Switch Job",
+            "Job switching is coming soon. Clock out, then clock in on the new project.", "OK");
+    }
+
+    private async Task CheckSiteExitAsync()
+    {
+        try
+        {
+            if (!_isClockedIn || !_geoResolved || _exitPromptShown) return;
+            if (DateTime.Now < _watchMuteUntil) return;
+
+            Location? loc = null;
+            try
+            {
+                loc = await Geolocation.GetLocationAsync(
+                    new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(15)));
+            }
+            catch { }
+            if (loc == null) return;
+
+            double dist = HaversineMeters(loc.Latitude, loc.Longitude, _projLat, _projLng);
+            if (dist <= 200) return;
+
+            _exitPromptShown = true;
+            var msg = "You are " + dist.ToString("F0") + "m from the site and still on the clock.";
+            try { SiteWatchNotifier.Notify("Leaving the job site", msg); } catch { }
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                ExitMsgLabel.Text = msg + " What would you like to do?";
+                ExitSheet.IsVisible = true;
+            });
+        }
+        catch { }
+    }
+
+    private void OnExitClockOut(object sender, EventArgs e)
+    {
+        ExitSheet.IsVisible = false;
+        _exitPromptShown = false;
+        OnClockOut(sender, e);
+    }
+
+    private void OnExitMaterialRun(object sender, EventArgs e)
+    {
+        ExitSheet.IsVisible = false;
+        _exitPromptShown = false;
+        _materialRun = true;
+        _watchMuteUntil = DateTime.Now.AddMinutes(MaterialRunMinutes);
+        UpdateSiteWatchCard();
+    }
+
+    private void OnSiteWatchCardTapped(object sender, TappedEventArgs e)
+    {
+        if (!_materialRun) return;
+        _materialRun = false;
+        _watchMuteUntil = DateTime.MinValue;
+        _watchTick = 55;
+        UpdateSiteWatchCard();
+    }
+
+    private void UpdateSiteWatchCard()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            if (_materialRun)
+            {
+                var left = _watchMuteUntil - DateTime.Now;
+                var mins = (int)Math.Ceiling(Math.Max(0, left.TotalMinutes));
+                SiteWatchCard.Stroke = Color.FromArgb("#f0a500");
+                SiteWatchLabel.TextColor = Color.FromArgb("#f0a500");
+                SiteWatchLabel.Text = "Material run - " + mins + " min left - tap when back on site";
+            }
+            else
+            {
+                SiteWatchCard.Stroke = Color.FromArgb("#10b981");
+                SiteWatchLabel.TextColor = Color.FromArgb("#7d8590");
+                SiteWatchLabel.Text = "Site watch on - you will be alerted if you leave the site";
+            }
+        });
+    }
+
+    private void OnExitSnooze(object sender, EventArgs e)
+    {
+        ExitSheet.IsVisible = false;
+        _exitPromptShown = false;
+        _watchMuteUntil = DateTime.Now.AddMinutes(10);
     }
 
     public bool IsClockedIn => _isClockedIn;

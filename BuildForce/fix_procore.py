@@ -16,7 +16,7 @@ TS_TEXT = """<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="BuildForce.Views.TimesheetPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xam
     BackgroundColor="#111111"
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False">
@@ -96,7 +96,7 @@ TS_TEXT = """<?xml version="1.0" encoding="utf-8" ?>
           <ScrollView Orientation="Horizontal"
                       HorizontalScrollBarVisibility="Never"
                       Margin="0,0,0,24">
-            <HorizontalStackLayout Padding="20,0" Spacing="8">
+            <HorizontalStackLayout Padding="20,0" Spacing="8">   
               <VerticalStackLayout Spacing="4" HorizontalOptions="Center" WidthRequest="52">
                 <Label Text="Sun" FontSize="12" TextColor="#555" HorizontalOptions="Center"/>
                 <Border BackgroundColor="#222" WidthRequest="44" HeightRequest="44">
