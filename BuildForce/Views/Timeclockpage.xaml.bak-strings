@@ -37,7 +37,7 @@
                     <Label Text="Time Clock"
                            FontSize="22" FontAttributes="Bold"
                            TextColor="#e6edf3" />
-                    <Label Text="Mezano CM &#183; Field"
+                    <Label Text="Mezano CM &#183; BuildForce"
                            FontSize="11" TextColor="#7d8590" />
                 </VerticalStackLayout>
 

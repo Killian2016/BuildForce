@@ -11,7 +11,6 @@ public partial class DashboardPage : ContentPage
     public DashboardPage(ApiService api, AuthService auth)
     {
         InitializeComponent();
-        try { VersionLabel.Text = "v" + AppInfo.VersionString; } catch { }
         _api = api;
         _auth = auth;
         LoadHeader();
@@ -32,7 +31,7 @@ public partial class DashboardPage : ContentPage
         var name = Preferences.Get("full_name", "");
         var email = Preferences.Get("email", "");
         var display = string.IsNullOrEmpty(name) ? email : name;
-        if (string.IsNullOrEmpty(display)) display = "Mezano";
+        if (string.IsNullOrEmpty(display)) display = "BuildForce";
 
         UserNameLabel.Text = display;
         RoleLabel.Text = DateTime.Now.ToString("dddd, MMMM d");
@@ -245,7 +244,7 @@ _api
         var host = HostPage;
         if (host == null) return;
 
-        bool confirm = await host.DisplayAlert("Sign out", "Sign out of Mezano?", "Sign out", "Cancel");
+        bool confirm = await host.DisplayAlert("Sign out", "Sign out of BuildForce?", "Sign out", "Cancel");
         if (!confirm) return;
 
         Preferences.Clear();

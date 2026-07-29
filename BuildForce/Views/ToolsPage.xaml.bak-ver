@@ -141,7 +141,7 @@
                     <Grid Padding="14,12" ColumnDefinitions="*,Auto">
                         <Label Text="Sign out" FontSize="13" TextColor="#ef4444"
                                VerticalOptions="Center" />
-                        <Label x:Name="VersionLabel" Text="v2.5.1" FontSize="11" TextColor="#7d8590"
+                        <Label Text="v2.5.1" FontSize="11" TextColor="#7d8590"
                                Grid.Column="1" VerticalOptions="Center" />
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnSignOut" />

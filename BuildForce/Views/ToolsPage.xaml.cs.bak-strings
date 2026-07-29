@@ -131,7 +131,7 @@ public partial class ToolsPage : ContentPage
         var host = HostPage;
         if (host == null) return;
 
-        bool confirm = await host.DisplayAlert("Sign out", "Sign out of Mezano?", "Sign out", "Cancel");
+        bool confirm = await host.DisplayAlert("Sign out", "Sign out of BuildForce?", "Sign out", "Cancel");
         if (!confirm) return;
 
         Preferences.Clear();

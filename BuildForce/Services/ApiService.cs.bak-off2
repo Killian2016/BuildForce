@@ -469,7 +469,7 @@ public class ApiService
         }
     }
 
-    public async Task<ClockInResult?> ClockInAsync(int projectId, double lat, double lng, string? description = null, string? photoBase64 = null, string? clientPunchId = null, DateTime? occurredAt = null)
+    public async Task<ClockInResult?> ClockInAsync(int projectId, double lat, double lng, string? description = null, string? photoBase64 = null)
     {
         try
         {
@@ -480,10 +480,7 @@ public class ApiService
                 latitude = lat,
                 longitude = lng,
                 description,
-                photoBase64,
-                clientPunchId,
-                occurredAt,
-                deviceNow = DateTime.UtcNow
+                photoBase64
             });
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"ClockIn response ({response.StatusCode}): {json}");
@@ -501,7 +498,7 @@ public class ApiService
         }
     }
 
-    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng, bool injuryReported = false, string? injuryDetails = null, string? photoBase64 = null, bool autoClockOut = false, DateTime? exitedAt = null, string? clientPunchId = null, string? clockInClientPunchId = null, DateTime? occurredAt = null)
+    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng, bool injuryReported = false, string? injuryDetails = null, string? photoBase64 = null, bool autoClockOut = false, DateTime? exitedAt = null)
     {
         try
         {
@@ -514,11 +511,7 @@ public class ApiService
                 injuryDetails,
                 photoBase64,
                 autoClockOut,
-                exitedAt,
-                clientPunchId,
-                clockInClientPunchId,
-                occurredAt,
-                deviceNow = DateTime.UtcNow
+                exitedAt
             });
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"ClockOut response ({response.StatusCode}): {json}");
