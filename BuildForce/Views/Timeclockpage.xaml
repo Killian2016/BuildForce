@@ -316,6 +316,64 @@
             </VerticalStackLayout>
         </ScrollView>
 
+        <Grid x:Name="SwitchSheet" Grid.Row="1" IsVisible="False"
+              BackgroundColor="#CC000000">
+            <Border BackgroundColor="#0d1117" Stroke="#8b5cf6" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18"
+                    Margin="20" Padding="18,16"
+                    VerticalOptions="Center">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Leave for another job"
+                           FontSize="16" FontAttributes="Bold" TextColor="#8b5cf6" />
+                    <Label Text="Pick where you're heading. Your current job clocks out now and travel time starts counting until you arrive."
+                           FontSize="12" TextColor="#7d8590" />
+                    <ScrollView MaximumHeightRequest="280">
+                        <VerticalStackLayout x:Name="SwitchProjectList" Spacing="8" />
+                    </ScrollView>
+                    <Button Text="Cancel"
+                            BackgroundColor="Transparent" TextColor="#7d8590"
+                            BorderColor="#1c2330" BorderWidth="1"
+                            FontSize="12" HeightRequest="40" CornerRadius="12"
+                            Clicked="OnSwitchCancel" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="TravelSheet" Grid.Row="1" IsVisible="False"
+              BackgroundColor="#CC000000">
+            <Border BackgroundColor="#0d1117" Stroke="#8b5cf6" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18"
+                    Margin="20" Padding="18,18"
+                    VerticalOptions="Center">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="TRAVELING TO NEXT JOB"
+                           FontSize="11" FontAttributes="Bold" TextColor="#8b5cf6"
+                           CharacterSpacing="2" HorizontalOptions="Center" />
+                    <Label x:Name="TravelToLabel" Text=""
+                           FontSize="15" FontAttributes="Bold" TextColor="#e6edf3"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="TravelTimerLabel" Text="00:00"
+                           FontSize="40" FontAttributes="Bold" TextColor="#8b5cf6"
+                           HorizontalOptions="Center" />
+                    <Label Text="You're still on the clock. Tap Arrive when you reach the new site."
+                           FontSize="12" TextColor="#7d8590" HorizontalTextAlignment="Center" />
+                    <Label x:Name="TravelMsgLabel" Text="" IsVisible="False"
+                           FontSize="12" FontAttributes="Bold" TextColor="#ef4444"
+                           HorizontalTextAlignment="Center" />
+                    <Button x:Name="ArriveBtn" Text="Arrive &amp; clock in"
+                            BackgroundColor="#8b5cf6" TextColor="#080b10"
+                            FontAttributes="Bold" FontSize="15"
+                            HeightRequest="50" CornerRadius="12"
+                            Clicked="OnArrive" />
+                    <Button Text="Cancel - back to previous job"
+                            BackgroundColor="Transparent" TextColor="#7d8590"
+                            BorderColor="#1c2330" BorderWidth="1"
+                            FontSize="12" HeightRequest="42" CornerRadius="12"
+                            Clicked="OnCancelTravel" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
         <Grid x:Name="ExitSheet" Grid.Row="1" IsVisible="False"
               BackgroundColor="#CC000000">
             <Border BackgroundColor="#0d1117" Stroke="#ef4444" StrokeThickness="1"

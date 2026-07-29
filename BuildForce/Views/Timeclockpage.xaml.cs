@@ -1,5 +1,6 @@
 #pragma warning disable CA1416
 using BuildForce.Services;
+using System.Linq;
 using System.Text.Json;
 
 namespace BuildForce.Views;
@@ -47,7 +48,7 @@ public partial class TimeClockPage : ContentPage
 
     private bool _onBreak = false;
     private DateTime _breakStartLocal;
-    private int _breakMinutesAccum = 0;
+    private TimeSpan _breakAccum = TimeSpan.Zero;
 
     private readonly RingDrawable _ring = new();
 
@@ -59,6 +60,13 @@ public partial class TimeClockPage : ContentPage
     private DateTime _watchMuteUntil = DateTime.MinValue;
     private bool _materialRun = false;
     private const int MaterialRunMinutes = 60;
+    // [SW2c] auto clock-out grace period. _exitDetectedAt is the first
+    // moment we measured the worker outside the fence; if they are still
+    // outside AutoClockOutMinutes later, site watch punches them out and
+    // backdates the punch to this timestamp. Material run and snooze both
+    // clear it, so a declared errand is never auto-punched.
+    private DateTime? _exitDetectedAt = null;
+    private const int AutoClockOutMinutes = 15;
 
     private static readonly Color Green = Color.FromArgb("#10b981");
     private static readonly Color Amber = Color.FromArgb("#f0a500");
@@ -139,7 +147,7 @@ public partial class TimeClockPage : ContentPage
             _activeTimesheetId = active.TimesheetId;
             _clockInTime = (active.ClockInTime ?? active.Date).ToLocalTime();
             _isClockedIn = true;
-            _breakMinutesAccum = active.BreakMinutes;
+            _breakAccum = TimeSpan.FromMinutes(active.BreakMinutes);
 
             if (!_geoResolved && Preferences.ContainsKey("sw_lat") && Preferences.ContainsKey("sw_lng"))
             {
@@ -192,7 +200,7 @@ public partial class TimeClockPage : ContentPage
             ActiveCostCodeLabel.Text = string.IsNullOrEmpty(_selectedCostCode)
                 ? "Cost code: none"
                 : $"Cost code: {_selectedCostCode}";
-            BreakTotalLabel.Text = $"{_breakMinutesAccum}m";
+            BreakTotalLabel.Text = $"{(int)_breakAccum.TotalMinutes}m";
 
             if (_onBreak)
             {
@@ -242,7 +250,7 @@ public partial class TimeClockPage : ContentPage
     private TimeSpan CurrentElapsed()
     {
         var elapsed = DateTime.Now - _clockInTime;
-        elapsed -= TimeSpan.FromMinutes(_breakMinutesAccum);
+        elapsed -= _breakAccum;
         if (_onBreak)
             elapsed -= (DateTime.Now - _breakStartLocal);
         if (elapsed < TimeSpan.Zero) elapsed = TimeSpan.Zero;
@@ -639,6 +647,17 @@ public partial class TimeClockPage : ContentPage
             return;
         }
 
+        // CLOCKIN-FRESHFIX: live GPS fix so a stale/cached location can't block the geofence
+        MainThread.BeginInvokeOnMainThread(() => { StatusLabel.Text = "CHECKING LOCATION..."; StatusLabel.TextColor = Amber; });
+        try
+        {
+            var fix = await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(20)));
+            if (fix != null) { _workerLat = fix.Latitude; _workerLng = fix.Longitude; _gpsReady = true; }
+        }
+        catch { }
+        if (_selectedProject != null)
+            await CheckGeofence(_workerLat, _workerLng, _selectedProject.Location);
+
         if (!_gpsReady)
         {
             await DisplayAlert("Location Required",
@@ -680,7 +699,7 @@ public partial class TimeClockPage : ContentPage
                 _clockInTime = (result.ClockInTime ?? DateTime.UtcNow).ToLocalTime();
                 _isClockedIn = true;
                 _onBreak = false;
-                _breakMinutesAccum = 0;
+                _breakAccum = TimeSpan.Zero;
 
                 ApplyClockedInUi();
                 StartLocalTimer();
@@ -738,7 +757,7 @@ public partial class TimeClockPage : ContentPage
                 if (result != null)
                 {
                     _onBreak = false;
-                    _breakMinutesAccum = result.BreakMinutes;
+                    _breakAccum += (DateTime.Now - _breakStartLocal);
                     ApplyClockedInUi();
                 }
                 else
@@ -808,7 +827,7 @@ public partial class TimeClockPage : ContentPage
         _timer.Elapsed += (s, e) =>
         {
             var elapsed = CurrentElapsed();
-            var breakLive = _breakMinutesAccum + (_onBreak ? (int)(DateTime.Now - _breakStartLocal).TotalMinutes : 0);
+            var breakLive = (int)(_breakAccum + (_onBreak ? (DateTime.Now - _breakStartLocal) : TimeSpan.Zero)).TotalMinutes;
             _watchTick++;
             if (_watchTick >= 60)
             {
@@ -963,6 +982,36 @@ public partial class TimeClockPage : ContentPage
         return R * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
     }
 
+    // [SW2c] Site watch punched the worker out: they left the fence and
+    // stayed out past the grace period. No selfie and no safety gates on
+    // this path - the server flags the row so payroll can see it.
+    private async Task AutoClockOutAsync(DateTime leftAtLocal)
+    {
+        var tsId = _activeTimesheetId;   // capture: StopTimer() zeroes it
+        if (tsId == 0) return;
+        try
+        {
+            var result = await _api.ClockOutAsync(
+                tsId, _workerLat, _workerLng,
+                false, null, null,
+                autoClockOut: true, exitedAt: leftAtLocal.ToUniversalTime());
+
+            if (result != null)
+            {
+                try
+                {
+                    SiteWatchNotifier.Notify("Clocked out automatically",
+                        "You left the job site over " + AutoClockOutMinutes +
+                        " minutes ago. Your hours were recorded up to when you left.");
+                }
+                catch { }
+                StopTimer();
+                await LoadSummary();
+            }
+        }
+        catch { }
+    }
+
     public void StopTimer()
     {
         _timer?.Stop();
@@ -972,7 +1021,7 @@ public partial class TimeClockPage : ContentPage
         _isOnSite = false;
         _gpsReady = false;
         _onBreak = false;
-        _breakMinutesAccum = 0;
+        _breakAccum = TimeSpan.Zero;
         _exitPromptShown = false;
         _watchMuteUntil = DateTime.MinValue;
         _watchTick = 0;
@@ -1005,16 +1054,257 @@ public partial class TimeClockPage : ContentPage
 
     private async void OnSwitchJob(object sender, EventArgs e)
     {
-        await Application.Current!.MainPage!.DisplayAlert("Switch Job",
-            "Job switching is coming soon. Clock out, then clock in on the new project.", "OK");
+        if (!_isClockedIn || _activeTimesheetId == 0)
+        {
+            await DisplayAlert("Switch Job", "You need to be clocked in before switching jobs.", "OK");
+            return;
+        }
+
+        // Build the destination list: active projects, excluding the current one.
+        SwitchProjectList.Children.Clear();
+        var candidates = _projects
+            .Where(p => _selectedProject == null || p.Id != _selectedProject.Id)
+            .ToList();
+
+        if (candidates.Count == 0)
+        {
+            await DisplayAlert("Switch Job", "No other projects are available to switch to.", "OK");
+            return;
+        }
+
+        foreach (var proj in candidates)
+        {
+            var p = proj;
+            var btn = new Button
+            {
+                Text = p.Name,
+                BackgroundColor = Color.FromArgb("#161b22"),
+                TextColor = Color.FromArgb("#e6edf3"),
+                BorderColor = Color.FromArgb("#1c2330"),
+                BorderWidth = 1,
+                FontSize = 14,
+                HeightRequest = 48,
+                CornerRadius = 12
+            };
+            btn.Clicked += async (s2, e2) => await BeginLeaveToAsync(p);
+            SwitchProjectList.Children.Add(btn);
+        }
+
+        SwitchSheet.IsVisible = true;
+    }
+
+    private void OnSwitchCancel(object sender, EventArgs e)
+    {
+        SwitchSheet.IsVisible = false;
+    }
+
+    // ===== Two-tap job switch with travel time =====
+    private ProjectSummary? _travelTarget;
+    private int _departedTimesheetId = 0;
+    private DateTime _departTimeUtc;
+    private bool _traveling = false;
+    private System.Timers.Timer? _travelTimer;
+
+    // Tap 1: Leave the current job. Closes it now, starts the travel clock.
+    private async Task BeginLeaveToAsync(ProjectSummary target)
+    {
+        System.Diagnostics.Debug.WriteLine("LEAVE: enter");
+        SwitchSheet.IsVisible = false;
+        await Task.Delay(200);
+
+        System.Diagnostics.Debug.WriteLine("LEAVE: proceeding, no confirm");
+
+        StatusLabel.Text = "LEAVING...";
+        StatusLabel.TextColor = Amber;
+        try
+        {
+            var result = await _api.LeaveJobAsync(_workerLat, _workerLng);
+            System.Diagnostics.Debug.WriteLine("LEAVE: apiNull=" + (result == null) + " err=" + (_api.LastError ?? ""));
+            if (result == null)
+            {
+                await DisplayAlert("Couldn't leave", _api.LastError ?? "Please try again.", "OK");
+                StatusLabel.Text = "ON THE CLOCK";
+                StatusLabel.TextColor = Green;
+                return;
+            }
+
+            _travelTarget = target;
+            _departedTimesheetId = result.ClosedTimesheetId;
+            _departTimeUtc = (result.DepartedAt ?? DateTime.UtcNow);
+            _traveling = true;
+
+            // Persist so the travel clock survives an app kill.
+            Preferences.Set("travel_departed_id", _departedTimesheetId);
+            Preferences.Set("travel_depart_utc", _departTimeUtc.ToString("o"));
+            Preferences.Set("travel_target_id", target.Id);
+
+            EnterTravelingUi();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", "Leave error: " + ex.Message, "OK");
+            StatusLabel.Text = "ON THE CLOCK";
+            StatusLabel.TextColor = Green;
+        }
+    }
+
+    private void EnterTravelingUi()
+    {
+        // Stop the work timer; the travel timer takes over.
+        _isClockedIn = false;
+        _timer?.Stop();
+        if (_travelTarget != null) TravelToLabel.Text = "\u2192 " + _travelTarget.Name;
+        UpdateTravelTimerLabel();
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            SetChip("TRAVELING", Color.FromArgb("#1a1330"), Color.FromArgb("#8b5cf6"));
+            StatusLabel.Text = "TRAVELING - ON THE CLOCK";
+            StatusLabel.TextColor = Color.FromArgb("#8b5cf6");
+            TravelMsgLabel.Text = ""; TravelMsgLabel.IsVisible = false; TravelSheet.IsVisible = true;
+        });
+        _travelTimer?.Stop();
+        _travelTimer = new System.Timers.Timer(1000);
+        _travelTimer.Elapsed += (s, e) => MainThread.BeginInvokeOnMainThread(UpdateTravelTimerLabel);
+        _travelTimer.Start();
+    }
+
+    private void UpdateTravelTimerLabel()
+    {
+        var mins = (DateTime.UtcNow - _departTimeUtc);
+        if (mins.TotalSeconds < 0) mins = TimeSpan.Zero;
+        TravelTimerLabel.Text = ((int)mins.TotalMinutes).ToString("D2") + ":" + mins.Seconds.ToString("D2");
+    }
+
+    private void ShowTravelMsg(string msg)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            TravelMsgLabel.Text = msg;
+            TravelMsgLabel.IsVisible = !string.IsNullOrEmpty(msg);
+        });
+    }
+
+    private int TravelMinutesSoFar()
+    {
+        var m = (int)Math.Round((DateTime.UtcNow - _departTimeUtc).TotalMinutes);
+        return m < 0 ? 0 : m;
+    }
+
+    // Tap 2: Arrive at the new job. Geofence + safety + selfie, then open the new segment.
+    private async void OnArrive(object sender, EventArgs e)
+    {
+        if (!_traveling || _travelTarget == null) return;
+        var target = _travelTarget;
+
+        
+
+        try
+        {
+            var fresh = await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(20)));
+            if (fresh != null) { _workerLat = fresh.Latitude; _workerLng = fresh.Longitude; _gpsReady = true; }
+        }
+        catch { }
+        if (!_gpsReady) { ShowTravelMsg("Couldn't get GPS - check location services and try again."); return; }
+        ShowTravelMsg("");
+        await CheckGeofence(_workerLat, _workerLng, target.Location);
+        if (!_isOnSite)
+        {
+            ShowTravelMsg("Not at " + target.Name + " yet - get within 150m of the site and tap Arrive again.");
+            return;
+        }
+
+        var safetyPage = new SafetyCheckPage();
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(safetyPage);
+        var safetyPassed = await safetyPage.Result.Task;
+        if (!safetyPassed) return;
+
+        string? punchPhoto = await CapturePunchSelfieAsync("ARRIVAL VERIFICATION");
+        int travelMinutes = TravelMinutesSoFar();
+
+        try
+        {
+            var result = await _api.ArriveJobAsync(_departedTimesheetId, target.Id, travelMinutes, _workerLat, _workerLng, photoBase64: punchPhoto);
+            if (result == null)
+            {
+                ShowTravelMsg(_api.LastError ?? "Couldn't arrive - please try again.");
+                return;
+            }
+
+            EndTravel();
+
+            _activeTimesheetId = result.NewTimesheetId;
+            _clockInTime = (result.ClockInTime ?? DateTime.UtcNow).ToLocalTime();
+            _selectedProject = target;
+            _isClockedIn = true;
+            _onBreak = false;
+            _breakAccum = TimeSpan.Zero;
+            _exitPromptShown = false;
+            _materialRun = false;
+
+            var idx = _projects.IndexOf(target);
+            if (idx >= 0) ProjectPicker.SelectedIndex = idx + 1;
+
+            ApplyClockedInUi();
+            StartLocalTimer();
+
+            System.Diagnostics.Debug.WriteLine("ARRIVE: clocked in, " + travelMinutes + " min travel");
+        }
+        catch (Exception ex)
+        {
+            ShowTravelMsg("Arrive error: " + ex.Message);
+        }
+    }
+
+    // Cancel travel: reopen the job they left.
+    private async void OnCancelTravel(object sender, EventArgs e)
+    {
+        if (!_traveling) return;
+        
+
+        try
+        {
+            var result = await _api.CancelLeaveAsync(_departedTimesheetId);
+            if (result == null)
+            {
+                ShowTravelMsg(_api.LastError ?? "Couldn't cancel - please try again.");
+                return;
+            }
+
+            EndTravel();
+
+            _activeTimesheetId = result.TimesheetId != 0 ? result.TimesheetId : _departedTimesheetId;
+            _isClockedIn = true;
+            ApplyClockedInUi();
+            StartLocalTimer();
+
+            StatusLabel.Text = "ON THE CLOCK";
+            StatusLabel.TextColor = Green;
+        }
+        catch (Exception ex)
+        {
+            ShowTravelMsg("Cancel error: " + ex.Message);
+        }
+    }
+
+    private void EndTravel()
+    {
+        _traveling = false;
+        _travelTarget = null;
+        _travelTimer?.Stop();
+        _travelTimer = null;
+        Preferences.Remove("travel_departed_id");
+        Preferences.Remove("travel_depart_utc");
+        Preferences.Remove("travel_target_id");
+        MainThread.BeginInvokeOnMainThread(() => TravelSheet.IsVisible = false);
     }
 
     private async Task CheckSiteExitAsync()
     {
         try
         {
-            if (!_isClockedIn || !_geoResolved || _exitPromptShown) return;
-            if (DateTime.Now < _watchMuteUntil) return;
+            if (!_isClockedIn || !_geoResolved) return;
+            if (_exitPromptShown && _exitDetectedAt == null) return;   // [SW2c]
+            if (DateTime.Now < _watchMuteUntil) { _exitDetectedAt = null; return; }   // [SW2c]
 
             Location? loc = null;
             try
@@ -1026,7 +1316,31 @@ public partial class TimeClockPage : ContentPage
             if (loc == null) return;
 
             double dist = HaversineMeters(loc.Latitude, loc.Longitude, _projLat, _projLng);
-            if (dist <= 200) return;
+            if (dist <= 200)
+            {
+                // [SW2c] Back on site - stand the grace clock down.
+                if (_exitDetectedAt != null)
+                {
+                    _exitDetectedAt = null;
+                    _exitPromptShown = false;
+                    MainThread.BeginInvokeOnMainThread(() => ExitSheet.IsVisible = false);
+                }
+                return;
+            }
+
+            // [SW2c] Already counting - punch out once the grace period is up.
+            if (_exitDetectedAt != null)
+            {
+                if ((DateTime.Now - _exitDetectedAt.Value).TotalMinutes >= AutoClockOutMinutes)
+                {
+                    var leftAt = _exitDetectedAt.Value;
+                    _exitDetectedAt = null;
+                    await AutoClockOutAsync(leftAt);
+                }
+                return;
+            }
+
+            _exitDetectedAt = DateTime.Now;   // [SW2c] first detection
 
             _exitPromptShown = true;
             var msg = "You are " + dist.ToString("F0") + "m from the site and still on the clock.";

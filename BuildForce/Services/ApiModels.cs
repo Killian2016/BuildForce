@@ -85,6 +85,27 @@ public class TimesheetEntry
     public string? EmployeeName { get; set; }
     public string? ProjectName { get; set; }
 }
+public class LeaveJobResult
+{
+    public int ClosedTimesheetId { get; set; }
+    public int ClosedProjectId { get; set; }
+    public decimal ClosedHours { get; set; }
+    public DateTime? DepartedAt { get; set; }
+    public int TimesheetId { get; set; }
+    public int ProjectId { get; set; }
+    public DateTime? ClockInTime { get; set; }
+    public string? Message { get; set; }
+}
+public class SwitchJobResult
+{
+    public int ClosedTimesheetId { get; set; }
+    public int ClosedProjectId { get; set; }
+    public decimal ClosedHours { get; set; }
+    public int NewTimesheetId { get; set; }
+    public int NewProjectId { get; set; }
+    public DateTime? ClockInTime { get; set; }
+    public string? Message { get; set; }
+}
 public class ClockInResult
 {
     public int TimesheetId { get; set; }
@@ -320,3 +341,17 @@ public class ProjectPhotoUploadResult
     public string? Category { get; set; }
     public string Message { get; set; } = "";
 }
+
+public class ScheduleItem
+{
+    public int Id { get; set; }
+    public int ProjectId { get; set; }
+    public string? ProjectName { get; set; }
+    public string? ProjectLocation { get; set; }
+    public string? Date { get; set; }
+    public string? StartTime { get; set; }
+    public string? EndTime { get; set; }
+    public string? Notes { get; set; }
+    public string? Status { get; set; }
+}
+

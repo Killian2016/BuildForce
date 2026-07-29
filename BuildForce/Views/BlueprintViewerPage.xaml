@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.BlueprintViewerPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#080b10">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" Padding="16,12" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+            <Button Text="Close" BackgroundColor="Transparent" TextColor="#e6edf3"
+                    BorderColor="#1c2330" BorderWidth="1" FontSize="12"
+                    HeightRequest="36" CornerRadius="10" Padding="14,0"
+                    Clicked="OnClose" />
+            <Label x:Name="TitleLabel" Grid.Column="1" Text="" FontSize="14"
+                   FontAttributes="Bold" TextColor="#e6edf3" VerticalOptions="Center"
+                   LineBreakMode="TailTruncation" />
+            <Button x:Name="OpenExtBtn" Grid.Column="2" Text="Open"
+                    BackgroundColor="Transparent" TextColor="#8b5cf6"
+                    BorderColor="#8b5cf6" BorderWidth="1" FontSize="12"
+                    HeightRequest="36" CornerRadius="10" Padding="14,0"
+                    IsEnabled="False" Clicked="OnOpenExternal" />
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True"
+                               Color="#8b5cf6" VerticalOptions="Center" />
+            <Label x:Name="ErrorLabel" Text="" FontSize="13" TextColor="#7d8590"
+                   IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center"
+                   HorizontalTextAlignment="Center" Margin="24,0" />
+
+            <Grid x:Name="ImgHost" IsVisible="False">
+                <Grid.GestureRecognizers>
+                    <PinchGestureRecognizer PinchUpdated="OnPinch" />
+                    <PanGestureRecognizer PanUpdated="OnPan" />
+                    <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnDoubleTap" />
+                </Grid.GestureRecognizers>
+                <Image x:Name="ImgView" Aspect="AspectFit"
+                       HorizontalOptions="Fill" VerticalOptions="Fill"
+                       InputTransparent="True" />
+            </Grid>
+
+            <WebView x:Name="PdfView" IsVisible="False" BackgroundColor="#080b10" />
+        </Grid>
+    </Grid>
+</ContentPage>

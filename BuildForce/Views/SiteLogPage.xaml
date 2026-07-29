@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.SiteLogPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#080b10">
+
+    <Grid RowDefinitions="4,Auto,*,Auto">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+            <BoxView Color="#f0a500" />
+            <BoxView Color="#0ea5e9" Grid.Column="1" />
+            <BoxView Color="#10b981" Grid.Column="2" />
+        </Grid>
+
+        <Grid Grid.Row="1" Padding="16,14,16,8" ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="FIELD TOOLS  &#x203A;  DAILY SITE LOG" FontSize="10" FontAttributes="Bold"
+                       TextColor="#7d8590" CharacterSpacing="2" />
+                <Label Text="Daily Site Log" FontSize="20" FontAttributes="Bold" TextColor="#e6edf3" />
+                <Label x:Name="DateLabel" Text="" FontSize="12" TextColor="#7d8590" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1" Text="Close" BackgroundColor="Transparent" TextColor="#7d8590"
+                    BorderColor="#1c2330" BorderWidth="1" FontSize="12" HeightRequest="36"
+                    CornerRadius="10" Padding="14,0" VerticalOptions="Start"
+                    Clicked="OnClose" />
+        </Grid>
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,4,16,16" Spacing="12">
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="PROJECT" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                    <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="6,0">
+                        <Picker x:Name="ProjectPicker" Title="&#8212; Select Project &#8212;"
+                                TextColor="#e6edf3" TitleColor="#7d8590"
+                                BackgroundColor="Transparent" Margin="8,0" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="WEATHER" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                    <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="10,0">
+                        <Entry x:Name="WeatherEntry" Placeholder="Fetching weather..."
+                               TextColor="#e6edf3" PlaceholderColor="#7d8590" BackgroundColor="Transparent" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="*,90" ColumnSpacing="10">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="CREW ON SITE" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                        <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10" Padding="10,0">
+                            <Entry x:Name="CrewEntry" Placeholder="Names"
+                                   TextColor="#e6edf3" PlaceholderColor="#7d8590" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label Text="COUNT" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                        <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10" Padding="10,0">
+                            <Entry x:Name="CrewCountEntry" Placeholder="0" Keyboard="Numeric"
+                                   TextColor="#e6edf3" PlaceholderColor="#7d8590" BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="WORK COMPLETED" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                    <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="10,6">
+                        <Editor x:Name="WorkEditor" Placeholder="What got done today"
+                                TextColor="#e6edf3" PlaceholderColor="#7d8590" BackgroundColor="Transparent"
+                                HeightRequest="90" AutoSize="TextChanges" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="ISSUES / DELAYS" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                    <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="10,6">
+                        <Editor x:Name="IssuesEditor" Placeholder="Anything that slowed the job"
+                                TextColor="#e6edf3" PlaceholderColor="#7d8590" BackgroundColor="Transparent"
+                                HeightRequest="70" AutoSize="TextChanges" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="MATERIALS DELIVERED" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                    <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="10,6">
+                        <Editor x:Name="MaterialsEditor" Placeholder="Deliveries received today"
+                                TextColor="#e6edf3" PlaceholderColor="#7d8590" BackgroundColor="Transparent"
+                                HeightRequest="70" AutoSize="TextChanges" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="NOTES" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1" />
+                    <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="10,0">
+                        <Entry x:Name="NotesEntry" Placeholder="Anything else"
+                               TextColor="#e6edf3" PlaceholderColor="#7d8590" BackgroundColor="Transparent" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <Label x:Name="SaveStatusLabel" Text="" FontSize="12" FontAttributes="Bold"
+                       IsVisible="False" HorizontalOptions="Center" Margin="0,4,0,0" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Button Grid.Row="3" x:Name="SaveBtn" Text="Save site log"
+                BackgroundColor="#f0a500" TextColor="#080b10"
+                FontSize="15" FontAttributes="Bold" HeightRequest="52"
+                CornerRadius="14" Margin="16,4,16,18"
+                Clicked="OnSave" />
+    </Grid>
+</ContentPage>

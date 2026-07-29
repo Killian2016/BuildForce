@@ -435,6 +435,7 @@ public class ApiService
                 return null;
             }
             var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine("StartBreak response: " + json);
             return System.Text.Json.JsonSerializer.Deserialize<BreakResult>(json,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
@@ -457,6 +458,7 @@ public class ApiService
                 return null;
             }
             var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine("EndBreak response: " + json);
             return System.Text.Json.JsonSerializer.Deserialize<BreakResult>(json,
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
@@ -496,7 +498,7 @@ public class ApiService
         }
     }
 
-    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng, bool injuryReported = false, string? injuryDetails = null, string? photoBase64 = null)
+    public async Task<ClockOutResult?> ClockOutAsync(int timesheetId, double lat, double lng, bool injuryReported = false, string? injuryDetails = null, string? photoBase64 = null, bool autoClockOut = false, DateTime? exitedAt = null)
     {
         try
         {
@@ -507,7 +509,9 @@ public class ApiService
                 longitude = lng,
                 injuryReported,
                 injuryDetails,
-                photoBase64
+                photoBase64,
+                autoClockOut,
+                exitedAt
             });
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"ClockOut response ({response.StatusCode}): {json}");
@@ -528,6 +532,115 @@ public class ApiService
             System.Diagnostics.Debug.WriteLine($"ClockOut exception: {ex.Message}");
             return null;
         }
+    }
+
+    public async Task<SwitchJobResult?> SwitchJobAsync(int projectId, double lat, double lng, string? photoBase64 = null, int materialRunCount = 0, int materialRunMinutes = 0)
+    {
+        try
+        {
+            LastError = null;
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/timesheets/switch", new
+            {
+                projectId,
+                latitude = lat,
+                longitude = lng,
+                photoBase64,
+                materialRunCount,
+                materialRunMinutes
+            });
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"SwitchJob response ({response.StatusCode}): {json}");
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<SwitchJobResult>(json, options);
+            }
+            try
+            {
+                using var errDoc = JsonDocument.Parse(json);
+                if (errDoc.RootElement.TryGetProperty("error", out var errEl))
+                    LastError = errEl.GetString();
+            }
+            catch { }
+            if (string.IsNullOrEmpty(LastError)) LastError = "Switch failed (" + (int)response.StatusCode + ")";
+            return null;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            System.Diagnostics.Debug.WriteLine($"SwitchJob exception: {ex.Message}");
+            return null;
+        }
+    }
+
+    // Two-tap job switch with travel time.
+    public async Task<LeaveJobResult?> LeaveJobAsync(double lat, double lng, int materialRunCount = 0, int materialRunMinutes = 0)
+    {
+        try
+        {
+            LastError = null;
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/timesheets/leave", new
+            {
+                latitude = lat,
+                longitude = lng,
+                materialRunCount,
+                materialRunMinutes
+            });
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"Leave response ({response.StatusCode}): {json}");
+            if (response.IsSuccessStatusCode)
+                return JsonSerializer.Deserialize<LeaveJobResult>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            try { using var d = JsonDocument.Parse(json); if (d.RootElement.TryGetProperty("error", out var er)) LastError = er.GetString(); } catch { }
+            if (string.IsNullOrEmpty(LastError)) LastError = "Leave failed (" + (int)response.StatusCode + ")";
+            return null;
+        }
+        catch (Exception ex) { LastError = ex.Message; return null; }
+    }
+
+    public async Task<SwitchJobResult?> ArriveJobAsync(int closedTimesheetId, int projectId, int travelMinutes, double lat, double lng, string? photoBase64 = null)
+    {
+        try
+        {
+            LastError = null;
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/timesheets/arrive", new
+            {
+                closedTimesheetId,
+                projectId,
+                travelMinutes,
+                latitude = lat,
+                longitude = lng,
+                photoBase64
+            });
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"Arrive response ({response.StatusCode}): {json}");
+            if (response.IsSuccessStatusCode)
+                return JsonSerializer.Deserialize<SwitchJobResult>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            try { using var d = JsonDocument.Parse(json); if (d.RootElement.TryGetProperty("error", out var er)) LastError = er.GetString(); } catch { }
+            if (string.IsNullOrEmpty(LastError)) LastError = "Arrive failed (" + (int)response.StatusCode + ")";
+            return null;
+        }
+        catch (Exception ex) { LastError = ex.Message; return null; }
+    }
+
+    public async Task<LeaveJobResult?> CancelLeaveAsync(int closedTimesheetId)
+    {
+        try
+        {
+            LastError = null;
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/timesheets/cancel-leave", new { closedTimesheetId });
+            var json = await response.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"CancelLeave response ({response.StatusCode}): {json}");
+            if (response.IsSuccessStatusCode)
+                return JsonSerializer.Deserialize<LeaveJobResult>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            try { using var d = JsonDocument.Parse(json); if (d.RootElement.TryGetProperty("error", out var er)) LastError = er.GetString(); } catch { }
+            if (string.IsNullOrEmpty(LastError)) LastError = "Cancel failed (" + (int)response.StatusCode + ")";
+            return null;
+        }
+        catch (Exception ex) { LastError = ex.Message; return null; }
     }
 
     public async Task<List<TimesheetEntry>> GetTimesheetsAsync(DateTime? startDate = null, DateTime? endDate = null)
@@ -557,6 +670,77 @@ public class ApiService
         catch { return null; }
     }
 
+    public async Task<bool> FileSafetyInspectionAsync(SafetyInspectionSend req)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/safety", req);
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex) { LastError = ex.Message; return false; }
+    }
+    public async Task<SiteLog?> GetSiteLogTodayAsync(int projectId)
+    {
+        try
+        {
+            RefreshToken();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var json = await _client.GetStringAsync("/api/mobile/sitelogs/today/" + projectId);
+            if (string.IsNullOrWhiteSpace(json) || json == "null") return null;
+            return JsonSerializer.Deserialize<SiteLog>(json, options);
+        }
+        catch { return null; }
+    }
+
+    public async Task<bool> SaveSiteLogAsync(SiteLogSave req)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/sitelogs", req);
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex) { LastError = ex.Message; return false; }
+    }
+    public async Task<List<ScheduleItem>?> GetMyScheduleAsync(DateTime? date = null)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var url = "/api/mobile/timesheets/schedule";
+            if (date.HasValue) url += $"?date={date:yyyy-MM-dd}";
+            var response = await _client.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<List<ScheduleItem>>(json, options) ?? new List<ScheduleItem>();
+            }
+            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return null;
+        }
+    }
     public async Task<List<CrewMember>?> GetActiveCrewAsync()
     {
         LastError = null;
@@ -691,6 +875,250 @@ public class ApiService
             return "Delete failed: " + ex.Message;
         }
     }
+
+    // ============================================
+    // MY PROFILE  [PRF1]
+    // GET  /api/mobile/profile              -> worker info (ProfileInfo)
+    // GET  /api/mobile/profile/photo/image  -> raw jpeg bytes (auth proxy)
+    // POST /api/mobile/profile/photo        -> upload base64 photo
+    // ============================================
+    public async Task<ProfileInfo?> GetMyProfileAsync()
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync("/api/mobile/profile");
+            var json = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<ProfileInfo>(json, options);
+            }
+            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
+    public async Task<byte[]?> GetProfilePhotoImageAsync()
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync("/api/mobile/profile/photo/image");
+            if (!response.IsSuccessStatusCode)
+            {
+                // Fallback route in case the server exposes the image at /photo
+                response = await _client.GetAsync("/api/mobile/profile/photo");
+                if (!response.IsSuccessStatusCode) return null;
+            }
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("GetProfilePhotoImage exception: " + ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<bool> UploadProfilePhotoAsync(string base64)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            // Redundant property names on purpose: the server DTO binds whichever
+            // matches; extra JSON properties are ignored by the model binder.
+            var payload = new { PhotoBase64 = base64, Base64 = base64, ImageBase64 = base64, FileName = "profile.jpg" };
+            var content = new StringContent(JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync("/api/mobile/profile/photo", content);
+            if (response.IsSuccessStatusCode) return true;
+            var json = await response.Content.ReadAsStringAsync();
+            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return false;
+        }
+    }
+    // ============================================
+    // BLUEPRINTS [BLP3]
+    // GET /api/mobile/projects/{id}/blueprints -> sheet list
+    // GET /api/mobile/blueprints/{id}/file     -> raw file bytes
+    // ============================================
+    public async Task<List<BlueprintItem>?> GetBlueprintsAsync(int projectId)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync($"/api/mobile/projects/{projectId}/blueprints");
+            var json = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<List<BlueprintItem>>(json, options) ?? new List<BlueprintItem>();
+            }
+            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
+        // ============================================
+    // SUBMITTALS [SUB3a]
+    // GET /api/mobile/projects/{id}/submittals -> register list
+    // GET /api/mobile/submittals/{id}/file     -> raw file bytes
+    // ============================================
+    public async Task<List<SubmittalItem>?> GetSubmittalsAsync(int projectId)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync($"/api/mobile/projects/{projectId}/submittals");
+            var json = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                return JsonSerializer.Deserialize<List<SubmittalItem>>(json, options) ?? new List<SubmittalItem>();
+            }
+            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+            return null;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return null;
+        }
+    }
+
+    public async Task<byte[]?> GetSubmittalFileAsync(int id)
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync($"/api/mobile/submittals/{id}/file");
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("GetSubmittalFile exception: " + ex.Message);
+            return null;
+        }
+    }
+    public async Task<byte[]?> GetBlueprintFileAsync(int id)
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync($"/api/mobile/blueprints/{id}/file");
+            if (!response.IsSuccessStatusCode) return null;
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("GetBlueprintFile exception: " + ex.Message);
+            return null;
+        }
+    }
 }
 
 
+
+public class SiteLog
+{
+    public int Id { get; set; }
+    public int ProjectId { get; set; }
+    public DateTime Date { get; set; }
+    public string? Weather { get; set; }
+    public string? CrewSummary { get; set; }
+    public int CrewCount { get; set; }
+    public string? WorkCompleted { get; set; }
+    public string? IssuesDelays { get; set; }
+    public string? MaterialsDelivered { get; set; }
+    public string? Notes { get; set; }
+    public DateTime? ModifiedDate { get; set; }
+}
+
+public class SiteLogSave
+{
+    public int ProjectId { get; set; }
+    public string? Weather { get; set; }
+    public string? CrewSummary { get; set; }
+    public int CrewCount { get; set; }
+    public string? WorkCompleted { get; set; }
+    public string? IssuesDelays { get; set; }
+    public string? MaterialsDelivered { get; set; }
+    public string? Notes { get; set; }
+}
+public class SafetyInspectionSend
+{
+    public int ProjectId { get; set; }
+    public string? InspectionType { get; set; }
+    public List<SafetyItemSend> Items { get; set; } = new();
+    public bool FollowUpRequired { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class SafetyItemSend
+{
+    public string? Id { get; set; }
+    public string? Label { get; set; }
+    public string? Result { get; set; }
+    public string? Note { get; set; }
+}
+
+public class ProfileInfo
+{
+    public int Id { get; set; }
+    public string? FullName { get; set; }
+    public string? Position { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public string? ProfilePhotoUrl { get; set; }
+    public bool HasPhoto { get; set; }
+}
+public class SubmittalItem
+{
+    public int Id { get; set; }
+    public string? SubmittalNumber { get; set; }
+    public int Revision { get; set; }
+    public string? Title { get; set; }
+    public string? SubmittalType { get; set; }
+    public string? SpecSection { get; set; }
+    public string? Status { get; set; }
+    public string? SubcontractorName { get; set; }
+    public DateTime? DateSubmitted { get; set; }
+    public DateTime? DateRequired { get; set; }
+    public DateTime? DateReturned { get; set; }
+    public string? ReviewedByName { get; set; }
+    public string? ReviewComments { get; set; }
+    public string? FileName { get; set; }
+    public string? ContentType { get; set; }
+    public long FileSizeBytes { get; set; }
+    public bool HasFile { get; set; }
+    public DateTime CreatedDate { get; set; }
+}
+public class BlueprintItem
+{
+    public int Id { get; set; }
+    public string? Title { get; set; }
+    public string? FileName { get; set; }
+    public string? ContentType { get; set; }
+    public long FileSizeBytes { get; set; }
+    public string? UploadedByName { get; set; }
+    public DateTime CreatedDate { get; set; }
+}

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.ProfilePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#080b10">
+
+    <Grid RowDefinitions="4,Auto,*">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+            <BoxView Color="#f0a500" />
+            <BoxView Color="#0ea5e9" Grid.Column="1" />
+            <BoxView Color="#10b981" Grid.Column="2" />
+        </Grid>
+
+        <Grid Grid.Row="1" Padding="16,14,16,10" ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="MY PROFILE" FontSize="10" FontAttributes="Bold"
+                       TextColor="#7d8590" CharacterSpacing="2" />
+                <Label x:Name="HeaderLabel" Text="Account" FontSize="20"
+                       FontAttributes="Bold" TextColor="#e6edf3" />
+            </VerticalStackLayout>
+            <Button Text="Close" BackgroundColor="Transparent" TextColor="#7d8590"
+                    BorderColor="#1c2330" BorderWidth="1" FontSize="12"
+                    HeightRequest="36" CornerRadius="10" Padding="14,0"
+                    Grid.Column="1" VerticalOptions="Start"
+                    Clicked="OnClose" />
+        </Grid>
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,10,16,28" Spacing="16" HorizontalOptions="Fill">
+
+                <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True"
+                               Color="#f0a500" Margin="0,8" />
+
+                <Border HorizontalOptions="Center" Stroke="#f0a500" StrokeThickness="2"
+                        WidthRequest="120" HeightRequest="120">
+                    <Border.StrokeShape><Ellipse /></Border.StrokeShape>
+                    <Grid>
+                        <Image x:Name="PhotoImage" Aspect="AspectFill" IsVisible="False" />
+                        <Label x:Name="InitialsLabel" Text="?" FontSize="40" FontAttributes="Bold"
+                            TextColor="#f0a500" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                    <Button x:Name="CameraBtn" Text="Camera" BackgroundColor="#f0a500" TextColor="#080b10"
+                            FontSize="13" FontAttributes="Bold" HeightRequest="44" CornerRadius="12"
+                            Padding="18,0" Clicked="OnCamera" />
+                    <Button x:Name="GalleryBtn" Text="Gallery" BackgroundColor="Transparent" TextColor="#e6edf3"
+                            BorderColor="#1c2330" BorderWidth="1" FontSize="13" HeightRequest="44" CornerRadius="12"
+                            Padding="18,0" Clicked="OnGallery" />
+                </HorizontalStackLayout>
+
+                <Label x:Name="StatusLabel" Text="" IsVisible="False" FontSize="12"
+                       TextColor="#10b981" HorizontalOptions="Center" />
+
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        Padding="16" Margin="0,10,0,0">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12" x:Name="InfoStack" />
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

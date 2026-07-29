@@ -15,11 +15,13 @@ public partial class DashboardPage : ContentPage
         _auth = auth;
         LoadHeader();
         LoadLive();
+        LoadAvatar(); // [PRF3b] ctor call - OnAppearing may not fire in dock
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        LoadAvatar();
         LoadHeader();
         LoadLive();
     }
@@ -153,22 +155,32 @@ public partial class DashboardPage : ContentPage
 
     private async void OnDailyLog(object sender, EventArgs e)
     {
-        await ComingSoonAsync("Daily site logs");
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new SiteLogPage(_api));
     }
 
     private async void OnDailyLogTap(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Daily site logs");
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new SiteLogPage(_api));
     }
 
     private async void OnCrew(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Crew");
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new CrewPage(_api));
     }
 
     private async void OnBlueprints(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Blueprints");
+        try // [BLP3] Blueprints -> BlueprintsPage
+        {
+            var hostBp = Application.Current?.MainPage;
+            if (hostBp != null)
+                await hostBp.Navigation.PushModalAsync(new BlueprintsPage(_api));
+        }
+        catch (Exception bpEx)
+        {
+            var hostBp2 = Application.Current?.MainPage;
+            if (hostBp2 != null) await hostBp2.DisplayAlert("Navigation error", bpEx.Message, "OK");
+        }
     }
 
     private async void OnSearch(object sender, EventArgs e)
@@ -192,17 +204,39 @@ public partial class DashboardPage : ContentPage
 
     private async void OnSafetyForms(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Safety inspection forms");
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new SafetyInspectionPage(_api));
     }
 
     private async void OnSubmittals(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Submittals");
+        try // [SUB3b] Submittals -> SubmittalsPage
+        {
+            var hostSub = Application.Current?.MainPage;
+            if (hostSub != null)
+                await hostSub.Navigation.PushModalAsync(new SubmittalsPage(_api));
+        }
+        catch (Exception ex)
+        {
+            var hostSub2 = Application.Current?.MainPage;
+            if (hostSub2 != null) await hostSub2.DisplayAlert("Error", ex.Message, "OK");
+        }
     }
 
     private async void OnAccountSettings(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Account settings");
+        try // [PRF2] Account settings -> ProfilePage
+        {
+            var hostPg = Application.Current?.MainPage;
+            if (hostPg != null)
+                await hostPg.Navigation.PushModalAsync(new ProfilePage(
+_api
+));
+        }
+        catch (Exception navEx)
+        {
+            var hostPg2 = Application.Current?.MainPage;
+            if (hostPg2 != null) await hostPg2.DisplayAlert("Navigation error", navEx.Message, "OK");
+        }
     }
 
     private async void OnSignOut(object sender, TappedEventArgs e)
@@ -215,5 +249,31 @@ public partial class DashboardPage : ContentPage
 
         Preferences.Clear();
         Application.Current!.MainPage = new LoginPage(_auth);
+    }
+
+    private async void LoadAvatar() // [PRF3] dashboard avatar photo
+    {
+        try
+        {
+            var bytes = await _api.GetProfilePhotoImageAsync();
+            if (bytes == null || bytes.Length == 0) return;
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                AvatarImage.Source = ImageSource.FromStream(() => new MemoryStream(bytes));
+                AvatarImage.IsVisible = true;
+                AvatarLabel.IsVisible = false;
+            });
+        }
+        catch { }
+    }
+
+    private async void OnAvatarTap(object sender, TappedEventArgs e)
+    {
+        try
+        {
+            var host = Application.Current?.MainPage;
+            if (host != null) await host.Navigation.PushModalAsync(new ProfilePage(_api));
+        }
+        catch { }
     }
 }

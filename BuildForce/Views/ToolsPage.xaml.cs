@@ -64,7 +64,17 @@ public partial class ToolsPage : ContentPage
 
     private async void OnBlueprints(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Blueprints");
+        try // [BLP3] Blueprints -> BlueprintsPage
+        {
+            var hostBp = Application.Current?.MainPage;
+            if (hostBp != null)
+                await hostBp.Navigation.PushModalAsync(new BlueprintsPage(_api));
+        }
+        catch (Exception bpEx)
+        {
+            var hostBp2 = Application.Current?.MainPage;
+            if (hostBp2 != null) await hostBp2.DisplayAlert("Navigation error", bpEx.Message, "OK");
+        }
     }
 
     private async void OnMaterials(object sender, TappedEventArgs e)
@@ -88,12 +98,31 @@ public partial class ToolsPage : ContentPage
 
     private async void OnSubmittals(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Submittals");
+        try // [SUB3b] Submittals -> SubmittalsPage
+        {
+            var hostSub = Application.Current?.MainPage;
+            if (hostSub != null)
+                await hostSub.Navigation.PushModalAsync(new SubmittalsPage(_api));
+        }
+        catch (Exception ex)
+        {
+            var hostSub2 = Application.Current?.MainPage;
+            if (hostSub2 != null) await hostSub2.DisplayAlert("Error", ex.Message, "OK");
+        }
     }
 
     private async void OnSettings(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Account settings");
+        try
+        {
+            var host = HostPage;
+            if (host != null)
+                await host.Navigation.PushModalAsync(new ProfilePage(_api));
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync("Navigation error", ex.Message);
+        }
     }
 
     private async void OnSignOut(object sender, TappedEventArgs e)
@@ -108,3 +137,4 @@ public partial class ToolsPage : ContentPage
         Application.Current!.MainPage = new LoginPage(_auth);
     }
 }
+

@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using BuildForce.Services;
 
 namespace BuildForce.Views;
@@ -10,6 +10,7 @@ public partial class MainShellPage : ContentPage
     private readonly ProjectsPage _projectsPage;
     private readonly TimeClockPage _timeClockPage;
     private readonly ToolsPage _toolsPage;
+    private readonly SchedulePage _schedulePage;
     private readonly AuthService _auth;
     private readonly ApiService _api;
 
@@ -22,6 +23,7 @@ public partial class MainShellPage : ContentPage
         _projectsPage = new ProjectsPage(api);
         _timeClockPage = new TimeClockPage(api);
         _toolsPage = new ToolsPage(api, auth);
+        _schedulePage = new SchedulePage(api);
         ShowPage(_dashboardPage);
     }
 
@@ -70,7 +72,7 @@ public partial class MainShellPage : ContentPage
         SetActive(IcoSchedule, LblSchedule);
         var host = Application.Current?.MainPage;
         if (host != null)
-            _ = host.DisplayAlert("Schedule", "Scheduling is coming soon.", "OK");
+            ShowPage(_schedulePage); _schedulePage.LoadSchedule();
     }
 
     private void NavTools_Tapped(object sender, TappedEventArgs e)
@@ -96,3 +98,4 @@ public partial class MainShellPage : ContentPage
         label.TextColor = active;
     }
 }
+

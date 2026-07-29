@@ -12,8 +12,15 @@
                 <Border BackgroundColor="#2a2210" Stroke="Transparent"
                         StrokeShape="RoundRectangle 21"
                         WidthRequest="42" HeightRequest="42">
-                    <Label x:Name="AvatarLabel" Text="--" FontSize="14" FontAttributes="Bold"
-                           TextColor="#f0a500" HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Grid>
+                        <Label x:Name="AvatarLabel" Text="--" FontSize="14" FontAttributes="Bold"
+                               TextColor="#f0a500" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Image x:Name="AvatarImage" Aspect="AspectFill" IsVisible="False"
+                               WidthRequest="42" HeightRequest="42" />
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAvatarTap" />
+                    </Border.GestureRecognizers>
                 </Border>
                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                     <Label x:Name="UserNameLabel" Text="Loading..." FontSize="15"
