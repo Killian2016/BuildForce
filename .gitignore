@@ -30,3 +30,8 @@ Thumbs.db
 CUsers*.txt
 fix_procore.py
 
+
+# backups from patch scripts
+*.bak
+*.bak-*
+*bak*
