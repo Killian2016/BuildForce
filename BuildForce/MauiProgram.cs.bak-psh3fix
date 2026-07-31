@@ -92,5 +92,4 @@ public static class MauiProgram
         public MzPickerClickListener(BuildForce.Controls.MzPicker p) { _picker = p; }
         public void OnClick(Android.Views.View v) { _ = _picker.ShowSheetAsync(); }
     }
-#endif
-}
+#endif}

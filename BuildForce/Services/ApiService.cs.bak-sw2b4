@@ -524,10 +524,8 @@ public class ApiService
             System.Diagnostics.Debug.WriteLine($"ClockOut response ({response.StatusCode}): {json}");
             if (!response.IsSuccessStatusCode)
             {
-                // [SW2b-4] Never show raw JSON to a worker on a jobsite. Record
-                // the reason and let the calling page decide what to say.
-                LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
-                System.Diagnostics.Debug.WriteLine("ClockOut failed: " + response.StatusCode + " " + json);
+                await Microsoft.Maui.Controls.Application.Current!.MainPage!.DisplayAlert("Clock Out Failed",
+                    $"Status: {response.StatusCode}\n{(json.Length > 300 ? json.Substring(0, 300) : json)}", "OK");
             }
             if (response.IsSuccessStatusCode)
             {

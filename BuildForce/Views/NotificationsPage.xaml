@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:ctl="clr-namespace:BuildForce.Controls"
-             x:Class="BuildForce.Views.BlueprintsPage"
+             x:Class="BuildForce.Views.NotificationsPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#080b10">
 
@@ -14,12 +13,12 @@
             <BoxView Color="#f0a500" Grid.Column="2" />
         </Grid>
 
-        <VerticalStackLayout Grid.Row="1" Padding="16,14,16,8" Spacing="12">
+        <VerticalStackLayout Grid.Row="1" Padding="16,14,16,8" Spacing="10">
             <Grid ColumnDefinitions="*,Auto">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="PLANS AND SHEETS [BLP3]" FontSize="10" FontAttributes="Bold"
+                    <Label Text="ALERTS [NOT3]" FontSize="10" FontAttributes="Bold"
                            TextColor="#7d8590" CharacterSpacing="2" />
-                    <Label x:Name="HeaderLabel" Text="Blueprints" FontSize="20"
+                    <Label Text="Notifications" FontSize="20"
                            FontAttributes="Bold" TextColor="#e6edf3" />
                     <Label x:Name="SubLabel" Text="Loading..." FontSize="12" TextColor="#7d8590" />
                 </VerticalStackLayout>
@@ -30,17 +29,11 @@
                         Clicked="OnClose" />
             </Grid>
 
-            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
-                    StrokeShape="RoundRectangle 12" Padding="12,4">
-                <Grid ColumnDefinitions="Auto,*">
-                    <BoxView Color="#8b5cf6" WidthRequest="3" HeightRequest="26"
-                             CornerRadius="2" VerticalOptions="Center" />
-                    <ctl:MzPicker x:Name="ProjectPicker" Grid.Column="1" Margin="10,0,0,0"
-                            Title="Select project" TitleColor="#7d8590"
-                            TextColor="#e6edf3" BackgroundColor="Transparent"
-                            SelectedIndexChanged="OnProjectChanged" />
-                </Grid>
-            </Border>
+            <Button x:Name="MarkAllBtn" Text="Mark all read" IsVisible="False"
+                    BackgroundColor="Transparent" TextColor="#8b5cf6"
+                    BorderColor="#8b5cf6" BorderWidth="1"
+                    FontSize="12" HeightRequest="38" CornerRadius="12"
+                    Clicked="OnMarkAll" />
         </VerticalStackLayout>
 
         <ScrollView Grid.Row="2">
@@ -50,7 +43,7 @@
                 <Label x:Name="EmptyLabel" Text="" FontSize="13" TextColor="#7d8590"
                        IsVisible="False" HorizontalOptions="Center" Margin="0,20,0,0"
                        HorizontalTextAlignment="Center" />
-                <VerticalStackLayout x:Name="SheetList" Spacing="10" />
+                <VerticalStackLayout x:Name="NotifList" Spacing="10" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

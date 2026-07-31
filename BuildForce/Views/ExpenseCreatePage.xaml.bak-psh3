@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:ctl="clr-namespace:BuildForce.Controls"
-             x:Class="BuildForce.Views.ProjectCreatePage"
+             x:Class="BuildForce.Views.ExpenseCreatePage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#eef1f8">
 
@@ -26,7 +25,7 @@
                     </Grid>
                     <VerticalStackLayout Padding="18,14,18,16" Spacing="4">
                         <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="OPERATIONS  &#x203A;  PROJECTS"
+                            <Label Text="OPERATIONS  &#x203A;  EXPENSES"
                                    FontSize="10" FontAttributes="Bold"
                                    TextColor="#8a93a8" CharacterSpacing="2"
                                    VerticalOptions="Center" />
@@ -40,63 +39,51 @@
                                 </Border.GestureRecognizers>
                             </Border>
                         </Grid>
-                        <Label Text="Create New Project"
+                        <Label Text="Log Expense"
                                FontSize="22" FontAttributes="Bold" TextColor="#1a2340" />
-                        <Label Text="Set up a new construction project for an existing customer"
+                        <Label Text="Record a cost against a project"
                                FontSize="12" TextColor="#6b7280" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
+
+            <Border BackgroundColor="#0ea5e9" Stroke="Transparent"
+                    StrokeShape="RoundRectangle 12" Padding="0,14">
+                <Border.Shadow>
+                    <Shadow Brush="#0ea5e9" Offset="0,4" Radius="12" Opacity="0.3" />
+                </Border.Shadow>
+                <Label Text="&#x1F4F7;  SCAN RECEIPT" FontSize="14" FontAttributes="Bold"
+                       TextColor="White" HorizontalOptions="Center" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnScanReceipt" />
+                </Border.GestureRecognizers>
+            </Border>
+            <Label Text="Snap a photo of a receipt and the form fills itself in."
+                   FontSize="11" TextColor="#8a93a8"
+                   HorizontalOptions="Center" Margin="0,-6,0,0" />
 
             <Border BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
                     StrokeShape="RoundRectangle 14" Padding="16,14">
                 <VerticalStackLayout Spacing="14">
 
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="CUSTOMER *" FontSize="10" FontAttributes="Bold"
+                        <Label Text="PROJECT *" FontSize="10" FontAttributes="Bold"
                                TextColor="#8a93a8" CharacterSpacing="1" />
                         <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="6,0">
-                            <ctl:MzPicker x:Name="CustomerPicker" Title="&#8212; Select Customer &#8212;"
+                            <Picker x:Name="ProjectPicker" Title="&#8212; Select Project &#8212;"
                                     TextColor="#1a2340" TitleColor="#9aa3b8"
                                     BackgroundColor="Transparent" Margin="8,0" />
                         </Border>
-                        <Label Text="Customers are managed on the web at mezanocm.com."
-                               FontSize="10" TextColor="#8a93a8" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="PROJECT NAME *" FontSize="10" FontAttributes="Bold"
+                        <Label Text="DESCRIPTION *" FontSize="10" FontAttributes="Bold"
                                TextColor="#8a93a8" CharacterSpacing="1" />
                         <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="12,2">
-                            <Entry x:Name="NameEntry"
-                                   Placeholder="e.g. Main St Kitchen Remodel"
-                                   PlaceholderColor="#9aa3b8" TextColor="#1a2340"
-                                   BackgroundColor="Transparent" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="DESCRIPTION" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10" Padding="12,8">
-                            <Editor x:Name="DescriptionEditor"
-                                    Placeholder="Scope of work, notes, anything useful..."
-                                    PlaceholderColor="#9aa3b8" TextColor="#1a2340"
-                                    BackgroundColor="Transparent"
-                                    MinimumHeightRequest="72" AutoSize="TextChanges" />
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="JOB SITE LOCATION" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
-                                StrokeShape="RoundRectangle 10" Padding="12,2">
-                            <Entry x:Name="LocationEntry"
-                                   Placeholder="Street address or site description"
+                            <Entry x:Name="DescriptionEntry"
+                                   Placeholder="e.g. Lumber for framing"
                                    PlaceholderColor="#9aa3b8" TextColor="#1a2340"
                                    BackgroundColor="Transparent" />
                         </Border>
@@ -104,53 +91,66 @@
 
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                         <VerticalStackLayout Spacing="6" Grid.Column="0">
-                            <Label Text="STATUS" FontSize="10" FontAttributes="Bold"
-                                   TextColor="#8a93a8" CharacterSpacing="1" />
-                            <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 10" Padding="6,0">
-                                <ctl:MzPicker x:Name="StatusPicker"
-                                        TextColor="#1a2340" TitleColor="#9aa3b8"
-                                        BackgroundColor="Transparent" Margin="8,0" />
-                            </Border>
-                        </VerticalStackLayout>
-                        <VerticalStackLayout Spacing="6" Grid.Column="1">
-                            <Label Text="BUDGET" FontSize="10" FontAttributes="Bold"
+                            <Label Text="AMOUNT *" FontSize="10" FontAttributes="Bold"
                                    TextColor="#8a93a8" CharacterSpacing="1" />
                             <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="12,2">
-                                <Entry x:Name="BudgetEntry" Placeholder="0.00"
+                                <Entry x:Name="AmountEntry" Placeholder="0.00"
                                        Keyboard="Numeric" PlaceholderColor="#9aa3b8"
                                        TextColor="#1a2340" BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
-                    </Grid>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <VerticalStackLayout Spacing="6" Grid.Column="0">
-                            <Label Text="START DATE" FontSize="10" FontAttributes="Bold"
+                        <VerticalStackLayout Spacing="6" Grid.Column="1">
+                            <Label Text="EXPENSE DATE" FontSize="10" FontAttributes="Bold"
                                    TextColor="#8a93a8" CharacterSpacing="1" />
                             <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="12,2">
-                                <DatePicker x:Name="StartDatePicker" TextColor="#1a2340"
+                                <DatePicker x:Name="ExpenseDatePicker" TextColor="#1a2340"
                                             BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
-                        <VerticalStackLayout Spacing="6" Grid.Column="1">
-                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
-                                <CheckBox x:Name="EndDateCheck" Color="#0d7a4f"
-                                          VerticalOptions="Center"
-                                          CheckedChanged="OnEndDateToggle" />
-                                <Label Text="SET END DATE" FontSize="10" FontAttributes="Bold"
-                                       TextColor="#8a93a8" CharacterSpacing="1"
-                                       VerticalOptions="Center" Grid.Column="1" />
-                            </Grid>
-                            <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 10" Padding="12,2">
-                                <DatePicker x:Name="EndDatePicker" TextColor="#1a2340"
-                                            BackgroundColor="Transparent" IsEnabled="False" />
-                            </Border>
-                        </VerticalStackLayout>
                     </Grid>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="CATEGORY" FontSize="10" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10" Padding="6,0">
+                            <Grid ColumnDefinitions="*,Auto" Padding="8,13">
+                                <Label x:Name="CategoryValueLabel" Text="&#8212; Select Category &#8212;"
+                                       TextColor="#9aa3b8" FontSize="14" VerticalOptions="Center"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Grid.Column="1" Text="&#9662;" FontSize="13"
+                                       TextColor="#9aa3b8" VerticalOptions="Center" Margin="6,0,4,0" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPickCategory" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="VENDOR" FontSize="10" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10" Padding="12,2">
+                            <Entry x:Name="VendorEntry" Placeholder="e.g. Home Depot"
+                                   PlaceholderColor="#9aa3b8" TextColor="#1a2340"
+                                   BackgroundColor="Transparent" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="NOTES" FontSize="10" FontAttributes="Bold"
+                               TextColor="#8a93a8" CharacterSpacing="1" />
+                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10" Padding="12,8">
+                            <Editor x:Name="NotesEditor" Placeholder="Optional notes..."
+                                    PlaceholderColor="#9aa3b8" TextColor="#1a2340"
+                                    BackgroundColor="Transparent"
+                                    MinimumHeightRequest="64" AutoSize="TextChanges" />
+                        </Border>
+                    </VerticalStackLayout>
 
                 </VerticalStackLayout>
             </Border>
@@ -163,7 +163,7 @@
                 <Border.Shadow>
                     <Shadow Brush="#f0a500" Offset="0,4" Radius="12" Opacity="0.3" />
                 </Border.Shadow>
-                <Label Text="Create Project" FontSize="15" FontAttributes="Bold"
+                <Label Text="Log Expense" FontSize="15" FontAttributes="Bold"
                        TextColor="#1a1a1a" HorizontalOptions="Center" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnSave" />

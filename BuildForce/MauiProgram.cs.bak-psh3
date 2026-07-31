@@ -43,7 +43,6 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
         StripNativeUnderlines();
-        WireSheetPickers();
         return builder.Build();
     }
 
@@ -66,31 +65,4 @@ public static class MauiProgram
         Microsoft.Maui.Handlers.TimePickerHandler.Mapper.AppendToMapping("MZNoUnderline", (h, v) => Clear(h.PlatformView));
         Microsoft.Maui.Handlers.SearchBarHandler.Mapper.AppendToMapping("MZNoUnderline", (h, v) => Clear(h.PlatformView));
 #endif
-    }
-    // [PSH3a] Route every MzPicker tap to the Mezano sheet instead of the native grey
-    // AlertDialog. SetOnClickListener REPLACES the listener MAUI's PickerHandler installed
-    // in ConnectHandler, which is what suppresses the native dialog. Plain Pickers are
-    // left alone, so nothing outside the converted pages changes.
-    private static void WireSheetPickers()
-    {
-#if ANDROID
-        Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("MZSheetPicker", (h, v) =>
-        {
-            if (v is not BuildForce.Controls.MzPicker mp) return;
-            if (h.PlatformView is not Android.Views.View av) return;
-            av.Focusable = false;
-            av.Clickable = true;
-            av.SetOnClickListener(new MzPickerClickListener(mp));
-        });
-#endif
-    }
-
-#if ANDROID
-    private sealed class MzPickerClickListener : Java.Lang.Object, Android.Views.View.IOnClickListener
-    {
-        private readonly BuildForce.Controls.MzPicker _picker;
-        public MzPickerClickListener(BuildForce.Controls.MzPicker p) { _picker = p; }
-        public void OnClick(Android.Views.View v) { _ = _picker.ShowSheetAsync(); }
-    }
-#endif
-}
+    }}

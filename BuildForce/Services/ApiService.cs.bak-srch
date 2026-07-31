@@ -524,10 +524,8 @@ public class ApiService
             System.Diagnostics.Debug.WriteLine($"ClockOut response ({response.StatusCode}): {json}");
             if (!response.IsSuccessStatusCode)
             {
-                // [SW2b-4] Never show raw JSON to a worker on a jobsite. Record
-                // the reason and let the calling page decide what to say.
-                LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
-                System.Diagnostics.Debug.WriteLine("ClockOut failed: " + response.StatusCode + " " + json);
+                await Microsoft.Maui.Controls.Application.Current!.MainPage!.DisplayAlert("Clock Out Failed",
+                    $"Status: {response.StatusCode}\n{(json.Length > 300 ? json.Substring(0, 300) : json)}", "OK");
             }
             if (response.IsSuccessStatusCode)
             {
@@ -958,107 +956,6 @@ public class ApiService
         }
     }
     // ============================================
-    // ============================================
-    // SEARCH [SRCH2]
-    // GET /api/mobile/search?q=&take= -> flat list of company-scoped hits
-    // across projects, submittals, site logs, blueprints, photos, safety
-    // inspections and expenses. Returns null (not an empty list) when the
-    // endpoint is unreachable or not published yet, so callers can tell
-    // "no matches" apart from "content search unavailable".
-    // ============================================
-    public async Task<List<SearchHit>?> SearchAsync(string query, int take = 5)
-    {
-        LastError = null;
-        try
-        {
-            RefreshToken();
-            var response = await _client.GetAsync($"/api/mobile/search?q={Uri.EscapeDataString(query ?? "")}&take={take}");
-            var json = await response.Content.ReadAsStringAsync();
-            if (response.IsSuccessStatusCode)
-            {
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                return JsonSerializer.Deserialize<List<SearchHit>>(json, options) ?? new List<SearchHit>();
-            }
-            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            LastError = ex.Message;
-            return null;
-        }
-    }
-
-    // ============================================
-    // NOTIFICATIONS [NOT2]
-    // ============================================
-    public async Task<List<NotificationItem>?> GetNotificationsAsync(int take = 50)
-    {
-        LastError = null;
-        try
-        {
-            RefreshToken();
-            var response = await _client.GetAsync($"/api/mobile/notifications?take={take}");
-            var json = await response.Content.ReadAsStringAsync();
-            if (response.IsSuccessStatusCode)
-            {
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                return JsonSerializer.Deserialize<List<NotificationItem>>(json, options) ?? new List<NotificationItem>();
-            }
-            LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            LastError = ex.Message;
-            return null;
-        }
-    }
-
-    public async Task<int> GetUnreadNotificationCountAsync()
-    {
-        try
-        {
-            RefreshToken();
-            var response = await _client.GetAsync("/api/mobile/notifications/unread-count");
-            if (!response.IsSuccessStatusCode) return 0;
-            var json = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(json);
-            return doc.RootElement.TryGetProperty("count", out var c) ? c.GetInt32() : 0;
-        }
-        catch
-        {
-            return 0;
-        }
-    }
-
-    public async Task<bool> MarkNotificationReadAsync(int id)
-    {
-        try
-        {
-            RefreshToken();
-            var response = await _client.PostAsync($"/api/mobile/notifications/{id}/read", null);
-            return response.IsSuccessStatusCode;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public async Task<bool> MarkAllNotificationsReadAsync()
-    {
-        try
-        {
-            RefreshToken();
-            var response = await _client.PostAsync("/api/mobile/notifications/read-all", null);
-            return response.IsSuccessStatusCode;
-        }
-        catch
-        {
-            return false;
-        }
-    }
     // BLUEPRINTS [BLP3]
     // GET /api/mobile/projects/{id}/blueprints -> sheet list
     // GET /api/mobile/blueprints/{id}/file     -> raw file bytes
@@ -1220,28 +1117,6 @@ public class SubmittalItem
     public string? ContentType { get; set; }
     public long FileSizeBytes { get; set; }
     public bool HasFile { get; set; }
-    public DateTime CreatedDate { get; set; }
-}
-// [SRCH2] one row of search results. Kind drives which page a tap opens.
-public class SearchHit
-{
-    public string? Kind { get; set; }
-    public int Id { get; set; }
-    public int ProjectId { get; set; }
-    public string? Title { get; set; }
-    public string? Subtitle { get; set; }
-    public DateTime Date { get; set; }
-}
-
-public class NotificationItem
-{
-    public int Id { get; set; }
-    public string? Title { get; set; }
-    public string? Message { get; set; }
-    public string? Type { get; set; }
-    public string? RelatedEntityType { get; set; }
-    public int? RelatedEntityId { get; set; }
-    public bool IsRead { get; set; }
     public DateTime CreatedDate { get; set; }
 }
 public class BlueprintItem

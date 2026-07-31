@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:ctl="clr-namespace:BuildForce.Controls"
-             x:Class="BuildForce.Views.BlueprintsPage"
+             x:Class="BuildForce.Views.SubmittalsPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#080b10">
 
@@ -17,9 +16,9 @@
         <VerticalStackLayout Grid.Row="1" Padding="16,14,16,8" Spacing="12">
             <Grid ColumnDefinitions="*,Auto">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="PLANS AND SHEETS [BLP3]" FontSize="10" FontAttributes="Bold"
+                    <Label Text="APPROVALS AND TRANSMITTALS [SUB3]" FontSize="10" FontAttributes="Bold"
                            TextColor="#7d8590" CharacterSpacing="2" />
-                    <Label x:Name="HeaderLabel" Text="Blueprints" FontSize="20"
+                    <Label x:Name="HeaderLabel" Text="Submittals" FontSize="20"
                            FontAttributes="Bold" TextColor="#e6edf3" />
                     <Label x:Name="SubLabel" Text="Loading..." FontSize="12" TextColor="#7d8590" />
                 </VerticalStackLayout>
@@ -33,9 +32,9 @@
             <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                     StrokeShape="RoundRectangle 12" Padding="12,4">
                 <Grid ColumnDefinitions="Auto,*">
-                    <BoxView Color="#8b5cf6" WidthRequest="3" HeightRequest="26"
+                    <BoxView Color="#f0a500" WidthRequest="3" HeightRequest="26"
                              CornerRadius="2" VerticalOptions="Center" />
-                    <ctl:MzPicker x:Name="ProjectPicker" Grid.Column="1" Margin="10,0,0,0"
+                    <Picker x:Name="ProjectPicker" Grid.Column="1" Margin="10,0,0,0"
                             Title="Select project" TitleColor="#7d8590"
                             TextColor="#e6edf3" BackgroundColor="Transparent"
                             SelectedIndexChanged="OnProjectChanged" />
@@ -46,11 +45,11 @@
         <ScrollView Grid.Row="2">
             <VerticalStackLayout Padding="16,4,16,28" Spacing="10">
                 <ActivityIndicator x:Name="Loading" IsRunning="False" IsVisible="False"
-                                   Color="#8b5cf6" Margin="0,8" />
+                                   Color="#f0a500" Margin="0,8" />
                 <Label x:Name="EmptyLabel" Text="" FontSize="13" TextColor="#7d8590"
                        IsVisible="False" HorizontalOptions="Center" Margin="0,20,0,0"
                        HorizontalTextAlignment="Center" />
-                <VerticalStackLayout x:Name="SheetList" Spacing="10" />
+                <VerticalStackLayout x:Name="SubList" Spacing="10" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

@@ -17,7 +17,6 @@ public partial class DashboardPage : ContentPage
         LoadHeader();
         LoadLive();
         LoadAvatar(); // [PRF3b] ctor call - OnAppearing may not fire in dock
-        LoadUnreadCount();   // [NOT3] unread badge
     }
 
     protected override void OnAppearing()
@@ -26,37 +25,6 @@ public partial class DashboardPage : ContentPage
         LoadAvatar();
         LoadHeader();
         LoadLive();
-        LoadUnreadCount();   // [NOT3]
-    }
-
-    // [NOT3] unread badge + notifications page
-    private async void LoadUnreadCount()
-    {
-        try
-        {
-            var count = await _api.GetUnreadNotificationCountAsync();
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                NotifBadge.IsVisible = count > 0;
-                NotifBadgeLabel.Text = count > 99 ? "99+" : count.ToString();
-            });
-        }
-        catch { }
-    }
-
-    private async void OnNotifications(object sender, TappedEventArgs e)
-    {
-        try
-        {
-            var host = Application.Current?.MainPage;
-            if (host != null)
-                await host.Navigation.PushModalAsync(new NotificationsPage(_api));
-        }
-        catch (Exception ex)
-        {
-            var host2 = Application.Current?.MainPage;
-            if (host2 != null) await host2.DisplayAlert("Error", ex.Message, "OK");
-        }
     }
 
     private void LoadHeader()
@@ -216,119 +184,9 @@ public partial class DashboardPage : ContentPage
         }
     }
 
-    // ============================================
-    // SEARCH [SRCH1] in-app destinations + [SRCH2] server content.
-    // Results render in PickerSheetPage so search looks like every other
-    // dropdown in the app. Server hits DEGRADE QUIETLY: if /api/mobile/search
-    // is not published yet SearchAsync returns null, and the sheet still
-    // lists the in-app destinations instead of showing an error.
-    // ============================================
-    private sealed class SearchDest
-    {
-        public string Name = "";
-        public string Keywords = "";
-        public Func<Page> Build = null!;
-    }
-
-    private List<SearchDest> BuildDestinations()
-    {
-        var api = _api;
-        return new List<SearchDest>
-        {
-            new SearchDest { Name = "Daily site log",     Keywords = "log logs daily site weather crew work completed delay delays materials notes", Build = () => new SiteLogPage(api) },
-            new SearchDest { Name = "Project photos",     Keywords = "photo photos picture pictures camera image images media capture",              Build = () => new ProjectPhotosPage(api) },
-            new SearchDest { Name = "Blueprints",         Keywords = "blueprint blueprints plan plans sheet sheets drawing drawings pdf",            Build = () => new BlueprintsPage(api) },
-            new SearchDest { Name = "Submittals",         Keywords = "submittal submittals transmittal approval spec section shop drawing product data", Build = () => new SubmittalsPage(api) },
-            new SearchDest { Name = "Safety inspection",  Keywords = "safety inspection inspections checklist hazard daily weekly",                  Build = () => new SafetyInspectionPage(api) },
-            new SearchDest { Name = "Crew on the clock",  Keywords = "crew team worker workers who clocked hours",                                   Build = () => new CrewPage(api) },
-            new SearchDest { Name = "Schedule",           Keywords = "schedule calendar assignment assignments upcoming",                            Build = () => new SchedulePage(api) },
-            new SearchDest { Name = "Log an expense",     Keywords = "expense material materials received receipt delivery cost vendor scan",        Build = () => new ExpenseCreatePage(api) },
-            new SearchDest { Name = "Expenses",           Keywords = "expenses spending costs receipts list",                                        Build = () => new ExpensesPage(api) },
-            new SearchDest { Name = "Projects",           Keywords = "project projects job jobs",                                                    Build = () => new ProjectsPage(api) },
-            new SearchDest { Name = "Account settings",   Keywords = "account settings profile password photo avatar me sign out",                   Build = () => new ProfilePage(api) },
-        };
-    }
-
-    private static bool DestMatches(SearchDest d, string q)
-    {
-        return d.Name.Contains(q, StringComparison.OrdinalIgnoreCase)
-            || d.Keywords.Contains(q, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private Page PageForHit(SearchHit h)
-    {
-        switch (h.Kind)
-        {
-            case "Project":   return new ProjectDetailPage(_api, h.Id);
-            case "Site log":  return new SiteLogPage(_api);
-            case "Photo":     return new ProjectPhotosPage(_api);
-            case "Blueprint": return new BlueprintsPage(_api);
-            case "Submittal": return new SubmittalsPage(_api);
-            case "Safety":    return new SafetyInspectionPage(_api);
-            case "Expense":   return new ExpensesPage(_api);
-            default:          return new ProjectsPage(_api);
-        }
-    }
-
     private async void OnSearch(object sender, EventArgs e)
     {
-        var q = (SearchEntry.Text ?? "").Trim();
-        if (q.Length < 2)
-        {
-            await AlertAsync("Search", "Type at least 2 characters, then press enter.");
-            return;
-        }
-        try { SearchEntry.Unfocus(); } catch { }
-
-        var host = HostPage;
-        if (host == null) return;
-
-        var labels = new List<string>();
-        var opens = new List<Func<Page>>();
-
-        // in-app destinations first - instant, works with no signal
-        foreach (var d in BuildDestinations())
-        {
-            if (!DestMatches(d, q)) continue;
-            labels.Add("Open  -  " + d.Name);
-            opens.Add(d.Build);
-        }
-
-        // then server content; null means the endpoint is unreachable
-        List<SearchHit>? hits = null;
-        try { hits = await _api.SearchAsync(q); } catch { }
-
-        if (hits != null)
-        {
-            foreach (var h in hits)
-            {
-                var title = string.IsNullOrWhiteSpace(h.Title) ? "(untitled)" : h.Title;
-                var line = (h.Kind ?? "Result") + "  -  " + title;
-                if (!string.IsNullOrWhiteSpace(h.Subtitle)) line = line + "  (" + h.Subtitle + ")";
-                labels.Add(line);
-                var captured = h;
-                opens.Add(() => PageForHit(captured));
-            }
-        }
-
-        if (labels.Count == 0)
-        {
-            var none = hits == null
-                ? "Nothing in the app matches \"" + q + "\", and content search is unavailable right now."
-                : "No matches for \"" + q + "\".";
-            await AlertAsync("Search", none);
-            return;
-        }
-
-        var subtitle = hits == null
-            ? labels.Count + " in-app match(es) - content search unavailable"
-            : labels.Count + " match(es)";
-
-        int pick = await PickerSheetPage.PickIndexAsync(host.Navigation, "Results for \"" + q + "\"", labels, -1, subtitle);
-        if (pick < 0 || pick >= opens.Count) return;
-
-        try { await host.Navigation.PushModalAsync(opens[pick]()); }
-        catch (Exception ex) { await AlertAsync("Navigation error", ex.Message); }
+        await ComingSoonAsync("Search");
     }
 
     private async void OnMaterialsReceived(object sender, TappedEventArgs e)

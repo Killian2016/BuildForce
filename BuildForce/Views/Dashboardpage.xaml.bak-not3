@@ -8,7 +8,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,14,16,28" Spacing="14">
 
-            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                 <Border BackgroundColor="#2a2210" Stroke="Transparent"
                         StrokeShape="RoundRectangle 21"
                         WidthRequest="42" HeightRequest="42">
@@ -29,26 +29,6 @@
                 </VerticalStackLayout>
                 <Label x:Name="SyncLabel" Text="Syncing" FontSize="11" TextColor="#7d8590"
                        Grid.Column="2" VerticalOptions="Center" />
-                <Grid Grid.Column="3" WidthRequest="42" HeightRequest="42">
-                    <Border BackgroundColor="#161b22" Stroke="#1c2330" StrokeThickness="1"
-                            StrokeShape="RoundRectangle 21" WidthRequest="42" HeightRequest="42">
-                        <Label Text="&#x1F514;" FontSize="16"
-                               HorizontalOptions="Center" VerticalOptions="Center" />
-                    </Border>
-                    <Border x:Name="NotifBadge" IsVisible="False"
-                            BackgroundColor="#8b5cf6" Stroke="Transparent"
-                            StrokeShape="RoundRectangle 9" HeightRequest="18"
-                            MinimumWidthRequest="18" Padding="5,0"
-                            HorizontalOptions="End" VerticalOptions="Start"
-                            TranslationX="3" TranslationY="-3">
-                        <Label x:Name="NotifBadgeLabel" Text="0" FontSize="10"
-                               FontAttributes="Bold" TextColor="#080b10"
-                               HorizontalOptions="Center" VerticalOptions="Center" />
-                    </Border>
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnNotifications" />
-                    </Grid.GestureRecognizers>
-                </Grid>
             </Grid>
 
             <Label Text="FIELD TOOLS &#183; [D2]" FontSize="10" FontAttributes="Bold"

@@ -90,10 +90,7 @@ public partial class ExpenseCreatePage : ContentPage
         if (_busy) return;
         try
         {
-            // [PSH3c] was DisplayActionSheet - no native chrome anywhere in this app.
-            var scanSheet = new PickerSheetPage("Scan receipt", new List<string> { "Take Photo", "Choose from Gallery" });
-            await Navigation.PushModalAsync(scanSheet);
-            string action = await scanSheet.Result.Task ?? "";
+            string action = await DisplayActionSheet("Scan Receipt", "Cancel", null, "Take Photo", "Choose from Gallery");
             FileResult? photo = null;
 
             if (action == "Take Photo")

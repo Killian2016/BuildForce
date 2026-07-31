@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.PickerSheetPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#CC000000">
+
+    <Grid>
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnScrimTapped" />
+        </Grid.GestureRecognizers>
+
+        <Border BackgroundColor="#0d1117" Stroke="#8b5cf6" StrokeThickness="1"
+                StrokeShape="RoundRectangle 18"
+                Margin="20" Padding="18,16"
+                VerticalOptions="Center">
+            <VerticalStackLayout Spacing="12">
+
+                <Label x:Name="TitleLabel" Text="Select"
+                       FontSize="16" FontAttributes="Bold" TextColor="#8b5cf6" />
+
+                <Label x:Name="SubtitleLabel" Text="" IsVisible="False"
+                       FontSize="12" TextColor="#7d8590" />
+
+                <Border x:Name="SearchWrap" IsVisible="False"
+                        BackgroundColor="#161b22" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="12,0">
+                    <Entry x:Name="SearchEntry" Placeholder="Type to filter..."
+                           PlaceholderColor="#7d8590" TextColor="#e6edf3"
+                           FontSize="13" BackgroundColor="Transparent"
+                           TextChanged="OnSearchChanged" />
+                </Border>
+
+                <ScrollView MaximumHeightRequest="280">
+                    <VerticalStackLayout x:Name="OptionList" Spacing="8" />
+                </ScrollView>
+
+                <Button Text="Cancel"
+                        BackgroundColor="Transparent" TextColor="#7d8590"
+                        BorderColor="#1c2330" BorderWidth="1"
+                        FontSize="12" HeightRequest="40" CornerRadius="12"
+                        Clicked="OnCancel" />
+
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

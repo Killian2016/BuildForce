@@ -17,7 +17,6 @@ public partial class DashboardPage : ContentPage
         LoadHeader();
         LoadLive();
         LoadAvatar(); // [PRF3b] ctor call - OnAppearing may not fire in dock
-        LoadUnreadCount();   // [NOT3] unread badge
     }
 
     protected override void OnAppearing()
@@ -26,37 +25,6 @@ public partial class DashboardPage : ContentPage
         LoadAvatar();
         LoadHeader();
         LoadLive();
-        LoadUnreadCount();   // [NOT3]
-    }
-
-    // [NOT3] unread badge + notifications page
-    private async void LoadUnreadCount()
-    {
-        try
-        {
-            var count = await _api.GetUnreadNotificationCountAsync();
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                NotifBadge.IsVisible = count > 0;
-                NotifBadgeLabel.Text = count > 99 ? "99+" : count.ToString();
-            });
-        }
-        catch { }
-    }
-
-    private async void OnNotifications(object sender, TappedEventArgs e)
-    {
-        try
-        {
-            var host = Application.Current?.MainPage;
-            if (host != null)
-                await host.Navigation.PushModalAsync(new NotificationsPage(_api));
-        }
-        catch (Exception ex)
-        {
-            var host2 = Application.Current?.MainPage;
-            if (host2 != null) await host2.DisplayAlert("Error", ex.Message, "OK");
-        }
     }
 
     private void LoadHeader()

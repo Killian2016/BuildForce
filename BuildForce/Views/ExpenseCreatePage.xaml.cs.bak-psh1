@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using BuildForce.Services;
 using Microsoft.Maui.Graphics.Platform;
 using IImage = Microsoft.Maui.Graphics.IImage;
@@ -10,7 +10,6 @@ public partial class ExpenseCreatePage : ContentPage
     private readonly ApiService _api;
     private List<ProjectSummary> _projects = new();
     private List<string> _categories = new();
-    private string? _selectedCategory;
     private bool _busy = false;
 
     public ExpenseCreatePage(ApiService api)
@@ -60,29 +59,10 @@ public partial class ExpenseCreatePage : ContentPage
                 "Shipping", "Subcontractor", "Labor", "Insurance", "General"
             };
         }
-        _selectedCategory = _categories.FirstOrDefault();
-        UpdateCategoryLabel();
-    }
-
-    // [PSH1] Dark bottom-sheet picker instead of the native Picker dialog.
-    private void UpdateCategoryLabel()
-    {
-        bool has = !string.IsNullOrWhiteSpace(_selectedCategory);
-        CategoryValueLabel.Text = has ? _selectedCategory : "\u2014 Select Category \u2014";
-        CategoryValueLabel.TextColor = Color.FromArgb(has ? "#1a2340" : "#9aa3b8");
-    }
-
-    private async void OnPickCategory(object sender, TappedEventArgs e)
-    {
-        if (_categories.Count == 0) return;
-        var sheet = new PickerSheetPage("Category", _categories, _selectedCategory);
-        await Navigation.PushModalAsync(sheet);
-        var picked = await sheet.Result.Task;
-        if (picked != null)
-        {
-            _selectedCategory = picked;
-            UpdateCategoryLabel();
-        }
+        CategoryPicker.Items.Clear();
+        foreach (var c in _categories)
+            CategoryPicker.Items.Add(c);
+        CategoryPicker.SelectedIndex = 0;
     }
 
     private async void OnScanReceipt(object sender, TappedEventArgs e)
@@ -90,10 +70,7 @@ public partial class ExpenseCreatePage : ContentPage
         if (_busy) return;
         try
         {
-            // [PSH3c] was DisplayActionSheet - no native chrome anywhere in this app.
-            var scanSheet = new PickerSheetPage("Scan receipt", new List<string> { "Take Photo", "Choose from Gallery" });
-            await Navigation.PushModalAsync(scanSheet);
-            string action = await scanSheet.Result.Task ?? "";
+            string action = await DisplayActionSheet("Scan Receipt", "Cancel", null, "Take Photo", "Choose from Gallery");
             FileResult? photo = null;
 
             if (action == "Take Photo")
@@ -157,17 +134,9 @@ public partial class ExpenseCreatePage : ContentPage
                 DescriptionEntry.Text = result.SuggestedDescription;
             if (!string.IsNullOrWhiteSpace(result.SuggestedCategory))
             {
-                var match = _categories.FirstOrDefault(c =>
+                var idx = _categories.FindIndex(c =>
                     string.Equals(c, result.SuggestedCategory, StringComparison.OrdinalIgnoreCase));
-                // Keep the AI's suggestion even if it is not in the saved list,
-                // instead of silently dropping it the way the index lookup did.
-                if (match == null)
-                {
-                    _categories.Add(result.SuggestedCategory);
-                    match = result.SuggestedCategory;
-                }
-                _selectedCategory = match;
-                UpdateCategoryLabel();
+                if (idx >= 0) CategoryPicker.SelectedIndex = idx;
             }
 
             StatusLabel.Text = "Receipt scanned - review the details and save.";
@@ -245,7 +214,9 @@ public partial class ExpenseCreatePage : ContentPage
             return;
         }
 
-        var category = string.IsNullOrWhiteSpace(_selectedCategory) ? "General" : _selectedCategory;
+        var category = CategoryPicker.SelectedIndex >= 0
+            ? _categories[CategoryPicker.SelectedIndex]
+            : "General";
 
         _busy = true;
         StatusLabel.IsVisible = true;

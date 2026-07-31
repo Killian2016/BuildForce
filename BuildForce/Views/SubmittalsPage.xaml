@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ctl="clr-namespace:BuildForce.Controls"
              x:Class="BuildForce.Views.SubmittalsPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#080b10">
@@ -34,7 +35,7 @@
                 <Grid ColumnDefinitions="Auto,*">
                     <BoxView Color="#f0a500" WidthRequest="3" HeightRequest="26"
                              CornerRadius="2" VerticalOptions="Center" />
-                    <Picker x:Name="ProjectPicker" Grid.Column="1" Margin="10,0,0,0"
+                    <ctl:MzPicker x:Name="ProjectPicker" Grid.Column="1" Margin="10,0,0,0"
                             Title="Select project" TitleColor="#7d8590"
                             TextColor="#e6edf3" BackgroundColor="Transparent"
                             SelectedIndexChanged="OnProjectChanged" />

@@ -860,19 +860,6 @@ public partial class TimeClockPage : ContentPage
                     $"Total: {result.TotalHours:F2}h\nRegular: {result.HoursWorked:F2}h\nOvertime: {result.OvertimeHours:F2}h",
                     "OK");
             }
-            else if (_api.LastError != null &&
-                     _api.LastError.IndexOf("not found", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                // [SW2b-4] Site watch already punched us out, so there is no
-                // active timesheet left to close. That is not a failure.
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    StopTimer();
-                    StatusLabel.Text = "AUTO CLOCKED OUT - LEFT SITE";
-                    StatusLabel.TextColor = Amber;
-                });
-                await LoadSummary();
-            }
             else
             {
                 MainThread.BeginInvokeOnMainThread(() => ClockOutBtn.IsEnabled = true);
@@ -892,21 +879,6 @@ public partial class TimeClockPage : ContentPage
         _timer = new System.Timers.Timer(1000);
         _timer.Elapsed += (s, e) =>
         {
-            // [SW2b-3] The foreground service clears sw_tsid when it auto-punches.
-            // If we are still showing a running clock, it acted while we were
-            // not looking - stand the UI down instead of counting forever.
-            if (_isClockedIn && Preferences.Get(SW_TSID, 0) == 0)
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    StopTimer();
-                    StatusLabel.Text = "AUTO CLOCKED OUT - LEFT SITE";
-                    StatusLabel.TextColor = Amber;
-                });
-                _ = LoadSummary();
-                return;
-            }
-
             var elapsed = CurrentElapsed();
             var breakLive = (int)(_breakAccum + (_onBreak ? (DateTime.Now - _breakStartLocal) : TimeSpan.Zero)).TotalMinutes;
             _watchTick++;

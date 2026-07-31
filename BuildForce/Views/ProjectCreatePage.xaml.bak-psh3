@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:ctl="clr-namespace:BuildForce.Controls"
              x:Class="BuildForce.Views.ProjectCreatePage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="#eef1f8">
@@ -57,7 +56,7 @@
                                TextColor="#8a93a8" CharacterSpacing="1" />
                         <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="6,0">
-                            <ctl:MzPicker x:Name="CustomerPicker" Title="&#8212; Select Customer &#8212;"
+                            <Picker x:Name="CustomerPicker" Title="&#8212; Select Customer &#8212;"
                                     TextColor="#1a2340" TitleColor="#9aa3b8"
                                     BackgroundColor="Transparent" Margin="8,0" />
                         </Border>
@@ -108,7 +107,7 @@
                                    TextColor="#8a93a8" CharacterSpacing="1" />
                             <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="6,0">
-                                <ctl:MzPicker x:Name="StatusPicker"
+                                <Picker x:Name="StatusPicker"
                                         TextColor="#1a2340" TitleColor="#9aa3b8"
                                         BackgroundColor="Transparent" Margin="8,0" />
                             </Border>
