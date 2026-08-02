@@ -118,10 +118,15 @@ public class SiteWatchService : Service
             if (loc == null) return;
 
             double dist = HaversineMeters(loc.Latitude, loc.Longitude, projLat, projLng);
+            var exitDbg = Preferences.Get("sw_exit_utc", "");
+            System.Diagnostics.Debug.WriteLine("[SW2b-5] tick tsId=" + tsId +
+                " dist=" + dist.ToString("F0") + "m exit=" +
+                (string.IsNullOrEmpty(exitDbg) ? "none" : exitDbg));
 
             if (dist <= ExitMeters)
             {
                 Preferences.Remove("sw_exit_utc");   // back on site
+                UpdateStatus("Clocked in", "Site watch on - you will be alerted if you leave the site");
                 return;
             }
 
@@ -129,6 +134,7 @@ public class SiteWatchService : Service
             {
                 // First detection. Record when they left and warn them.
                 exitUtc = DateTime.UtcNow;
+                UpdateStatus("Left the job site", "Clocking out in " + GraceMinutes + " min unless you return");
                 Preferences.Set("sw_exit_utc", exitUtc.ToString("o"));
                 try
                 {
@@ -139,7 +145,15 @@ public class SiteWatchService : Service
                 return;
             }
 
-            if ((DateTime.UtcNow - exitUtc).TotalMinutes < GraceMinutes) return;
+            // [SW3a] still inside the grace window - show the countdown
+            var elapsedMin = (DateTime.UtcNow - exitUtc).TotalMinutes;
+            if (elapsedMin < GraceMinutes)
+            {
+                var remain = (int)Math.Ceiling(GraceMinutes - elapsedMin);
+                if (remain < 1) remain = 1;
+                UpdateStatus("Left the job site", "Clocking out in " + remain + " min unless you return");
+                return;
+            }
 
             // Grace is up and they are still outside - punch them out, backdated
             // to when they actually crossed the fence.
@@ -162,6 +176,26 @@ public class SiteWatchService : Service
                 }
                 catch { }
                 Stop();
+            }
+            else
+            {
+                // [SW2b-5] Tell "this timesheet is gone" apart from "no signal".
+                // NOT FOUND means the server already closed this segment, so clear
+                // state and stop. ANY other failure (network, auth, 500) must keep
+                // retrying, or site watch dies the moment a worker loses signal.
+                var err = (api.LastError ?? "").ToLowerInvariant();
+                if (err.Contains("not found"))
+                {
+                    System.Diagnostics.Debug.WriteLine("[SW2b-5] timesheet gone - standing down");
+                    Preferences.Remove("sw_tsid");
+                    Preferences.Remove("sw_exit_utc");
+                    Preferences.Remove("sw_mute_until");
+                    Stop();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("[SW2b-5] punch failed, will retry - " + err);
+                }
             }
         }
         catch (Exception ex)
@@ -219,6 +253,21 @@ public class SiteWatchService : Service
         if (pi != null) builder.SetContentIntent(pi);
 
         return builder.Build();
+    }
+
+    // [SW3a] Re-post the ongoing notification in place. Same id and
+    // SetOnlyAlertOnce(true), so the text can change every minute without
+    // the phone ever buzzing.
+    private static void UpdateStatus(string title, string text)
+    {
+        try
+        {
+            var ctx = global::Android.App.Application.Context;
+            var mgr = (NotificationManager?)ctx.GetSystemService(Context.NotificationService);
+            if (mgr == null) return;
+            mgr.Notify(NotifId, BuildNotification(title, text));
+        }
+        catch { }
     }
 
     public static void Start()

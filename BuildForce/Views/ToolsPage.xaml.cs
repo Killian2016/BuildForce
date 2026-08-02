@@ -60,7 +60,16 @@ public partial class ToolsPage : ContentPage
 
     private async void OnDailyLogs(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Daily site logs");
+        try // [TILE1] Daily site logs -> SiteLogPage
+        {
+            var host = HostPage;
+            if (host != null)
+                await host.Navigation.PushModalAsync(new SiteLogPage(_api));
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync("Navigation error", ex.Message);
+        }
     }
 
     private async void OnBlueprints(object sender, TappedEventArgs e)
@@ -94,7 +103,16 @@ public partial class ToolsPage : ContentPage
 
     private async void OnSafety(object sender, TappedEventArgs e)
     {
-        await ComingSoonAsync("Safety inspection forms");
+        try // [TILE1] Safety inspection forms -> SafetyInspectionPage
+        {
+            var host = HostPage;
+            if (host != null)
+                await host.Navigation.PushModalAsync(new SafetyInspectionPage(_api));
+        }
+        catch (Exception ex)
+        {
+            await AlertAsync("Navigation error", ex.Message);
+        }
     }
 
     private async void OnSubmittals(object sender, TappedEventArgs e)

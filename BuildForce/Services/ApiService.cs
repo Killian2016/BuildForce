@@ -538,6 +538,10 @@ public class ApiService
         }
         catch (Exception ex)
         {
+                // [OFF3a] Record WHY it failed. Without this a network drop
+                // leaves LastError holding a stale message from an earlier
+                // call, and the page cannot tell no-signal from server-refused.
+                LastError = ex.Message;
             System.Diagnostics.Debug.WriteLine($"ClockOut exception: {ex.Message}");
             return null;
         }

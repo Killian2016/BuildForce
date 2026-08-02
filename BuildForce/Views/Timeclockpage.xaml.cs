@@ -35,6 +35,13 @@ public partial class TimeClockPage : ContentPage
     private readonly ApiService _api;
     private System.Timers.Timer? _timer;
     private DateTime _clockInTime;
+
+    // [TZ1] Dates from the API deserialize with Kind=Unspecified, so
+    // .ToLocalTime() assumes they are ALREADY local and returns them
+    // unchanged - which put UTC on screen (a 7-hour jump in Arizona).
+    // Force Kind=Utc first, then convert.
+    private static DateTime ToLocalFromUtc(DateTime value)
+        => DateTime.SpecifyKind(value, DateTimeKind.Utc).ToLocalTime();
     private bool _isClockedIn;
     private string _selectedCostCode = "";
     private List<ProjectSummary> _projects = new();
@@ -139,6 +146,7 @@ public partial class TimeClockPage : ContentPage
     {
         InitializeComponent();
         _api = api;
+        PunchSync.Start();   // [OFF3b] drain any punch saved while offline
         RingView.Drawable = _ring;
         LoadEmployeeInfo();
         SetupCostCodePicker();
@@ -197,7 +205,7 @@ public partial class TimeClockPage : ContentPage
         if (active != null && active.Status == "Active")
         {
             _activeTimesheetId = active.TimesheetId;
-            _clockInTime = (active.ClockInTime ?? active.Date).ToLocalTime();
+            _clockInTime = ToLocalFromUtc(active.ClockInTime ?? active.Date);   // [TZ1]
             _isClockedIn = true;
             _breakAccum = TimeSpan.FromMinutes(active.BreakMinutes);
 
@@ -211,7 +219,7 @@ public partial class TimeClockPage : ContentPage
             if (active.BreakStartTime.HasValue)
             {
                 _onBreak = true;
-                _breakStartLocal = active.BreakStartTime.Value.ToLocalTime();
+                _breakStartLocal = ToLocalFromUtc(active.BreakStartTime.Value);   // [TZ1]
             }
 
             var proj = _projects.FirstOrDefault(p => p.Id == active.ProjectId);
@@ -459,8 +467,8 @@ public partial class TimeClockPage : ContentPage
             };
             Grid.SetRow(statusLabel, 2);
 
-            var clockIn = entry.ClockInTime?.ToLocalTime().ToString("h:mm tt") ?? "--";
-            var clockOut = entry.ClockOutTime?.ToLocalTime().ToString("h:mm tt") ?? "Active";
+            var clockIn = entry.ClockInTime.HasValue ? ToLocalFromUtc(entry.ClockInTime.Value).ToString("h:mm tt") : "--";   // [TZ1]
+            var clockOut = entry.ClockOutTime.HasValue ? ToLocalFromUtc(entry.ClockOutTime.Value).ToString("h:mm tt") : "Active";   // [TZ1]
             var hoursLabel = new Label
             {
                 Text = $"{entry.TotalHours:F1}h\n{clockIn} - {clockOut}",
@@ -731,6 +739,11 @@ public partial class TimeClockPage : ContentPage
         var safetyPassed = await safetyPage.Result.Task;
         if (!safetyPassed) return;
 
+        // [SW4] Never start a shift carrying a stale exit timestamp - the service
+        // would read it as an already-expired 15-min grace and punch out at once.
+        _exitDetectedAt = null;
+        try { Preferences.Remove(SW_EXIT); Preferences.Remove(SW_MUTE); } catch { }
+
         ClockInBtn.IsEnabled = false;
         StatusLabel.Text = "CLOCKING IN...";
         StatusLabel.TextColor = Amber;
@@ -748,7 +761,7 @@ public partial class TimeClockPage : ContentPage
             if (result != null)
             {
                 _activeTimesheetId = result.TimesheetId;
-                _clockInTime = (result.ClockInTime ?? DateTime.UtcNow).ToLocalTime();
+                _clockInTime = ToLocalFromUtc(result.ClockInTime ?? DateTime.UtcNow);   // [TZ1]
                 _isClockedIn = true;
                 _onBreak = false;
                 _breakAccum = TimeSpan.Zero;
@@ -867,11 +880,41 @@ public partial class TimeClockPage : ContentPage
                 // active timesheet left to close. That is not a failure.
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    StopTimer();
-                    StatusLabel.Text = "AUTO CLOCKED OUT - LEFT SITE";
-                    StatusLabel.TextColor = Amber;
+                    StopTimer("AUTO CLOCKED OUT - LEFT SITE", true);   // [SW4]
                 });
                 await LoadSummary();
+            }
+            else if (!PunchSync.IsOnline || PunchSync.LooksOffline(_api.LastError))   // [OFF3c]
+            {
+                // [OFF3b] No signal. Write the punch to disk with the time it
+                // ACTUALLY happened and let PunchSync send it later. The server
+                // de-dupes on ClientPunchId, so a replay cannot double-punch.
+                //
+                // We deliberately show the TIME and not the hours: break
+                // deductions and the regular/overtime split are computed by the
+                // server, so a figure invented here could disagree with the pay
+                // stub - and on a payroll app that costs trust we cannot buy back.
+                PunchQueue.Enqueue(new PendingPunch
+                {
+                    Kind = PunchKind.ClockOut,
+                    TimesheetId = _activeTimesheetId,
+                    Latitude = _workerLat,
+                    Longitude = _workerLng,
+                    InjuryReported = injuryResult.InjuryReported,
+                    InjuryDetails = injuryResult.InjuryDetails,
+                    PhotoPath = PunchQueue.SavePhoto(punchOutPhoto),
+                    OccurredAtUtc = DateTime.UtcNow
+                });
+
+                var savedAt = DateTime.Now.ToString("h:mm tt");
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    StopTimer("CLOCKED OUT - SAVED OFFLINE", true);
+                });
+                await DisplayAlert("Clocked Out",
+                    "Clocked out at " + savedAt +
+                    " - saved on your phone. It will send automatically when you have signal.",
+                    "OK");
             }
             else
             {
@@ -899,9 +942,7 @@ public partial class TimeClockPage : ContentPage
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    StopTimer();
-                    StatusLabel.Text = "AUTO CLOCKED OUT - LEFT SITE";
-                    StatusLabel.TextColor = Amber;
+                    StopTimer("AUTO CLOCKED OUT - LEFT SITE", true);   // [SW4]
                 });
                 _ = LoadSummary();
                 return;
@@ -1093,7 +1134,7 @@ public partial class TimeClockPage : ContentPage
         catch { }
     }
 
-    public void StopTimer()
+    public void StopTimer(string statusText = "NOT CLOCKED IN", bool highlight = false)
     {
         SiteWatchService.Stop();   // [SW2b]
         _timer?.Stop();
@@ -1108,13 +1149,15 @@ public partial class TimeClockPage : ContentPage
         _watchMuteUntil = DateTime.MinValue;
         _watchTick = 0;
         _materialRun = false;
+        _exitDetectedAt = null;   // [SW4] a stale sw_exit_utc could make the service punch the NEXT shift instantly
         Preferences.Remove("sw_lat");
         Preferences.Remove("sw_lng");
+        try { Preferences.Remove(SW_EXIT); Preferences.Remove(SW_MUTE); } catch { }
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            StatusLabel.Text = "NOT CLOCKED IN";
-            StatusLabel.TextColor = Muted;
+            StatusLabel.Text = statusText;   // [SW4]
+            StatusLabel.TextColor = highlight ? Amber : Muted;
             TimerLabel.Text = "00:00:00";
             SetChip("CLOCKED OUT", Color.FromArgb("#161b22"), Muted);
             ClockedInBadge.IsVisible = false; SiteWatchCard.IsVisible = false; ClockInHint.IsVisible = true;
@@ -1132,6 +1175,15 @@ public partial class TimeClockPage : ContentPage
         });
 
         GetLocation();
+    }
+
+    // [SW4] Re-check GPS + geofence whenever the page returns to view while
+    // clocked out - otherwise the geofence verdict stays frozen at whatever
+    // it was at the moment of the last clock-out.
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (!_isClockedIn) GetLocation();
     }
 
     private async void OnSwitchJob(object sender, EventArgs e)
@@ -1235,6 +1287,15 @@ public partial class TimeClockPage : ContentPage
         // Stop the work timer; the travel timer takes over.
         _isClockedIn = false;
         _timer?.Stop();
+        // [SW2b-5] Leaving a job closes the server timesheet, so site watch must
+        // stand down too. Without this, sw_tsid keeps the CLOSED id, the service
+        // keeps polling against the OLD site coords, and after the grace period it
+        // retries a doomed clock-out every 60 seconds for the rest of the day.
+        // Order matters: this runs AFTER _isClockedIn = false, so SW2b-3's
+        // (_isClockedIn && sw_tsid == 0) guard cannot fire and tear the UI down.
+        SiteWatchService.Stop();
+        _activeTimesheetId = 0;   // setter clears sw_tsid
+        _exitDetectedAt = null;   // setter clears sw_exit_utc
         if (_travelTarget != null) TravelToLabel.Text = "\u2192 " + _travelTarget.Name;
         UpdateTravelTimerLabel();
         MainThread.BeginInvokeOnMainThread(() =>
@@ -1315,7 +1376,7 @@ public partial class TimeClockPage : ContentPage
             EndTravel();
 
             _activeTimesheetId = result.NewTimesheetId;
-            _clockInTime = (result.ClockInTime ?? DateTime.UtcNow).ToLocalTime();
+            _clockInTime = ToLocalFromUtc(result.ClockInTime ?? DateTime.UtcNow);   // [TZ1]
             _selectedProject = target;
             _isClockedIn = true;
             _onBreak = false;
@@ -1328,6 +1389,7 @@ public partial class TimeClockPage : ContentPage
 
             ApplyClockedInUi();
             StartLocalTimer();
+            SiteWatchService.Start();   // [SW2b-5] watch the NEW site
 
             System.Diagnostics.Debug.WriteLine("ARRIVE: clocked in, " + travelMinutes + " min travel");
         }
@@ -1358,6 +1420,7 @@ public partial class TimeClockPage : ContentPage
             _isClockedIn = true;
             ApplyClockedInUi();
             StartLocalTimer();
+            SiteWatchService.Start();   // [SW2b-5] resume watching the reopened job
 
             StatusLabel.Text = "ON THE CLOCK";
             StatusLabel.TextColor = Green;
