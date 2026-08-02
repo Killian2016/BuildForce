@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -506,6 +506,7 @@ public class ApiService
         try
         {
             RefreshToken();
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));   // [OFF3d] punch only; shared client stays 90s for receipt uploads
             var response = await _client.PostAsJsonAsync($"/api/mobile/timesheets/clockout/{timesheetId}", new
             {
                 latitude = lat,
@@ -519,7 +520,7 @@ public class ApiService
                 clockInClientPunchId,
                 occurredAt,
                 deviceNow = DateTime.UtcNow
-            });
+            }, cts.Token);
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"ClockOut response ({response.StatusCode}): {json}");
             if (!response.IsSuccessStatusCode)
@@ -1047,6 +1048,31 @@ public class ApiService
         catch
         {
             return false;
+        }
+    }
+
+    // [NOT4] Delete the notifications this user has already read. Unread ones
+    // are left alone so nobody loses an alert they have not seen.
+    public async Task<int> ClearReadNotificationsAsync()
+    {
+        try
+        {
+            LastError = null;
+            RefreshToken();
+            var response = await _client.PostAsync("/api/mobile/notifications/clear-read", null);
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = TryParseError(json) ?? ("Server returned " + (int)response.StatusCode);
+                return 0;
+            }
+            using var doc = JsonDocument.Parse(json);
+            return doc.RootElement.TryGetProperty("deleted", out var d) ? d.GetInt32() : 0;
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            return 0;
         }
     }
 

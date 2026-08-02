@@ -5,7 +5,6 @@ namespace BuildForce.Views;
 
 public partial class MainShellPage : ContentPage
 {
-    private bool _isClocked = false;
     private readonly DashboardPage _dashboardPage;
     private readonly ProjectsPage _projectsPage;
     private readonly TimeClockPage _timeClockPage;
@@ -51,7 +50,6 @@ public partial class MainShellPage : ContentPage
 
         if (_timeClockPage.IsClockedIn)
         {
-            _isClocked = true;
             ClockBtn.BackgroundColor = Color.FromArgb("#ef4444");
             ClockLabel.Text = "OUT";
             ClockLabel.TextColor = Colors.White;
@@ -59,7 +57,6 @@ public partial class MainShellPage : ContentPage
         }
         else
         {
-            _isClocked = false;
             ClockBtn.BackgroundColor = Color.FromArgb("#f0a500");
             ClockLabel.Text = "GPS";
             ClockLabel.TextColor = Color.FromArgb("#1a1a1a");

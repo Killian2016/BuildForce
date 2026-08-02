@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using BuildForce.Services;
@@ -90,7 +90,7 @@ public static class MauiProgram
     {
         private readonly BuildForce.Controls.MzPicker _picker;
         public MzPickerClickListener(BuildForce.Controls.MzPicker p) { _picker = p; }
-        public void OnClick(Android.Views.View v) { _ = _picker.ShowSheetAsync(); }
+        public void OnClick(Android.Views.View? v) { _ = _picker.ShowSheetAsync(); }
     }
 #endif
 }

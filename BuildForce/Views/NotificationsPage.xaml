@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BuildForce.Views.NotificationsPage"
@@ -34,6 +34,11 @@
                     BorderColor="#8b5cf6" BorderWidth="1"
                     FontSize="12" HeightRequest="38" CornerRadius="12"
                     Clicked="OnMarkAll" />
+            <Button x:Name="ClearBtn" Text="Clear read notifications" IsVisible="False"
+                    BackgroundColor="Transparent" TextColor="#7d8590"
+                    BorderColor="#1c2330" BorderWidth="1"
+                    FontSize="12" HeightRequest="38" CornerRadius="12"
+                    Clicked="OnClearRead" />
         </VerticalStackLayout>
 
         <ScrollView Grid.Row="2">

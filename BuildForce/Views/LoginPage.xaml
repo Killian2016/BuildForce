@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BuildForce.Views.LoginPage"
@@ -56,24 +56,32 @@
                     Margin="0,0,0,8">
                 <Grid ColumnDefinitions="*,Auto">
                     <Entry x:Name="PasswordEntry"
-                           Placeholder="••••••••••"
+                           Placeholder="Enter your password"
                            PlaceholderColor="#6b7280"
                            TextColor="White"
                            BackgroundColor="Transparent"
                            IsPassword="True"
                            Margin="16,12,0,12"
                            Grid.Column="0" />
-                    <Label x:Name="ToggleEye"
-                           Text="👁"
-                           FontSize="18"
-                           TextColor="#6b7280"
-                           VerticalOptions="Center"
-                           Margin="0,0,16,0"
-                           Grid.Column="1">
-                        <Label.GestureRecognizers>
+                    <Border Grid.Column="1"
+                            BackgroundColor="#1b3157"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="12,6"
+                            Margin="0,0,10,0"
+                            VerticalOptions="Center">
+                        <Label x:Name="ToggleEye"
+                               Text="SHOW"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               CharacterSpacing="1"
+                               TextColor="#9fb0c4"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center" />
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnTogglePassword" />
-                        </Label.GestureRecognizers>
-                    </Label>
+                        </Border.GestureRecognizers>
+                    </Border>
                 </Grid>
             </Border>
 

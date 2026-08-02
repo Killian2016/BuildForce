@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using System.Linq;
 using BuildForce.Services;
 using Microsoft.Maui.Controls.Shapes;
@@ -49,6 +49,7 @@ public partial class NotificationsPage : ContentPage
             int unread = items.Count(i => !i.IsRead);
             SubLabel.Text = unread > 0 ? unread + " unread" : "All caught up";
             MarkAllBtn.IsVisible = unread > 0;
+            ClearBtn.IsVisible = items.Count > unread;   // [NOT4] something read to clear
 
             foreach (var n in items)
                 NotifList.Children.Add(BuildCard(n));
@@ -164,6 +165,19 @@ public partial class NotificationsPage : ContentPage
     {
         MarkAllBtn.IsVisible = false;
         await _api.MarkAllNotificationsReadAsync();
+        Load();
+    }
+
+
+    // [NOT4] Removes only notifications already read - unread alerts stay.
+    private async void OnClearRead(object sender, EventArgs e)
+    {
+        bool go = await DisplayAlert("Clear notifications",
+            "Remove the notifications you have already read? Unread ones will stay.",
+            "Clear", "Cancel");
+        if (!go) return;
+        ClearBtn.IsVisible = false;
+        await _api.ClearReadNotificationsAsync();
         Load();
     }
 

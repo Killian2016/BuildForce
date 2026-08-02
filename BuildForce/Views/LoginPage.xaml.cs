@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using BuildForce.Services;
 namespace BuildForce.Views;
 public partial class LoginPage : ContentPage
@@ -15,6 +15,7 @@ public partial class LoginPage : ContentPage
         _passwordVisible = !_passwordVisible;
         PasswordEntry.IsPassword = !_passwordVisible;
         ToggleEye.Text = _passwordVisible ? "HIDE" : "SHOW";
+            ToggleEye.TextColor = _passwordVisible ? Color.FromArgb("#c8e63c") : Color.FromArgb("#9fb0c4");
     }
     private async void OnForgotPassword(object sender, TappedEventArgs e)
     {

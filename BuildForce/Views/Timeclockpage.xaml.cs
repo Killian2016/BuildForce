@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using BuildForce.Services;
 using System.Linq;
 using System.Text.Json;
@@ -729,7 +729,7 @@ public partial class TimeClockPage : ContentPage
         if (!_isOnSite)
         {
             await DisplayAlert("Not at Job Site",
-                $"You must be at the job site to clock in.\n\nProject: {_selectedProject.Name}\n\nPlease go to the job site and try again.",
+                $"You must be at the job site to clock in.\n\nProject: {_selectedProject!.Name}\n\nPlease go to the job site and try again.",
                 "OK");
             return;
         }
@@ -754,7 +754,7 @@ public partial class TimeClockPage : ContentPage
 
             StatusLabel.Text = "CLOCKING IN...";
             var result = await _api.ClockInAsync(
-                _selectedProject.Id,
+                _selectedProject!.Id,
                 _workerLat, _workerLng,
                 $"Cost Code: {_selectedCostCode}", photoBase64: punchPhoto);
 
