@@ -1,9 +1,9 @@
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
 
-namespace com.mezano.buildforce
+namespace com.mezanocm.app
 {
     [Activity(Theme = "@style/Maui.SplashTheme",
               MainLauncher = true,

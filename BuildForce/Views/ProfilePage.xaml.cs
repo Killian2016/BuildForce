@@ -1,4 +1,4 @@
-#pragma warning disable CA1416
+﻿#pragma warning disable CA1416
 using BuildForce.Services;
 
 namespace BuildForce.Views;
@@ -129,6 +129,17 @@ public partial class ProfilePage : ContentPage
         var h = Application.Current?.MainPage;
         if (h != null) await h.DisplayAlert(t, m, "OK");
     }
+
+    // [DISC1] Play requires the privacy policy and a deletion path to stay
+    // reachable inside the app, not only on the one-time disclosure screen.
+    private async void OnPrivacy(object sender, EventArgs e)
+    { try { await Launcher.OpenAsync("https://mezanocm.com/privacy"); } catch { } }
+
+    private async void OnTerms(object sender, EventArgs e)
+    { try { await Launcher.OpenAsync("https://mezanocm.com/terms"); } catch { } }
+
+    private async void OnDeletion(object sender, EventArgs e)
+    { try { await Launcher.OpenAsync("https://mezanocm.com/account-deletion"); } catch { } }
 
     private async void OnClose(object sender, EventArgs e)
     {

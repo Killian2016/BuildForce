@@ -16,6 +16,8 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(new LoginPage(_auth));
+        // [DISC1] Prominent disclosure before first login - Play requirement.
+        bool acked = Preferences.Get(DisclosurePage.AckKey, false);
+        return new Window(acked ? new LoginPage(_auth) : (Page)new DisclosurePage(_auth));
     }
 }

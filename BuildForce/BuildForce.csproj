@@ -10,7 +10,7 @@
         <NoWarn>XC0103;CS1998;CA1416;CS0618;NU1608</NoWarn>
         <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
         <ApplicationTitle>Mezano</ApplicationTitle>
-        <ApplicationId>com.mezano.buildforce</ApplicationId>
+        <ApplicationId>com.mezanocm.app</ApplicationId>
         <ApplicationDisplayVersion>2.5.1</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>

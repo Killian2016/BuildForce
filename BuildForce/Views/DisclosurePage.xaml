@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.DisclosurePage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#080b10">
+    <Grid RowDefinitions="4,*,Auto">
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+            <BoxView Color="#f0a500" />
+            <BoxView Color="#0ea5e9" Grid.Column="1" />
+            <BoxView Color="#10b981" Grid.Column="2" />
+        </Grid>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="24,28,24,16" Spacing="18">
+                <Label Text="BEFORE YOU START" FontSize="10" FontAttributes="Bold"
+                       TextColor="#7d8590" CharacterSpacing="2" />
+                <Label Text="How this app uses your location" FontSize="24"
+                       FontAttributes="Bold" TextColor="#e6edf3" LineHeight="1.15" />
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Location" FontSize="13" FontAttributes="Bold" TextColor="#f0a500" />
+                        <Label FontSize="14" TextColor="#b1bac4" LineHeight="1.45"
+                               Text="When you clock in, Mezano records your GPS location to confirm you are at the job site. While you stay clocked in, it checks your location so your timesheet closes correctly if you leave." />
+                        <Label FontSize="14" TextColor="#b1bac4" LineHeight="1.45"
+                               Text="Location is collected ONLY between clock-in and clock-out. A notification stays visible the whole time. It stops when you clock out. Your location is never collected off the clock." />
+                    </VerticalStackLayout>
+                </Border>
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Photos" FontSize="13" FontAttributes="Bold" TextColor="#0ea5e9" />
+                        <Label FontSize="14" TextColor="#b1bac4" LineHeight="1.45"
+                               Text="A photo is taken when you clock in and out to confirm the punch is yours. Your employer can see it along with your timesheet." />
+                    </VerticalStackLayout>
+                </Border>
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Your records" FontSize="13" FontAttributes="Bold" TextColor="#10b981" />
+                        <Label FontSize="14" TextColor="#b1bac4" LineHeight="1.45"
+                               Text="Your account was created by your employer, and your timesheets are their business records. You can request deletion of your personal account at any time." />
+                    </VerticalStackLayout>
+                </Border>
+                <HorizontalStackLayout Spacing="18" HorizontalOptions="Center">
+                    <Label Text="Privacy Policy" FontSize="13" TextColor="#0ea5e9" FontAttributes="Bold">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnPrivacy" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Delete my account" FontSize="13" TextColor="#0ea5e9" FontAttributes="Bold">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDeletion" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+        <Button Grid.Row="2" Text="Continue" BackgroundColor="#f0a500" TextColor="#080b10"
+                FontSize="15" FontAttributes="Bold" HeightRequest="54"
+                CornerRadius="14" Margin="24,8,24,22" Clicked="OnContinue" />
+    </Grid>
+</ContentPage>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BuildForce.Views.ProfilePage"
@@ -61,6 +61,30 @@
                     <VerticalStackLayout Spacing="12" x:Name="InfoStack" />
                 </Border>
 
+
+            <!-- [DISC1] Play requires an in-app privacy link and deletion path -->
+            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1" Padding="16">
+                <Border.StrokeShape><RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="LEGAL" FontSize="10" FontAttributes="Bold"
+                           TextColor="#7d8590" CharacterSpacing="2" />
+                    <Label Text="Privacy Policy" FontSize="14" TextColor="#0ea5e9" FontAttributes="Bold">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnPrivacy" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Terms of Service" FontSize="14" TextColor="#0ea5e9" FontAttributes="Bold">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTerms" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                    <Label Text="Request account deletion" FontSize="14" TextColor="#ef4444" FontAttributes="Bold">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDeletion" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
             </VerticalStackLayout>
         </ScrollView>
     </Grid>
