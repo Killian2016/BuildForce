@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net10.0-android</TargetFrameworks>
+        <TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
         <OutputType>Exe</OutputType>
         <RootNamespace>BuildForce</RootNamespace>
         <UseMaui>true</UseMaui>
@@ -14,6 +14,7 @@
         <ApplicationDisplayVersion>2.5.1</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
     <!-- NU1608: CommunityToolkit.Maui.Camera 5.0.0 pulls Fragment.Ktx 1.8.8.1 and
          Lifecycle.Process 2.9.2.1, which declare upper bounds the .NET 10 MAUI
          workload deliberately resolves past. Transitive, not our dependency graph.
@@ -31,7 +32,8 @@
         <PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />
         <PackageReference Include="CommunityToolkit.Maui.Camera" Version="5.0.0" />
         <PackageReference Include="SkiaSharp" Version="3.116.1" />
-        <PackageReference Include="SkiaSharp.NativeAssets.Android" Version="3.116.1" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Android" Version="3.116.1" Condition="$(TargetFramework.Contains(''-android''))" />
+        <PackageReference Include="SkiaSharp.NativeAssets.iOS" Version="3.116.1" Condition="$(TargetFramework.Contains(''-ios''))" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.60" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
     </ItemGroup>

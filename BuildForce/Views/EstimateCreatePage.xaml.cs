@@ -50,8 +50,8 @@ public partial class EstimateCreatePage : ContentPage
 
     private static Border Wrap(View inner, Thickness? padding = null) => new Border
     {
-        BackgroundColor = Colors.White,
-        Stroke = Color.FromArgb("#d8deeb"),
+        BackgroundColor = Color.FromArgb("#0d1117"),
+        Stroke = Color.FromArgb("#1c2330"),
         StrokeThickness = 1,
         StrokeShape = new RoundRectangle { CornerRadius = 8 },
         Padding = padding ?? new Thickness(10, 0),
@@ -61,8 +61,8 @@ public partial class EstimateCreatePage : ContentPage
     private static Entry MakeEntry(string placeholder, Keyboard? keyboard = null) => new Entry
     {
         Placeholder = placeholder,
-        PlaceholderColor = Color.FromArgb("#9aa3b8"),
-        TextColor = Color.FromArgb("#1a2340"),
+        PlaceholderColor = Color.FromArgb("#7d8590"),
+        TextColor = Color.FromArgb("#e6edf3"),
         BackgroundColor = Colors.Transparent,
         FontSize = 13,
         Keyboard = keyboard ?? Keyboard.Default
@@ -81,7 +81,7 @@ public partial class EstimateCreatePage : ContentPage
             Taxable = new CheckBox
             {
                 IsChecked = true,
-                Color = Color.FromArgb("#0d7a4f"),
+                Color = Color.FromArgb("#3fb950"),
                 VerticalOptions = LayoutOptions.Center
             },
             AmountLabel = new Label
@@ -89,7 +89,7 @@ public partial class EstimateCreatePage : ContentPage
                 Text = "$0.00",
                 FontSize = 13,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#1a2340"),
+                TextColor = Color.FromArgb("#e6edf3"),
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.End
             }
@@ -106,7 +106,7 @@ public partial class EstimateCreatePage : ContentPage
             Text = "Remove",
             FontSize = 11,
             FontAttributes = FontAttributes.Bold,
-            TextColor = Color.FromArgb("#b3261e"),
+            TextColor = Color.FromArgb("#f85149"),
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.End
         };
@@ -138,7 +138,7 @@ public partial class EstimateCreatePage : ContentPage
         {
             Text = "Taxable",
             FontSize = 12,
-            TextColor = Color.FromArgb("#6b7280"),
+            TextColor = Color.FromArgb("#9aa3b8"),
             VerticalOptions = LayoutOptions.Center
         };
         var footerGrid = new Grid
@@ -168,8 +168,8 @@ public partial class EstimateCreatePage : ContentPage
 
         row.Container = new Border
         {
-            BackgroundColor = Color.FromArgb("#f7f9fd"),
-            Stroke = Color.FromArgb("#e2e7f0"),
+            BackgroundColor = Color.FromArgb("#161b22"),
+            Stroke = Color.FromArgb("#1c2330"),
             StrokeThickness = 1,
             StrokeShape = new RoundRectangle { CornerRadius = 12 },
             Padding = new Thickness(12, 10),
@@ -273,7 +273,7 @@ public partial class EstimateCreatePage : ContentPage
             _saving = true;
             StatusLabel.IsVisible = true;
             StatusLabel.Text = "Creating estimate...";
-            StatusLabel.TextColor = Color.FromArgb("#b45309");
+            StatusLabel.TextColor = Color.FromArgb("#f0a500");
 
             var result = await _api.CreateEstimateAsync(
                 _projects[projectIdx].Id,
@@ -286,7 +286,7 @@ public partial class EstimateCreatePage : ContentPage
             if (result != null)
             {
                 StatusLabel.Text = "Estimate created!";
-                StatusLabel.TextColor = Color.FromArgb("#0d7a4f");
+                StatusLabel.TextColor = Color.FromArgb("#3fb950");
                 await DisplayAlert("Success",
                     $"{result.EstimateNumber} created.\nSubtotal: {result.Subtotal:C2}\nTax: {result.TaxAmount:C2}\nTotal: {result.TotalAmount:C2}", "OK");
                 await ClosePageAsync();
@@ -295,7 +295,7 @@ public partial class EstimateCreatePage : ContentPage
             {
                 _saving = false;
                 StatusLabel.Text = "Could not create estimate.";
-                StatusLabel.TextColor = Color.FromArgb("#b3261e");
+                StatusLabel.TextColor = Color.FromArgb("#f85149");
                 await DisplayAlert("Error", _api.LastError ?? "Could not create estimate. Please try again.", "OK");
             }
         }
@@ -304,7 +304,7 @@ public partial class EstimateCreatePage : ContentPage
             _saving = false;
             StatusLabel.IsVisible = true;
             StatusLabel.Text = "Could not create estimate.";
-            StatusLabel.TextColor = Color.FromArgb("#b3261e");
+            StatusLabel.TextColor = Color.FromArgb("#f85149");
             await DisplayAlert("Error", ex.Message, "OK");
         }
     }

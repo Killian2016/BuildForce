@@ -63,8 +63,8 @@ public partial class ExpensesPage : ContentPage
         {
             var card = new Border
             {
-                BackgroundColor = Colors.White,
-                Stroke = Color.FromArgb("#e2e7f0"),
+                BackgroundColor = Color.FromArgb("#0d1117"),
+                Stroke = Color.FromArgb("#1c2330"),
                 StrokeThickness = 1,
                 StrokeShape = new RoundRectangle { CornerRadius = 14 },
                 Padding = new Thickness(16, 13)
@@ -81,34 +81,34 @@ public partial class ExpensesPage : ContentPage
             };
 
             var left = new VerticalStackLayout { Spacing = 2 };
-            left.Add(new Label { Text = $"{exp.ExpenseDate:MMM d, yyyy}{(string.IsNullOrWhiteSpace(exp.Vendor) ? "" : $" \u00B7 {exp.Vendor}")}", FontSize = 11, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#8a93a8") });
-            left.Add(new Label { Text = exp.Description, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#1a2340"), LineBreakMode = LineBreakMode.TailTruncation });
+            left.Add(new Label { Text = $"{exp.ExpenseDate:MMM d, yyyy}{(string.IsNullOrWhiteSpace(exp.Vendor) ? "" : $" \u00B7 {exp.Vendor}")}", FontSize = 11, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#7d8590") });
+            left.Add(new Label { Text = exp.Description, FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#e6edf3"), LineBreakMode = LineBreakMode.TailTruncation });
             if (!string.IsNullOrWhiteSpace(exp.ProjectName))
-                left.Add(new Label { Text = exp.ProjectName, FontSize = 11, TextColor = Color.FromArgb("#6b7280") });
+                left.Add(new Label { Text = exp.ProjectName, FontSize = 11, TextColor = Color.FromArgb("#9aa3b8") });
 
             var right = new VerticalStackLayout { Spacing = 4, HorizontalOptions = LayoutOptions.End };
-            right.Add(new Label { Text = exp.Amount.ToString("C2"), FontSize = 17, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#b3261e"), HorizontalOptions = LayoutOptions.End });
+            right.Add(new Label { Text = exp.Amount.ToString("C2"), FontSize = 17, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#f85149"), HorizontalOptions = LayoutOptions.End });
             var badges = new HorizontalStackLayout { Spacing = 4, HorizontalOptions = LayoutOptions.End };
             if (!string.IsNullOrWhiteSpace(exp.Category))
             {
                 badges.Add(new Border
                 {
-                    BackgroundColor = Color.FromArgb("#e8ecf3"),
+                    BackgroundColor = Color.FromArgb("#161b22"),
                     Stroke = Colors.Transparent,
                     StrokeShape = new RoundRectangle { CornerRadius = 20 },
                     Padding = new Thickness(9, 3),
-                    Content = new Label { Text = exp.Category, FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#5b6472") }
+                    Content = new Label { Text = exp.Category, FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#7d8590") }
                 });
             }
             if (exp.HasReceipt)
             {
                 badges.Add(new Border
                 {
-                    BackgroundColor = Color.FromArgb("#d8f5e8"),
+                    BackgroundColor = Color.FromArgb("#12261a"),
                     Stroke = Colors.Transparent,
                     StrokeShape = new RoundRectangle { CornerRadius = 20 },
                     Padding = new Thickness(9, 3),
-                    Content = new Label { Text = "Receipt", FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#0d7a4f") }
+                    Content = new Label { Text = "Receipt", FontSize = 10, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#3fb950") }
                 });
             }
             right.Add(badges);

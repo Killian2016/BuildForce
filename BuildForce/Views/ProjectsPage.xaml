@@ -1,19 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BuildForce.Views.ProjectsPage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#eef1f8">
+             BackgroundColor="#080b10">
 
     <Grid RowDefinitions="Auto,*">
 
         <VerticalStackLayout Grid.Row="0" Padding="16,16,16,8" Spacing="12">
 
-            <Border BackgroundColor="White" Stroke="Transparent"
+            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                     StrokeShape="RoundRectangle 16" Padding="0">
-                <Border.Shadow>
-                    <Shadow Brush="#1a2340" Offset="0,2" Radius="10" Opacity="0.08" />
-                </Border.Shadow>
                 <VerticalStackLayout Spacing="0">
                     <Grid HeightRequest="5">
                         <Grid.Background>
@@ -27,23 +24,23 @@
                     <VerticalStackLayout Padding="18,14,18,16" Spacing="4">
                         <Label Text="OPERATIONS  &#x203A;  PROJECTS"
                                FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="2" />
+                               TextColor="#7d8590" CharacterSpacing="2" />
                         <Label Text="Projects"
                                FontSize="24" FontAttributes="Bold"
-                               TextColor="#1a2340" />
+                               TextColor="#e6edf3" />
                         <Label x:Name="SubtitleLabel"
                                Text="All jobs for your company"
-                               FontSize="12" TextColor="#6b7280" />
+                               FontSize="12" TextColor="#7d8590" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
-            <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                     StrokeShape="RoundRectangle 12" Padding="14,2">
                 <Entry x:Name="SearchEntry"
                        Placeholder="Search projects by name, customer, or address..."
-                       PlaceholderColor="#9aa3b8"
-                       TextColor="#1a2340"
+                       PlaceholderColor="#7d8590"
+                       TextColor="#e6edf3"
                        BackgroundColor="Transparent"
                        FontSize="13"
                        TextChanged="OnSearchChanged" />
@@ -59,7 +56,7 @@
                 <VerticalStackLayout x:Name="ProjectList" Spacing="8" />
                 <Label x:Name="EmptyLabel"
                        Text="No projects match your search."
-                       FontSize="13" TextColor="#8a93a8"
+                       FontSize="13" TextColor="#7d8590"
                        HorizontalOptions="Center" Margin="0,16"
                        IsVisible="False" />
                 <Border BackgroundColor="#f0a500" Stroke="Transparent"

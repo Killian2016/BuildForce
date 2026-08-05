@@ -26,6 +26,16 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Mezano verifies you are at the job site when you clock in and out. Location is used only while you are on the clock.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Mezano uses the camera to take your punch verification photo and to capture job site and receipt photos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Mezano saves job site photos you capture to your photo library when you choose to download them.</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>

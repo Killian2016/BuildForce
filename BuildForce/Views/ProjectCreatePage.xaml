@@ -4,12 +4,12 @@
              xmlns:ctl="clr-namespace:BuildForce.Controls"
              x:Class="BuildForce.Views.ProjectCreatePage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#eef1f8">
+             BackgroundColor="#080b10">
 
     <ScrollView>
         <VerticalStackLayout Padding="16,16,16,40" Spacing="12">
 
-            <Border BackgroundColor="White" Stroke="Transparent"
+            <Border BackgroundColor="#0d1117" Stroke="Transparent"
                     StrokeShape="RoundRectangle 16" Padding="0">
                 <Border.Shadow>
                     <Shadow Brush="#1a2340" Offset="0,2" Radius="10" Opacity="0.08" />
@@ -28,63 +28,63 @@
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="OPERATIONS  &#x203A;  PROJECTS"
                                    FontSize="10" FontAttributes="Bold"
-                                   TextColor="#8a93a8" CharacterSpacing="2"
+                                   TextColor="#7d8590" CharacterSpacing="2"
                                    VerticalOptions="Center" />
                             <Border Grid.Column="1"
-                                    BackgroundColor="#eef1f8" Stroke="#d8deeb" StrokeThickness="1"
+                                    BackgroundColor="#161b22" Stroke="#1c2330" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 18" Padding="12,6">
                                 <Label Text="Cancel" FontSize="12" FontAttributes="Bold"
-                                       TextColor="#1a2340" />
+                                       TextColor="#e6edf3" />
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnCancel" />
                                 </Border.GestureRecognizers>
                             </Border>
                         </Grid>
                         <Label Text="Create New Project"
-                               FontSize="22" FontAttributes="Bold" TextColor="#1a2340" />
+                               FontSize="22" FontAttributes="Bold" TextColor="#e6edf3" />
                         <Label Text="Set up a new construction project for an existing customer"
-                               FontSize="12" TextColor="#6b7280" />
+                               FontSize="12" TextColor="#9aa3b8" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
-            <Border BackgroundColor="White" Stroke="#e2e7f0" StrokeThickness="1"
+            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                     StrokeShape="RoundRectangle 14" Padding="16,14">
                 <VerticalStackLayout Spacing="14">
 
                     <VerticalStackLayout Spacing="6">
                         <Label Text="CUSTOMER *" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                               TextColor="#7d8590" CharacterSpacing="1" />
+                        <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="6,0">
                             <ctl:MzPicker x:Name="CustomerPicker" Title="&#8212; Select Customer &#8212;"
-                                    TextColor="#1a2340" TitleColor="#9aa3b8"
+                                    TextColor="#e6edf3" TitleColor="#9aa3b8"
                                     BackgroundColor="Transparent" Margin="8,0" />
                         </Border>
                         <Label Text="Customers are managed on the web at mezanocm.com."
-                               FontSize="10" TextColor="#8a93a8" />
+                               FontSize="10" TextColor="#7d8590" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="6">
                         <Label Text="PROJECT NAME *" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                               TextColor="#7d8590" CharacterSpacing="1" />
+                        <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="12,2">
                             <Entry x:Name="NameEntry"
                                    Placeholder="e.g. Main St Kitchen Remodel"
-                                   PlaceholderColor="#9aa3b8" TextColor="#1a2340"
+                                   PlaceholderColor="#7d8590" TextColor="#e6edf3"
                                    BackgroundColor="Transparent" />
                         </Border>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="6">
                         <Label Text="DESCRIPTION" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                               TextColor="#7d8590" CharacterSpacing="1" />
+                        <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="12,8">
                             <Editor x:Name="DescriptionEditor"
                                     Placeholder="Scope of work, notes, anything useful..."
-                                    PlaceholderColor="#9aa3b8" TextColor="#1a2340"
+                                    PlaceholderColor="#7d8590" TextColor="#e6edf3"
                                     BackgroundColor="Transparent"
                                     MinimumHeightRequest="72" AutoSize="TextChanges" />
                         </Border>
@@ -92,12 +92,12 @@
 
                     <VerticalStackLayout Spacing="6">
                         <Label Text="JOB SITE LOCATION" FontSize="10" FontAttributes="Bold"
-                               TextColor="#8a93a8" CharacterSpacing="1" />
-                        <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                               TextColor="#7d8590" CharacterSpacing="1" />
+                        <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10" Padding="12,2">
                             <Entry x:Name="LocationEntry"
                                    Placeholder="Street address or site description"
-                                   PlaceholderColor="#9aa3b8" TextColor="#1a2340"
+                                   PlaceholderColor="#7d8590" TextColor="#e6edf3"
                                    BackgroundColor="Transparent" />
                         </Border>
                     </VerticalStackLayout>
@@ -105,22 +105,22 @@
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                         <VerticalStackLayout Spacing="6" Grid.Column="0">
                             <Label Text="STATUS" FontSize="10" FontAttributes="Bold"
-                                   TextColor="#8a93a8" CharacterSpacing="1" />
-                            <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                                   TextColor="#7d8590" CharacterSpacing="1" />
+                            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="6,0">
                                 <ctl:MzPicker x:Name="StatusPicker"
-                                        TextColor="#1a2340" TitleColor="#9aa3b8"
+                                        TextColor="#e6edf3" TitleColor="#9aa3b8"
                                         BackgroundColor="Transparent" Margin="8,0" />
                             </Border>
                         </VerticalStackLayout>
                         <VerticalStackLayout Spacing="6" Grid.Column="1">
                             <Label Text="BUDGET" FontSize="10" FontAttributes="Bold"
-                                   TextColor="#8a93a8" CharacterSpacing="1" />
-                            <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                                   TextColor="#7d8590" CharacterSpacing="1" />
+                            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="12,2">
                                 <Entry x:Name="BudgetEntry" Placeholder="0.00"
-                                       Keyboard="Numeric" PlaceholderColor="#9aa3b8"
-                                       TextColor="#1a2340" BackgroundColor="Transparent" />
+                                       Keyboard="Numeric" PlaceholderColor="#7d8590"
+                                       TextColor="#e6edf3" BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
                     </Grid>
@@ -128,10 +128,10 @@
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                         <VerticalStackLayout Spacing="6" Grid.Column="0">
                             <Label Text="START DATE" FontSize="10" FontAttributes="Bold"
-                                   TextColor="#8a93a8" CharacterSpacing="1" />
-                            <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                                   TextColor="#7d8590" CharacterSpacing="1" />
+                            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="12,2">
-                                <DatePicker x:Name="StartDatePicker" TextColor="#1a2340"
+                                <DatePicker x:Name="StartDatePicker" TextColor="#e6edf3"
                                             BackgroundColor="Transparent" />
                             </Border>
                         </VerticalStackLayout>
@@ -141,12 +141,12 @@
                                           VerticalOptions="Center"
                                           CheckedChanged="OnEndDateToggle" />
                                 <Label Text="SET END DATE" FontSize="10" FontAttributes="Bold"
-                                       TextColor="#8a93a8" CharacterSpacing="1"
+                                       TextColor="#7d8590" CharacterSpacing="1"
                                        VerticalOptions="Center" Grid.Column="1" />
                             </Grid>
-                            <Border BackgroundColor="White" Stroke="#d8deeb" StrokeThickness="1"
+                            <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                                     StrokeShape="RoundRectangle 10" Padding="12,2">
-                                <DatePicker x:Name="EndDatePicker" TextColor="#1a2340"
+                                <DatePicker x:Name="EndDatePicker" TextColor="#e6edf3"
                                             BackgroundColor="Transparent" IsEnabled="False" />
                             </Border>
                         </VerticalStackLayout>

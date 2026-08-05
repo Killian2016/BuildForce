@@ -64,17 +64,17 @@ public partial class ProjectsPage : ContentPage
             switch (p.Status)
             {
                 case "Active":
-                case "In Progress": pillText = "#0d7a4f"; pillBg = "#d8f5e8"; break;
-                case "Planning":    pillText = "#8a6100"; pillBg = "#fdf0d2"; break;
-                case "On Hold":     pillText = "#9a3412"; pillBg = "#ffe8d9"; break;
-                case "Completed":   pillText = "#1e50a0"; pillBg = "#dde9fb"; break;
-                default:            pillText = "#5b6472"; pillBg = "#e8ecf3"; break;
+                case "In Progress": pillText = "#3fb950"; pillBg = "#12261a"; break;
+                case "Planning":    pillText = "#f0a500"; pillBg = "#2a2008"; break;
+                case "On Hold":     pillText = "#f0883e"; pillBg = "#2b1607"; break;
+                case "Completed":   pillText = "#58a6ff"; pillBg = "#0d1f33"; break;
+                default:            pillText = "#7d8590"; pillBg = "#161b22"; break;
             }
 
             var card = new Border
             {
-                BackgroundColor = Colors.White,
-                Stroke = Color.FromArgb("#e2e7f0"),
+                BackgroundColor = Color.FromArgb("#0d1117"),
+                Stroke = Color.FromArgb("#1c2330"),
                 StrokeThickness = 1,
                 StrokeShape = new RoundRectangle { CornerRadius = 14 },
                 Padding = new Thickness(14, 12)
@@ -94,7 +94,7 @@ public partial class ProjectsPage : ContentPage
 
             var icon = new Border
             {
-                BackgroundColor = Color.FromArgb("#fdf0d2"),
+                BackgroundColor = Color.FromArgb("#2a2008"),
                 Stroke = Colors.Transparent,
                 StrokeShape = new RoundRectangle { CornerRadius = 10 },
                 WidthRequest = 42, HeightRequest = 42,
@@ -106,11 +106,11 @@ public partial class ProjectsPage : ContentPage
             };
 
             var info = new VerticalStackLayout { Spacing = 2, VerticalOptions = LayoutOptions.Center };
-            info.Add(new Label { Text = p.Name, FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#1a2340"), LineBreakMode = LineBreakMode.TailTruncation });
+            info.Add(new Label { Text = p.Name, FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#e6edf3"), LineBreakMode = LineBreakMode.TailTruncation });
             if (!string.IsNullOrWhiteSpace(p.Client))
-                info.Add(new Label { Text = p.Client, FontSize = 11, TextColor = Color.FromArgb("#6b7280") });
+                info.Add(new Label { Text = p.Client, FontSize = 11, TextColor = Color.FromArgb("#9aa3b8") });
             if (!string.IsNullOrWhiteSpace(p.Location))
-                info.Add(new Label { Text = p.Location, FontSize = 11, TextColor = Color.FromArgb("#8a93a8"), LineBreakMode = LineBreakMode.TailTruncation });
+                info.Add(new Label { Text = p.Location, FontSize = 11, TextColor = Color.FromArgb("#7d8590"), LineBreakMode = LineBreakMode.TailTruncation });
 
             var pill = new Border
             {

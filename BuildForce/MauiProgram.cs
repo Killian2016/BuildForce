@@ -83,6 +83,21 @@ public static class MauiProgram
             av.SetOnClickListener(new MzPickerClickListener(mp));
         });
 #endif
+#if IOS
+        // [PSH-IOS] iOS counterpart: the MAUI Picker is a UITextField whose tap begins
+        // editing and shows the native UIPickerView wheel. Returning false from
+        // ShouldBeginEditing suppresses that entirely; we open the Mezano sheet instead.
+        Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("MZSheetPickerIOS", (h, v) =>
+        {
+            if (v is not BuildForce.Controls.MzPicker mp) return;
+            if (h.PlatformView is not UIKit.UITextField tf) return;
+            tf.ShouldBeginEditing = t =>
+            {
+                Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() => _ = mp.ShowSheetAsync());
+                return false;
+            };
+        });
+#endif
     }
 
 #if ANDROID

@@ -35,7 +35,7 @@ public partial class ExpenseDetailPage : ContentPage
             VendorLabel.Text = string.IsNullOrWhiteSpace(d.Vendor) ? "\u2014" : d.Vendor;
             ProjectLabel.Text = string.IsNullOrWhiteSpace(d.ProjectName) ? "\u2014" : d.ProjectName;
             ReceiptLabel.Text = d.HasReceipt ? "Attached \u2713" : "None";
-            ReceiptLabel.TextColor = d.HasReceipt ? Color.FromArgb("#0d7a4f") : Color.FromArgb("#8a93a8");
+            ReceiptLabel.TextColor = d.HasReceipt ? Color.FromArgb("#3fb950") : Color.FromArgb("#7d8590");
             NotesLabel.Text = string.IsNullOrWhiteSpace(d.Notes) ? "\u2014" : d.Notes;
 
             InfoCard.IsVisible = true;
