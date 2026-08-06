@@ -1194,7 +1194,7 @@ public partial class TimeClockPage : ContentPage
             return;
         }
 
-        // Build the destination list: active projects, excluding the current one.
+        // Build the destination list first: active projects, excluding the current one.
         SwitchProjectList.Children.Clear();
         var candidates = _projects
             .Where(p => _selectedProject == null || p.Id != _selectedProject.Id)
@@ -1205,6 +1205,13 @@ public partial class TimeClockPage : ContentPage
             await DisplayAlert("Switch Job", "No other projects are available to switch to.", "OK");
             return;
         }
+
+        // [RSW2] Switching clocks you out RIGHT NOW - the travel clock starts the
+        // moment you tap Switch Job, BEFORE choosing the next job. Work time ends
+        // when you decide to leave; choosing + driving is travel; the clock only
+        // reopens at a site (Arrive).
+        var left = await DoLeaveNowAsync();
+        if (!left) return;   // leave failed - still clocked in, nothing changed
 
         foreach (var proj in candidates)
         {
@@ -1220,34 +1227,39 @@ public partial class TimeClockPage : ContentPage
                 HeightRequest = 48,
                 CornerRadius = 12
             };
-            btn.Clicked += async (s2, e2) => await BeginLeaveToAsync(p);
+            btn.Clicked += (s2, e2) => SetTravelTarget(p);
             SwitchProjectList.Children.Add(btn);
         }
 
+        SwitchSheet.ZIndex = 999;   // [RSW2b] travel sheet is visible underneath - keep the picker on top
         SwitchSheet.IsVisible = true;
     }
 
+    // [RSW2] Closing the list without picking: you're already clocked out and
+    // traveling, so the trip flips back to the job you just left (same rule as
+    // Cancel on the travel sheet) - Arrive there to get back on the clock.
     private void OnSwitchCancel(object sender, EventArgs e)
     {
         SwitchSheet.IsVisible = false;
+        if (_traveling && _travelTarget == null && _travelOrigin != null)
+        {
+            SetTravelTarget(_travelOrigin);
+            ShowTravelMsg("You're on the travel clock - tap Arrive when you're back at " + _travelOrigin.Name + ".");
+        }
     }
 
     // ===== Two-tap job switch with travel time =====
     private ProjectSummary? _travelTarget;
+    private ProjectSummary? _travelOrigin;   // [RSW1] the job we left - cancel flips the trip back here
     private int _departedTimesheetId = 0;
     private DateTime _departTimeUtc;
     private bool _traveling = false;
     private System.Timers.Timer? _travelTimer;
 
-    // Tap 1: Leave the current job. Closes it now, starts the travel clock.
-    private async Task BeginLeaveToAsync(ProjectSummary target)
+    // [RSW2] Leave the current job immediately. The target is chosen AFTER this.
+    private async Task<bool> DoLeaveNowAsync()
     {
-        System.Diagnostics.Debug.WriteLine("LEAVE: enter");
-        SwitchSheet.IsVisible = false;
-        await Task.Delay(200);
-
-        System.Diagnostics.Debug.WriteLine("LEAVE: proceeding, no confirm");
-
+        System.Diagnostics.Debug.WriteLine("LEAVE: enter (RSW2 immediate)");
         StatusLabel.Text = "LEAVING...";
         StatusLabel.TextColor = Amber;
         try
@@ -1259,10 +1271,11 @@ public partial class TimeClockPage : ContentPage
                 await DisplayAlert("Couldn't leave", _api.LastError ?? "Please try again.", "OK");
                 StatusLabel.Text = "ON THE CLOCK";
                 StatusLabel.TextColor = Green;
-                return;
+                return false;
             }
 
-            _travelTarget = target;
+            _travelOrigin = _selectedProject;   // [RSW1]
+            _travelTarget = null;               // [RSW2] chosen from the list next
             _departedTimesheetId = result.ClosedTimesheetId;
             _departTimeUtc = (result.DepartedAt ?? DateTime.UtcNow);
             _traveling = true;
@@ -1270,16 +1283,33 @@ public partial class TimeClockPage : ContentPage
             // Persist so the travel clock survives an app kill.
             Preferences.Set("travel_departed_id", _departedTimesheetId);
             Preferences.Set("travel_depart_utc", _departTimeUtc.ToString("o"));
-            Preferences.Set("travel_target_id", target.Id);
+            Preferences.Set("travel_target_id", 0);
+            Preferences.Set("travel_origin_id", _travelOrigin?.Id ?? 0);   // [RSW1]
 
             EnterTravelingUi();
+            return true;
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", "Leave error: " + ex.Message, "OK");
             StatusLabel.Text = "ON THE CLOCK";
             StatusLabel.TextColor = Green;
+            return false;
         }
+    }
+
+    // [RSW2] Pick (or re-point) the destination while already traveling.
+    private void SetTravelTarget(ProjectSummary p)
+    {
+        _travelTarget = p;
+        Preferences.Set("travel_target_id", p.Id);
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var back = _travelOrigin != null && p.Id == _travelOrigin.Id;
+            TravelToLabel.Text = "\u2192 " + (back ? "back to " : "") + p.Name;
+            TravelBackBtn.IsVisible = !back;   // [RSW3]
+            SwitchSheet.IsVisible = false;
+        });
     }
 
     private void EnterTravelingUi()
@@ -1297,6 +1327,9 @@ public partial class TimeClockPage : ContentPage
         _activeTimesheetId = 0;   // setter clears sw_tsid
         _exitDetectedAt = null;   // setter clears sw_exit_utc
         if (_travelTarget != null) TravelToLabel.Text = "\u2192 " + _travelTarget.Name;
+        else TravelToLabel.Text = "\u2192 choose your next job";   // [RSW2]
+        TravelBackBtn.Text = "Going back to " + (_travelOrigin?.Name ?? "previous job");   // [RSW3]
+        TravelBackBtn.IsVisible = true;
         UpdateTravelTimerLabel();
         MainThread.BeginInvokeOnMainThread(() =>
         {
@@ -1399,36 +1432,34 @@ public partial class TimeClockPage : ContentPage
         }
     }
 
-    // Cancel travel: reopen the job they left.
-    private async void OnCancelTravel(object sender, EventArgs e)
+    // [RSW1] Cancel travel = reverse the switch. The clock does NOT reopen here:
+    // the worker stays on the travel clock, the target flips back to the job they
+    // left, and they arrive there like any other arrival (geofence + safety +
+    // selfie). One rule everywhere: the clock only ever opens at a site.
+    private void OnCancelTravel(object sender, EventArgs e)
     {
         if (!_traveling) return;
-        
 
-        try
+        if (_travelOrigin == null)
         {
-            var result = await _api.CancelLeaveAsync(_departedTimesheetId);
-            if (result == null)
-            {
-                ShowTravelMsg(_api.LastError ?? "Couldn't cancel - please try again.");
-                return;
-            }
-
-            EndTravel();
-
-            _activeTimesheetId = result.TimesheetId != 0 ? result.TimesheetId : _departedTimesheetId;
-            _isClockedIn = true;
-            ApplyClockedInUi();
-            StartLocalTimer();
-            SiteWatchService.Start();   // [SW2b-5] resume watching the reopened job
-
-            StatusLabel.Text = "ON THE CLOCK";
-            StatusLabel.TextColor = Green;
+            ShowTravelMsg("Can't reverse this trip - tap Arrive at " + (_travelTarget?.Name ?? "the site") + " instead.");
+            return;
         }
-        catch (Exception ex)
+
+        if (_travelTarget != null && _travelTarget.Id == _travelOrigin.Id)
         {
-            ShowTravelMsg("Cancel error: " + ex.Message);
+            ShowTravelMsg("Already heading back to " + _travelOrigin.Name + " - tap Arrive when you're on site.");
+            return;
         }
+
+        _travelTarget = _travelOrigin;
+        Preferences.Set("travel_target_id", _travelTarget.Id);
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            TravelToLabel.Text = "\u2192 back to " + _travelTarget.Name;
+            TravelBackBtn.IsVisible = false;   // [RSW3]
+        });
+        ShowTravelMsg("You'll stay on the travel clock - tap Arrive when you're back at " + _travelTarget.Name + ".");
     }
 
     private void EndTravel()
@@ -1440,6 +1471,8 @@ public partial class TimeClockPage : ContentPage
         Preferences.Remove("travel_departed_id");
         Preferences.Remove("travel_depart_utc");
         Preferences.Remove("travel_target_id");
+        Preferences.Remove("travel_origin_id");   // [RSW1]
+        _travelOrigin = null;
         MainThread.BeginInvokeOnMainThread(() => TravelSheet.IsVisible = false);
     }
 

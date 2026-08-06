@@ -366,7 +366,7 @@
                             FontAttributes="Bold" FontSize="15"
                             HeightRequest="50" CornerRadius="12"
                             Clicked="OnArrive" />
-                    <Button Text="Cancel - back to previous job"
+                    <Button x:Name="TravelBackBtn" Text="Cancel - back to previous job"
                             BackgroundColor="Transparent" TextColor="#7d8590"
                             BorderColor="#1c2330" BorderWidth="1"
                             FontSize="12" HeightRequest="42" CornerRadius="12"
