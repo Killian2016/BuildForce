@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuildForce.Views.NewJobPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#080b10">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0" ColumnDefinitions="44,*,44" Padding="12,14,12,6">
+            <Border BackgroundColor="#161b22" Stroke="#1c2330" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 20" WidthRequest="40" HeightRequest="40">
+                <Label Text="&#x2715;" FontSize="14" TextColor="#e6edf3"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnClose" /></Border.GestureRecognizers>
+            </Border>
+            <Label Grid.Column="1" Text="New job" FontSize="18" FontAttributes="Bold" TextColor="#e6edf3"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
+        </Grid>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16,4,16,24" Spacing="12">
+                <Label Text="CUSTOMER" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="2" />
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="14,12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label x:Name="CustomerLabel" Text="Tap to choose a customer" FontSize="14"
+                               TextColor="#7d8590" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="&#x203A;" FontSize="20" TextColor="#f0a500" VerticalOptions="Center" />
+                    </Grid>
+                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnPickCustomer" /></Border.GestureRecognizers>
+                </Border>
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="10,0">
+                    <Entry x:Name="TitleEntry" Placeholder="Job title (e.g. Water heater repair)" PlaceholderColor="#7d8590"
+                           TextColor="#e6edf3" BackgroundColor="Transparent" FontSize="14" />
+                </Border>
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="10,0">
+                    <Entry x:Name="AddressEntry" Placeholder="Service address (blank = customer address)" PlaceholderColor="#7d8590"
+                           TextColor="#e6edf3" BackgroundColor="Transparent" FontSize="14" />
+                </Border>
+                <Label Text="SCHEDULE" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="2" Margin="0,6,0,0" />
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="12,12">
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                            <Label x:Name="MonthLabel" Text="Month" FontSize="16" FontAttributes="Bold"
+                                   TextColor="#e6edf3" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="&#x2039;" FontSize="26" TextColor="#f0a500" Padding="12,0" VerticalOptions="Center">
+                                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnPrevMonth" /></Label.GestureRecognizers>
+                            </Label>
+                            <Label Grid.Column="3" Text="&#x203A;" FontSize="26" TextColor="#f0a500" Padding="12,0" VerticalOptions="Center">
+                                <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnNextMonth" /></Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                        <Grid x:Name="DowGrid" ColumnDefinitions="*,*,*,*,*,*,*" />
+                        <Grid x:Name="CalGrid" ColumnDefinitions="*,*,*,*,*,*,*"
+                              RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="4" />
+                    </VerticalStackLayout>
+                </Border>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14" Padding="14,10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="ARRIVAL FROM" FontSize="9" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1.5" />
+                            <Label x:Name="StartLabel" Text="Any time" FontSize="14" TextColor="#e6edf3" />
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnPickStart" /></Border.GestureRecognizers>
+                    </Border>
+                    <Border Grid.Column="1" BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 14" Padding="14,10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="ARRIVAL TO" FontSize="9" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="1.5" />
+                            <Label x:Name="EndLabel" Text="Any time" FontSize="14" TextColor="#e6edf3" />
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnPickEnd" /></Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+                <Label Text="TEAM" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="2" Margin="0,6,0,0" />
+                <Label x:Name="CrewHint" Text="Loading crew..." FontSize="12" TextColor="#7d8590" />
+                <FlexLayout x:Name="CrewWrap" Wrap="Wrap" Direction="Row" JustifyContent="Start" AlignItems="Start" />
+                <Label Text="NOTES" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="2" Margin="0,6,0,0" />
+                <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14" Padding="10,4">
+                    <Editor x:Name="NotesEditor" Placeholder="Notes for the crew and the customer" PlaceholderColor="#7d8590"
+                            TextColor="#e6edf3" BackgroundColor="Transparent" FontSize="14" HeightRequest="90" AutoSize="Disabled" />
+                </Border>
+                <HorizontalStackLayout Spacing="10" Margin="0,4,0,0">
+                    <Border x:Name="NotifyBox" WidthRequest="20" HeightRequest="20" BackgroundColor="#f0a500" Stroke="#f0a500"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 5" VerticalOptions="Center">
+                        <Label x:Name="NotifyTick" Text="&#10003;" FontSize="13" FontAttributes="Bold" TextColor="#080b10"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Notify customer (confirmation + reminders)" FontSize="13" TextColor="#9aa3b8" VerticalOptions="Center" />
+                    <HorizontalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnToggleNotify" />
+                    </HorizontalStackLayout.GestureRecognizers>
+                </HorizontalStackLayout>
+                <Label x:Name="ErrorLabel" TextColor="#ef4444" FontSize="13" IsVisible="False" />
+            </VerticalStackLayout>
+        </ScrollView>
+        <Border Grid.Row="2" Margin="16,8,16,20" BackgroundColor="#f0a500" Stroke="Transparent" StrokeShape="RoundRectangle 16">
+            <Button x:Name="SaveBtn" Text="Save job" BackgroundColor="Transparent" TextColor="#080b10"
+                    FontSize="16" FontAttributes="Bold" HeightRequest="54" Clicked="OnSave" />
+        </Border>
+    </Grid>
+</ContentPage>
