@@ -176,9 +176,8 @@ public partial class DashboardPage : ContentPage
     {
         try
         {
-            var host = HostPage;
-            if (host != null)
-                await host.Navigation.PushModalAsync(new ProjectsPage(_api));
+            MainShellPage.Current?.GoToProjects();   // [NAV3]
+            await Task.CompletedTask;
         }
         catch (Exception ex)
         {

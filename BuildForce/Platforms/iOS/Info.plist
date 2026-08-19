@@ -7,7 +7,6 @@
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
-		<integer>2</integer>
 	</array>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
@@ -36,6 +35,8 @@
 	<string>Mezano uses the camera to take your punch verification photo and to capture job site and receipt photos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Mezano saves job site photos you capture to your photo library when you choose to download them.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 </dict>

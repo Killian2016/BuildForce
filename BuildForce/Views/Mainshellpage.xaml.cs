@@ -5,6 +5,7 @@ namespace BuildForce.Views;
 
 public partial class MainShellPage : ContentPage
 {
+    public static MainShellPage? Current;   // [NAV3] lets tab-content pages switch tabs
     private readonly DashboardPage _dashboardPage;
     private readonly ProjectsPage _projectsPage;
     private readonly TimeClockPage _timeClockPage;
@@ -23,6 +24,7 @@ public partial class MainShellPage : ContentPage
         _timeClockPage = new TimeClockPage(api);
         _toolsPage = new ToolsPage(api, auth);
         _schedulePage = new SchedulePage(api);
+        Current = this;   // [NAV3]
         ShowPage(_dashboardPage);
     }
 
@@ -35,6 +37,14 @@ public partial class MainShellPage : ContentPage
     {
         ShowPage(_dashboardPage);
         SetActive(IcoHome, LblHome);
+    }
+
+    // [NAV3] Home tile / search route here instead of pushing a modal copy of a
+    // TAB page - a pushed copy hides the dock and has no back control.
+    public void GoToProjects()
+    {
+        ShowPage(_projectsPage);
+        SetActive(IcoProjects, LblProjects);
     }
 
     private void NavProjects_Tapped(object sender, TappedEventArgs e)

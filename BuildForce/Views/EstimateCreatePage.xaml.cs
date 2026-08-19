@@ -220,7 +220,8 @@ public partial class EstimateCreatePage : ContentPage
     {
         try
         {
-            await Application.Current!.MainPage!.Navigation.PopModalAsync();
+            if (Navigation.ModalStack.Count > 0)
+                await Navigation.PopModalAsync();   // [NAV2] page-local nav - MainPage pattern is dead on iOS
         }
         catch (Exception ex)
         {
