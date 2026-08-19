@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1416
+#pragma warning disable CA1416
 using System.Net.Http.Json;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -1173,6 +1173,105 @@ public class ApiService
             System.Diagnostics.Debug.WriteLine("GetBlueprintFile exception: " + ex.Message);
             return null;
         }
+    }
+
+    // ---------- [BFJOB1] quick job scheduling (gated on the server) ----------
+    public async Task<List<CrewPick>> GetVisitCrewAsync()
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync("/api/mobile/visits/crew");
+            if (!response.IsSuccessStatusCode) return new List<CrewPick>();
+            return await response.Content.ReadFromJsonAsync<List<CrewPick>>() ?? new List<CrewPick>();
+        }
+        catch { return new List<CrewPick>(); }
+    }
+
+    public async Task<VisitCreateResult?> CreateVisitAsync(VisitCreateRequest req)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/visits", req);
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = TryParseMessage(json) ?? ("Server error " + (int)response.StatusCode);
+                return null;
+            }
+            return JsonSerializer.Deserialize<VisitCreateResult>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex) { LastError = ex.Message; return null; }
+    }
+
+    private static string? TryParseMessage(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind == JsonValueKind.Object)
+            {
+                if (doc.RootElement.TryGetProperty("message", out var m1)) return m1.GetString();
+                if (doc.RootElement.TryGetProperty("error", out var e1)) return e1.GetString();
+            }
+        }
+        catch { }
+        return null;
+    }
+
+    // ---------- [BFVIS1] my service visits + status updates ----------
+    public async Task<List<VisitItem>?> GetVisitsAsync(DateTime? date = null)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var url = "/api/mobile/visits";
+            if (date.HasValue) url += "?date=" + date.Value.ToString("yyyy-MM-dd");
+            var response = await _client.GetAsync(url);
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = TryParseMessage(json) ?? ("Server returned " + (int)response.StatusCode);
+                return null;
+            }
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<List<VisitItem>>(json, options) ?? new List<VisitItem>();
+        }
+        catch (Exception ex) { LastError = ex.Message; return null; }
+    }
+
+    // [LIVEETA1] crew phone location ping while a visit is OnTheWay (server stores last position for the tracking page)
+    public async Task<bool> SendVisitLocationAsync(int id, double lat, double lng)
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/visits/" + id + "/location", new { lat, lng });
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
+    public async Task<VisitStatusResult?> SetVisitStatusAsync(int id, string status, int? etaMinutes, bool notify)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/visits/" + id + "/status", new { status, etaMinutes, notify });
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = TryParseMessage(json) ?? ("Server returned " + (int)response.StatusCode);
+                return null;
+            }
+            return JsonSerializer.Deserialize<VisitStatusResult>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex) { LastError = ex.Message; return null; }
     }
 }
 

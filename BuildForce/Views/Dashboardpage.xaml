@@ -51,6 +51,16 @@
                 </Grid>
             </Grid>
 
+            <!-- [BFJOB1] office-only quick job - hidden unless AuthService.CanScheduleJobs -->
+            <Border x:Name="NewJobCard" IsVisible="False" BackgroundColor="#0d1117" Stroke="#f0a500" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14" Padding="16,16">
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <Label Text="+" FontSize="22" FontAttributes="Bold" TextColor="#f0a500" VerticalOptions="Center" />
+                    <Label Text="Schedule a New Job" FontSize="16" FontAttributes="Bold" TextColor="#f0a500" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnNewJob" /></Border.GestureRecognizers>
+            </Border>
+
             <Label Text="FIELD TOOLS &#183; [D2]" FontSize="10" FontAttributes="Bold"
                    TextColor="#7d8590" CharacterSpacing="2" Margin="2,4,0,0" />
 

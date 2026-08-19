@@ -61,6 +61,7 @@ public partial class DashboardPage : ContentPage
 
     private void LoadHeader()
     {
+        NewJobCard.IsVisible = AuthService.CanScheduleJobs; // [BFJOB1]
         var name = Preferences.Get("full_name", "");
         var email = Preferences.Get("email", "");
         var display = string.IsNullOrEmpty(name) ? email : name;
@@ -417,5 +418,16 @@ _api
             if (host != null) await host.Navigation.PushModalAsync(new ProfilePage(_api));
         }
         catch { }
+    }
+
+    // [BFJOB1] office-only quick job (Jobber-style New job sheet)
+    private async void OnNewJob(object sender, TappedEventArgs e)
+    {
+        try
+        {
+            var host = HostPage;
+            if (host != null) await host.Navigation.PushModalAsync(new NewJobPage(_api));
+        }
+        catch (Exception ex) { await AlertAsync("Navigation error", ex.Message); }
     }
 }

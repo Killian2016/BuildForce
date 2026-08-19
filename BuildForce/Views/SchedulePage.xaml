@@ -1,44 +1,74 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BuildForce.Views.SchedulePage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="#080b10">
-
-    <Grid RowDefinitions="4,Auto,*">
-
-        <Grid Grid.Row="0" ColumnDefinitions="*,*,*">
-            <BoxView Color="#f0a500" />
-            <BoxView Color="#0ea5e9" Grid.Column="1" />
-            <BoxView Color="#10b981" Grid.Column="2" />
+             BackgroundColor="#0b1220">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        <HorizontalStackLayout Grid.Row="0" Spacing="8" HorizontalOptions="Center" Padding="0,14,0,8">
+            <Image Source="mezano_round.png" WidthRequest="22" HeightRequest="22" Aspect="AspectFit" VerticalOptions="Center" />
+            <Label Text="FIELD OPS" FontSize="18" FontAttributes="Bold" TextColor="#f3f4f6" CharacterSpacing="1" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <Grid Grid.Row="1" Padding="16,0,16,10" ColumnDefinitions="*,*" ColumnSpacing="10">
+            <Border x:Name="QuickAddBtn" IsVisible="False" BackgroundColor="#1c2538" Stroke="#2a3650" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12" Padding="0,11">
+                <Label Text="Quick Add Job" FontSize="14" TextColor="#f3f4f6" HorizontalOptions="Center" />
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnQuickAdd" /></Border.GestureRecognizers>
+            </Border>
+            <Border Grid.Column="1" BackgroundColor="#1c2538" Stroke="#2a3650" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="12,11">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label x:Name="DateChip" Text="" FontSize="14" TextColor="#f3f4f6" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="&#x2304;" FontSize="12" TextColor="#9aa3b8" VerticalOptions="Center" />
+                </Grid>
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnToday" /></Border.GestureRecognizers>
+            </Border>
         </Grid>
-
-        <Grid Grid.Row="1" Padding="16,14,16,10" ColumnDefinitions="*,Auto">
-            <VerticalStackLayout Spacing="2">
-                <Label Text="MY SCHEDULE" FontSize="10" FontAttributes="Bold"
-                       TextColor="#7d8590" CharacterSpacing="2" />
-                <Label x:Name="HeaderLabel" Text="Today" FontSize="20"
-                       FontAttributes="Bold" TextColor="#e6edf3" />
-                <Label x:Name="SubLabel" Text="Loading..." FontSize="12" TextColor="#7d8590" />
+        <Grid Grid.Row="2" Padding="16,0,16,8" ColumnDefinitions="*,Auto">
+            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                <Label Text="MY SCHEDULE" FontSize="13" FontAttributes="Bold" TextColor="#e5e7eb" CharacterSpacing="0.5" />
+                <Label x:Name="CountsLabel" Text="" FontSize="14" TextColor="#e5e7eb">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span x:Name="PendingSpan" Text="0 Pending" TextColor="#f0a500" />
+                            <Span Text=" | " TextColor="#6b7280" />
+                            <Span x:Name="DoneSpan" Text="0 Completed" TextColor="#22c55e" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
             </VerticalStackLayout>
-            <Button x:Name="RefreshTop" Text="Refresh" BackgroundColor="Transparent" TextColor="#7d8590"
-                    BorderColor="#1c2330" BorderWidth="1" FontSize="12"
-                    HeightRequest="36" CornerRadius="10" Padding="14,0"
-                    Grid.Column="1" VerticalOptions="Start"
-                    Clicked="OnRefresh" />
+            <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                <Label Text="&#x2039;" FontSize="26" TextColor="#9aa3b8" Padding="8,0" VerticalOptions="Center">
+                    <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnPrevDay" /></Label.GestureRecognizers>
+                </Label>
+                <Border BackgroundColor="#1c2538" Stroke="#2a3650" StrokeThickness="1" StrokeShape="RoundRectangle 10" Padding="12,6">
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="Date Selector" FontSize="10" TextColor="#9aa3b8" />
+                        <Label x:Name="DateSel" Text="" FontSize="13" TextColor="#f3f4f6" />
+                    </VerticalStackLayout>
+                </Border>
+                <Label Text="&#x203A;" FontSize="26" TextColor="#9aa3b8" Padding="8,0" VerticalOptions="Center">
+                    <Label.GestureRecognizers><TapGestureRecognizer Tapped="OnNextDay" /></Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
         </Grid>
-
-        <ScrollView Grid.Row="2">
-            <VerticalStackLayout Padding="16,4,16,28" Spacing="10">
-                <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True"
-                                   Color="#f0a500" Margin="0,8" />
-                <Label x:Name="EmptyLabel" Text="" FontSize="13" TextColor="#7d8590"
-                       IsVisible="False" HorizontalOptions="Center" Margin="0,20,0,0" />
-                <Button x:Name="RetryBtn" Text="Refresh"
-                        BackgroundColor="#f0a500" TextColor="#080b10"
-                        FontSize="13" FontAttributes="Bold" HeightRequest="44"
-                        CornerRadius="12" IsVisible="False"
-                        Clicked="OnRefresh" />
+        <ScrollView Grid.Row="3">
+            <VerticalStackLayout Padding="14,4,14,28" Spacing="12">
+                <ActivityIndicator x:Name="Loading" IsRunning="True" IsVisible="True" Color="#f0a500" Margin="0,8" />
+                <Label x:Name="EmptyLabel" Text="" FontSize="13" TextColor="#9aa3b8" IsVisible="False" HorizontalOptions="Center" Margin="0,12,0,0" />
+                <Button x:Name="RetryBtn" Text="Retry" BackgroundColor="#f0a500" TextColor="#0b1220" FontSize="13" FontAttributes="Bold"
+                        HeightRequest="44" CornerRadius="12" IsVisible="False" Clicked="OnRefresh" />
+                <VerticalStackLayout x:Name="VisitList" Spacing="12" />
+                <Border x:Name="DoneRow" IsVisible="False" BackgroundColor="#111a2c" Stroke="#2a3650" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" Padding="14,10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label x:Name="DoneLabel" Text="Completed" FontSize="13" TextColor="#9aa3b8" VerticalOptions="Center" />
+                        <Label x:Name="DoneChevron" Grid.Column="1" Text="&#x2304;" FontSize="16" TextColor="#9aa3b8" VerticalOptions="Center" />
+                    </Grid>
+                    <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnToggleDone" /></Border.GestureRecognizers>
+                </Border>
+                <VerticalStackLayout x:Name="DoneList" Spacing="12" IsVisible="False" />
+                <Label x:Name="SchedHeader" Text="CREW ASSIGNMENTS" FontSize="11" FontAttributes="Bold" TextColor="#9aa3b8"
+                       CharacterSpacing="1.5" Margin="2,10,0,0" IsVisible="False" />
                 <VerticalStackLayout x:Name="SchedList" Spacing="8" />
             </VerticalStackLayout>
         </ScrollView>

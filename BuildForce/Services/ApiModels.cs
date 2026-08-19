@@ -355,3 +355,53 @@ public class ScheduleItem
     public string? Status { get; set; }
 }
 
+// [BFJOB1] quick job scheduling from the phone
+public class CrewPick { public int Id { get; set; } public string Name { get; set; } = ""; }
+public class VisitCreateRequest
+{
+    public int CustomerId { get; set; }
+    public string? Title { get; set; }
+    public string? ServiceAddress { get; set; }
+    public string? VisitDate { get; set; }
+    public string? WindowStart { get; set; }
+    public string? WindowEnd { get; set; }
+    public List<int> CrewEmployeeIds { get; set; } = new();
+    public string? Notes { get; set; }
+    public string? InternalNotes { get; set; }
+    public bool NotifyEmail { get; set; } = true;
+    public bool NotifySms { get; set; } = true;
+    public bool SendConfirmation { get; set; } = true;
+}
+public class VisitCreateResult
+{
+    public bool Success { get; set; }
+    public int Id { get; set; }
+    public int Sent { get; set; }
+    public string? TrackingUrl { get; set; }
+}
+
+// [BFVIS1] my service visits (GET api/mobile/visits) + status result
+public class VisitItem
+{
+    public int Id { get; set; }
+    public string? Title { get; set; }
+    public string? Status { get; set; }
+    public string? Address { get; set; }
+    public string? Date { get; set; }
+    public string? Window { get; set; }
+    public int? EtaMinutes { get; set; }
+    public string? Eta { get; set; }
+    public string? Notes { get; set; }
+    public string? InternalNotes { get; set; }
+    public string? CustomerName { get; set; }
+    public string? CustomerPhone { get; set; }
+    public string? TrackingUrl { get; set; }
+    public List<string>? Crew { get; set; }
+}
+public class VisitStatusResult
+{
+    public bool Success { get; set; }
+    public string? Status { get; set; }
+    public int Sent { get; set; }
+    public string? Eta { get; set; }
+}

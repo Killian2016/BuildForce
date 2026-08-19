@@ -243,11 +243,35 @@ public partial class TimeClockPage : ContentPage
 
             ApplyClockedInUi();
             StartLocalTimer();
+            await EnsureSiteWatchOnRestoreAsync(proj?.Location);   // [SW5] watch follows the session, not the device
         }
 
         await LoadSummary();
     }
 
+    // [SW5] A restored Active timesheet (second phone, or same phone after a relaunch) must start the
+    // site watch too - otherwise the phone you carry never punches and the phone left on site counts forever.
+    private async Task EnsureSiteWatchOnRestoreAsync(string? location)
+    {
+        try
+        {
+            if (!_geoResolved && !string.IsNullOrWhiteSpace(location))
+            {
+                var hits = await Geocoding.Default.GetLocationsAsync(location);
+                var hit = hits?.FirstOrDefault();
+                if (hit != null)
+                {
+                    _projLat = hit.Latitude; _projLng = hit.Longitude; _geoResolved = true;
+                    Preferences.Set("sw_lat", _projLat); Preferences.Set("sw_lng", _projLng);
+                }
+            }
+            if (!_geoResolved) { System.Diagnostics.Debug.WriteLine("[SW5] no site coords - watch not started"); return; }
+            try { await Permissions.RequestAsync<Permissions.PostNotifications>(); } catch { }
+            SiteWatchService.Start();
+            System.Diagnostics.Debug.WriteLine("[SW5] site watch started on restore");
+        }
+        catch (Exception ex) { System.Diagnostics.Debug.WriteLine("[SW5] restore watch error: " + ex.Message); }
+    }
     private void ApplyClockedInUi()
     {
         MainThread.BeginInvokeOnMainThread(() =>

@@ -5,6 +5,15 @@ namespace BuildForce.Services;
 public class AuthService
 {
     private readonly HttpClient _client;
+    // [BFJOB1] office-side roles may schedule jobs from the phone (the server re-checks the JWT roles)
+    public static bool CanScheduleJobs
+    {
+        get
+        {
+            var roles = Preferences.Get("roles", "").Split(",", StringSplitOptions.RemoveEmptyEntries);
+            return roles.Any(r => r.Trim() == "SystemAdmin" || r.Trim() == "CompanyAdmin" || r.Trim() == "Manager");
+        }
+    }
     private const string BaseUrl = "https://mezanocm.com";
     public AuthService()
     {
@@ -14,6 +23,32 @@ public class AuthService
                 HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
         _client = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
+    }
+    // [GSIM1] Sign in with Google: the server runs the OAuth dance and hands the JWT back on buildforce://auth
+    public async Task<LoginResult> LoginWithGoogleAsync()
+    {
+        try
+        {
+            var start = new Uri(BaseUrl.TrimEnd('/') + "/api/mobile/auth/google/start");
+            var result = await WebAuthenticator.Default.AuthenticateAsync(start, new Uri("buildforce://auth"));
+            if (result == null) return new LoginResult { Success = false, Message = "Google sign-in cancelled" };
+            string P(string k) => result.Properties.TryGetValue(k, out var v) ? (v ?? "") : "";
+            if (!string.IsNullOrEmpty(P("error"))) return new LoginResult { Success = false, Message = P("error") };
+            var token = P("token");
+            if (string.IsNullOrEmpty(token)) return new LoginResult { Success = false, Message = "Google sign-in failed" };
+            var email = P("email");
+            var fullName = P("fullName");
+            if (string.IsNullOrEmpty(fullName)) fullName = string.IsNullOrEmpty(email) ? "User" : email.Split('@')[0];
+            Preferences.Set("auth_token", token);
+            Preferences.Set("full_name", fullName);
+            Preferences.Set("email", email);
+            Preferences.Set("employee_id", P("employeeId"));
+            Preferences.Set("company_id", string.IsNullOrEmpty(P("companyId")) ? "0" : P("companyId"));
+            Preferences.Set("roles", P("roles"));
+            return new LoginResult { Success = true, Token = token };
+        }
+        catch (TaskCanceledException) { return new LoginResult { Success = false, Message = "Google sign-in cancelled" }; }
+        catch (Exception ex) { return new LoginResult { Success = false, Message = ex.Message }; }
     }
     public async Task<LoginResult> LoginAsync(string email, string password)
     {
@@ -49,6 +84,11 @@ public class AuthService
                 var userEmail = GetString(root, "email", "Email") ?? email;
                 var employeeId = GetString(root, "employeeId", "EmployeeId", "employee_id") ?? "";
                 var companyId = GetString(root, "companyId", "CompanyId", "company_id") ?? "0";
+                var rolesCsv = GetString(root, "role", "Role") ?? ""; // [BFJOB1]
+                if ((root.TryGetProperty("roles", out var rolesEl) || root.TryGetProperty("Roles", out rolesEl))
+                    && rolesEl.ValueKind == JsonValueKind.Array)
+                    rolesCsv = string.Join(",", rolesEl.EnumerateArray()
+                        .Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()));
                 if (!string.IsNullOrEmpty(token))
                 {
                     Preferences.Set("auth_token", token);
@@ -56,6 +96,7 @@ public class AuthService
                     Preferences.Set("email", userEmail);
                     Preferences.Set("employee_id", employeeId);
                     Preferences.Set("company_id", companyId);
+                    Preferences.Set("roles", rolesCsv); // [BFJOB1]
                     return new LoginResult { Success = true, Token = token };
                 }
             }

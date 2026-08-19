@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BuildForce.Views.LoginPage"
@@ -85,16 +85,21 @@
                 </Grid>
             </Border>
 
-            <!-- Forgot Password -->
-            <Label Text="Forgot password?"
-                   FontSize="13" TextColor="#c8e63c"
-                   FontAttributes="Bold"
-                   HorizontalOptions="End"
-                   Margin="0,0,0,28">
+            <!-- [BFRM1] Remember me + Forgot password -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,28">
+                <HorizontalStackLayout Grid.Column="0" Spacing="10" VerticalOptions="Center">
+                    <Border x:Name="RememberBox" WidthRequest="20" HeightRequest="20" BackgroundColor="#c8e63c" Stroke="#c8e63c" StrokeThickness="1" StrokeShape="RoundRectangle 5" VerticalOptions="Center">
+                        <Label x:Name="RememberTick" Text="&#10003;" FontSize="13" FontAttributes="Bold" TextColor="#0a1628" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Remember me" FontSize="13" TextColor="#9fb0c4" VerticalOptions="Center" />
+                    <HorizontalStackLayout.GestureRecognizers><TapGestureRecognizer Tapped="OnRememberTapped" /></HorizontalStackLayout.GestureRecognizers>
+                </HorizontalStackLayout>
+                <Label Text="Forgot password?" FontSize="13" TextColor="#c8e63c" FontAttributes="Bold" Grid.Column="1" VerticalOptions="Center">
                 <Label.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnForgotPassword" />
                 </Label.GestureRecognizers>
             </Label>
+            </Grid>
 
             <!-- Error Label -->
             <Label x:Name="ErrorLabel"
@@ -123,6 +128,21 @@
                                Color="#c8e63c"
                                Margin="0,16,0,0" />
 
+            <!-- [GSIM1] divider + Continue with Google -->
+            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12" Margin="0,22,0,14">
+                <BoxView Grid.Column="0" HeightRequest="1" Color="#1e3a5f" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="or" FontSize="12" TextColor="#6b7280" VerticalOptions="Center" />
+                <BoxView Grid.Column="2" HeightRequest="1" Color="#1e3a5f" VerticalOptions="Center" />
+            </Grid>
+            <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1" StrokeShape="RoundRectangle 16">
+                <Grid ColumnDefinitions="Auto,*" Padding="18,0" HeightRequest="54" ColumnSpacing="12">
+                    <Label Grid.Column="0" Text="G" FontSize="20" FontAttributes="Bold" TextColor="#4285F4" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="Continue with Google" FontSize="15" FontAttributes="Bold" TextColor="White"
+                           VerticalOptions="Center" HorizontalOptions="Center" />
+                </Grid>
+                <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnGoogleTapped" /></Border.GestureRecognizers>
+            </Border>
+
             <!-- Register -->
             <HorizontalStackLayout HorizontalOptions="Center" Margin="0,24,0,0" Spacing="4">
                 <Label Text="Don't have an account?"
@@ -134,6 +154,17 @@
                     </Label.GestureRecognizers>
                 </Label>
             </HorizontalStackLayout>
+
+
+            <!-- [BFLGN1] legal footer -->
+            <HorizontalStackLayout HorizontalOptions="Center" Margin="0,40,0,0" Spacing="10">
+                <Label Text="Privacy Policy" FontSize="12" TextColor="#6b7280"><Label.GestureRecognizers><TapGestureRecognizer Tapped="OnPrivacyTapped" /></Label.GestureRecognizers></Label>
+                <Label Text="|" FontSize="12" TextColor="#374151" />
+                <Label Text="Terms of Service" FontSize="12" TextColor="#6b7280"><Label.GestureRecognizers><TapGestureRecognizer Tapped="OnTermsTapped" /></Label.GestureRecognizers></Label>
+                <Label Text="|" FontSize="12" TextColor="#374151" />
+                <Label Text="Delete account" FontSize="12" TextColor="#6b7280"><Label.GestureRecognizers><TapGestureRecognizer Tapped="OnDeleteAccountTapped" /></Label.GestureRecognizers></Label>
+            </HorizontalStackLayout>
+            <Label x:Name="VersionLabel" FontSize="11" TextColor="#374151" HorizontalOptions="Center" Margin="0,10,0,0" />
 
         </VerticalStackLayout>
     </ScrollView>
