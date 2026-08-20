@@ -23,7 +23,10 @@ public partial class App : Application
         var savedToken = Preferences.Get("auth_token", "");
         if (!remember) Preferences.Remove("auth_token");
         if (acked && remember && !string.IsNullOrEmpty(savedToken) && !JwtExpired(savedToken))
+        {
+            _ = BuildForce.Services.PushRegistrar.RegisterAsync(); // [PUSH1]
             return new Window(new AppShell());
+        }
         return new Window(acked ? new LoginPage(_auth) : (Page)new DisclosurePage(_auth));
     }
 

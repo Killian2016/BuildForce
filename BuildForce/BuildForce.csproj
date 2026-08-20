@@ -13,8 +13,9 @@
         <ApplicationId>com.mezanocm.app</ApplicationId>
         <ApplicationDisplayVersion>2.5.1</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+        <CodesignEntitlements Condition="$(TargetFramework.Contains('-ios'))">Platforms\iOS\Entitlements.plist</CodesignEntitlements> <!-- [PUSH1] -->
     <!-- NU1608: CommunityToolkit.Maui.Camera 5.0.0 pulls Fragment.Ktx 1.8.8.1 and
          Lifecycle.Process 2.9.2.1, which declare upper bounds the .NET 10 MAUI
          workload deliberately resolves past. Transitive, not our dependency graph.
@@ -36,6 +37,8 @@
         <PackageReference Include="SkiaSharp.NativeAssets.iOS" Version="3.116.1" Condition="$(TargetFramework.Contains(''-ios''))" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.60" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+        <!-- [PUSH1] push notifications -->
+        <PackageReference Include="Plugin.FirebasePushNotifications" Version="3.2.11" />
     </ItemGroup>
     <ItemGroup>
         <Compile Update="Views\TimesheetDetailPage.xaml.cs">
@@ -100,6 +103,13 @@
         <MauiXaml Update="Views\PunchCameraPage.xaml">
             <Generator>MSBuild:Compile</Generator>
         </MauiXaml>
+    </ItemGroup>
+    <!-- [PUSH1] Firebase config files (gitignored) -->
+    <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+        <GoogleServicesJson Include="Platforms\Android\google-services.json" />
+    </ItemGroup>
+    <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+        <BundleResource Include="Platforms\iOS\GoogleService-Info.plist" Link="GoogleService-Info.plist" />
     </ItemGroup>
 </Project>
 

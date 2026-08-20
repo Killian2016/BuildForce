@@ -35,3 +35,5 @@ fix_procore.py
 *.bak
 *.bak-*
 *bak*
+google-services.json
+GoogleService-Info.plist

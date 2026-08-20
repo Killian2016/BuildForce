@@ -3,6 +3,8 @@ using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using BuildForce.Services;
 using BuildForce.Views;
+using Plugin.FirebasePushNotifications; // [PUSH1]
+
 namespace BuildForce;
 public static class MauiProgram
 {
@@ -13,6 +15,7 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
             .UseMauiCommunityToolkitCamera()
+            .UseFirebasePushNotifications() // [PUSH1]
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

@@ -97,6 +97,7 @@ public class AuthService
                     Preferences.Set("employee_id", employeeId);
                     Preferences.Set("company_id", companyId);
                     Preferences.Set("roles", rolesCsv); // [BFJOB1]
+                    _ = PushRegistrar.RegisterAsync(); // [PUSH1]
                     return new LoginResult { Success = true, Token = token };
                 }
             }

@@ -28,6 +28,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
+		<string>remote-notification</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Mezano verifies you are at the job site when you clock in and out. Location is used only while you are on the clock.</string>
