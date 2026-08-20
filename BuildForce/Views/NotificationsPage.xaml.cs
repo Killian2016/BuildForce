@@ -14,7 +14,14 @@ public partial class NotificationsPage : ContentPage
     public NotificationsPage(ApiService api)
     {
         InitializeComponent();
-        _api = api;
+        _api = api;   // [NOT6] load moved to OnAppearing
+    }
+
+    // [NOT6] Reload every time the bell opens - the page is constructed
+    // once and reused, so a ctor-only load shows a stale list forever.
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
         Load();
     }
 
