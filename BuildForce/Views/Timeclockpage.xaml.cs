@@ -33,6 +33,7 @@ public class RingDrawable : IDrawable
 public partial class TimeClockPage : ContentPage
 {
     private readonly ApiService _api;
+    private int _svrTick = 0;   // [SW6]
     private System.Timers.Timer? _timer;
     private DateTime _clockInTime;
 
@@ -953,6 +954,28 @@ public partial class TimeClockPage : ContentPage
         }
     }
 
+    // [SW6] Shift ended on another device or by a manager on the web:
+    // stand this device down. Unknown/network errors leave the clock running.
+    private async Task CheckServerActiveAsync()
+    {
+        try
+        {
+            if (!_isClockedIn) return;
+            var active = await _api.IsShiftActiveAsync();
+            if (active != false) return;
+            if (!_isClockedIn) return;
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                StopTimer("CLOCKED OUT ELSEWHERE", true);
+                Preferences.Remove(SW_TSID);
+                SiteWatchNotifier.Notify("Clocked out",
+                    "Your shift was ended from the office or another device.");
+            });
+            _ = LoadSummary();
+        }
+        catch { }
+    }
+
     private void StartLocalTimer()
     {
         _timer?.Stop();
@@ -979,6 +1002,12 @@ public partial class TimeClockPage : ContentPage
             {
                 _watchTick = 0;
                 _ = CheckSiteExitAsync();
+            }
+            _svrTick++;   // [SW6] shift closed elsewhere? (other phone / office)
+            if (_svrTick >= 60)
+            {
+                _svrTick = 0;
+                _ = CheckServerActiveAsync();
             }
             if (_materialRun)
             {

@@ -410,6 +410,22 @@ public class ApiService
         }
     }
 
+    // [SW6] Three-way: true=active, false=server says no shift, null=network/unknown.
+    public async Task<bool?> IsShiftActiveAsync()
+    {
+        try
+        {
+            RefreshToken();
+            var resp = await _client.GetAsync("/api/mobile/timesheets/active");
+            if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return false;
+            if (!resp.IsSuccessStatusCode) return null;
+            var body = await resp.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(body) || body.Trim() == "null") return false;
+            return true;
+        }
+        catch { return null; }
+    }
+
     public async Task<TimesheetEntry?> GetActiveTimesheetAsync()
     {
         try

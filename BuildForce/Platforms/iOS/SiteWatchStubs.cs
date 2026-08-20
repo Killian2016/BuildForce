@@ -224,7 +224,9 @@ public static class SiteWatchNotifier
             }
             UNUserNotificationCenter.Current.RequestAuthorization(
                 UNAuthorizationOptions.Alert | UNAuthorizationOptions.Sound | UNAuthorizationOptions.Badge,
-                (granted, err) => { });
+                (granted, err) => {
+                    System.Diagnostics.Debug.WriteLine("[NOTIF1] auth granted=" + granted + " err=" + err?.LocalizedDescription);
+                });
         }
         catch { }
     }
@@ -233,16 +235,23 @@ public static class SiteWatchNotifier
     {
         try
         {
+            if (UNUserNotificationCenter.Current.Delegate == null)   // [NOTIF1]
+            {
+                _delegate ??= new SwNotifDelegate();
+                UNUserNotificationCenter.Current.Delegate = _delegate;
+            }
             var content = new UNMutableNotificationContent
             {
                 Title = title,
                 Body = message,
                 Sound = UNNotificationSound.Default
             };
-            content.InterruptionLevel = UNNotificationInterruptionLevel.TimeSensitive;
+            content.InterruptionLevel = UNNotificationInterruptionLevel.Active;   // [NOTIF1] TimeSensitive needs an entitlement we do not have
             var req = UNNotificationRequest.FromIdentifier(
                 Guid.NewGuid().ToString(), content, null);
-            UNUserNotificationCenter.Current.AddNotificationRequest(req, err => { });
+            UNUserNotificationCenter.Current.AddNotificationRequest(req, err => {
+                if (err != null) System.Diagnostics.Debug.WriteLine("[NOTIF1] post failed: " + err.LocalizedDescription);
+            });
         }
         catch { }
     }
