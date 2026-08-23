@@ -317,6 +317,31 @@
             </VerticalStackLayout>
         </ScrollView>
 
+        <Grid x:Name="SwitchConfirmSheet" Grid.Row="1" IsVisible="False"
+              BackgroundColor="#CC000000">
+            <Border BackgroundColor="#0d1117" Stroke="#8b5cf6" StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18"
+                    VerticalOptions="Center" HorizontalOptions="Fill"
+                    Margin="24" Padding="20">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="Switch job?" FontSize="18" FontAttributes="Bold"
+                           TextColor="#e6edf3" />
+                    <Label Text="Switching clocks you out of this job right now. Travel time starts when you pick your next job."
+                           FontSize="13" TextColor="#9aa4b2" LineBreakMode="WordWrap" />
+                    <Button Text="Clock out and switch"
+                            BackgroundColor="#8b5cf6" TextColor="#0d1117"
+                            FontAttributes="Bold" FontSize="14"
+                            HeightRequest="48" CornerRadius="12"
+                            Clicked="OnSwitchConfirm" />
+                    <Button Text="Stay clocked in"
+                            BackgroundColor="Transparent" TextColor="#7d8590"
+                            BorderColor="#1c2330" BorderWidth="1"
+                            FontSize="12" HeightRequest="42" CornerRadius="12"
+                            Clicked="OnSwitchConfirmCancel" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
         <Grid x:Name="SwitchSheet" Grid.Row="1" IsVisible="False"
               BackgroundColor="#CC000000">
             <Border BackgroundColor="#0d1117" Stroke="#8b5cf6" StrokeThickness="1"
@@ -328,6 +353,13 @@
                            FontSize="16" FontAttributes="Bold" TextColor="#8b5cf6" />
                     <Label Text="Pick where you're heading. Your current job clocks out now and travel time starts counting until you arrive."
                            FontSize="12" TextColor="#7d8590" />
+                    <Border BackgroundColor="#0a0e14" Stroke="#1c2330" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10" Padding="10,0">
+                        <Entry x:Name="SwitchSearchEntry" Placeholder="Search jobs..."
+                               PlaceholderColor="#4b5563" TextColor="#e6edf3"
+                               BackgroundColor="Transparent" FontSize="13"
+                               HeightRequest="40" TextChanged="OnSwitchSearch" />
+                    </Border>
                     <ScrollView MaximumHeightRequest="280">
                         <VerticalStackLayout x:Name="SwitchProjectList" Spacing="8" />
                     </ScrollView>
@@ -353,6 +385,9 @@
                     <Label x:Name="TravelToLabel" Text=""
                            FontSize="15" FontAttributes="Bold" TextColor="#e6edf3"
                            HorizontalOptions="Center" />
+                    <Label x:Name="TravelAddrLabel" Text="" IsVisible="False"
+                           FontSize="12" TextColor="#7d8590"
+                           HorizontalOptions="Center" HorizontalTextAlignment="Center" />
                     <Label x:Name="TravelTimerLabel" Text="00:00"
                            FontSize="40" FontAttributes="Bold" TextColor="#8b5cf6"
                            HorizontalOptions="Center" />
@@ -366,6 +401,11 @@
                             FontAttributes="Bold" FontSize="15"
                             HeightRequest="50" CornerRadius="12"
                             Clicked="OnArrive" />
+                    <Button x:Name="TravelChangeBtn" Text="Change destination"
+                            BackgroundColor="Transparent" TextColor="#8b5cf6"
+                            BorderColor="#8b5cf6" BorderWidth="1"
+                            FontSize="12" HeightRequest="42" CornerRadius="12"
+                            Clicked="OnChangeDestination" />
                     <Button x:Name="TravelBackBtn" Text="Cancel - back to previous job"
                             BackgroundColor="Transparent" TextColor="#7d8590"
                             BorderColor="#1c2330" BorderWidth="1"

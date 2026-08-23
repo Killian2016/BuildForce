@@ -605,7 +605,7 @@ public class ApiService
     }
 
     // Two-tap job switch with travel time.
-    public async Task<LeaveJobResult?> LeaveJobAsync(double lat, double lng, int materialRunCount = 0, int materialRunMinutes = 0)
+    public async Task<LeaveJobResult?> LeaveJobAsync(double lat, double lng, int materialRunCount = 0, int materialRunMinutes = 0, string? photoBase64 = null)
     {
         try
         {
@@ -616,7 +616,8 @@ public class ApiService
                 latitude = lat,
                 longitude = lng,
                 materialRunCount,
-                materialRunMinutes
+                materialRunMinutes,
+                photoBase64
             });
             var json = await response.Content.ReadAsStringAsync();
             System.Diagnostics.Debug.WriteLine($"Leave response ({response.StatusCode}): {json}");

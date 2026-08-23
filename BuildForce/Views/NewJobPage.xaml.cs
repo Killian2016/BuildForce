@@ -142,7 +142,7 @@ public partial class NewJobPage : ContentPage
         if (SlotNames.Count > 0) return;
         SlotVals.Add(null);
         SlotNames.Add("Any time");
-        for (int h = 6; h <= 19; h++)
+        for (int h = 0; h < 24; h++) // [VIS2f] full 24h
             for (int m = 0; m < 60; m += 30)
             {
                 var ts = new TimeSpan(h, m, 0);

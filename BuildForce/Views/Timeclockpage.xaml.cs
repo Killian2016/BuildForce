@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1416
+#pragma warning disable CA1416
 using BuildForce.Services;
 using System.Linq;
 using System.Text.Json;
@@ -245,9 +245,48 @@ public partial class TimeClockPage : ContentPage
             ApplyClockedInUi();
             StartLocalTimer();
             await EnsureSiteWatchOnRestoreAsync(proj?.Location);   // [SW5] watch follows the session, not the device
+            ClearTravelPrefs();   // [RSW4] Active row means clocked in, not traveling
+        }
+        else if (Preferences.ContainsKey("travel_departed_id"))
+        {
+            // [RSW4] No active shift but a travel clock survived an app kill - restore it.
+            RestoreTravelFromPrefs();
         }
 
         await LoadSummary();
+    }
+
+    // [RSW4] Clear the persisted travel state.
+    private void ClearTravelPrefs()
+    {
+        Preferences.Remove("travel_departed_id");
+        Preferences.Remove("travel_depart_utc");
+        Preferences.Remove("travel_target_id");
+        Preferences.Remove("travel_origin_id");
+    }
+
+    // [RSW4] Rebuild the traveling state after an app kill mid-travel. A trip
+    // with no picked target, or older than 14 hours, is treated as closed.
+    private void RestoreTravelFromPrefs()
+    {
+        var depId = Preferences.Get("travel_departed_id", 0);
+        var iso = Preferences.Get("travel_depart_utc", "");
+        var tgtId = Preferences.Get("travel_target_id", 0);
+        var orgId = Preferences.Get("travel_origin_id", 0);
+        DateTime dep;
+        var okIso = DateTime.TryParse(iso, System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.RoundtripKind, out dep);
+        if (depId == 0 || !okIso || tgtId == 0) { ClearTravelPrefs(); return; }
+        if ((DateTime.UtcNow - dep) > TimeSpan.FromHours(14)) { ClearTravelPrefs(); return; }
+        var tgt = _projects.FirstOrDefault(p => p.Id == tgtId);
+        if (tgt == null) { ClearTravelPrefs(); return; }
+        _departedTimesheetId = depId;
+        _departTimeUtc = dep;
+        _travelOrigin = _projects.FirstOrDefault(p => p.Id == orgId);
+        _traveling = true;
+        EnterTravelingUi();
+        SetTravelTarget(tgt);
+        System.Diagnostics.Debug.WriteLine("[RSW4] travel restored dep=" + depId);
     }
 
     // [SW5] A restored Active timesheet (second phone, or same phone after a relaunch) must start the
@@ -550,6 +589,11 @@ public partial class TimeClockPage : ContentPage
             Location? location = null;
 
             location = await Geolocation.GetLastKnownLocationAsync();
+            // [GPS1] a cached fix can be minutes old and miles away - only
+            // trust it when fresh, otherwise fall through to a live fix.
+            if (location != null &&
+                location.Timestamp < DateTimeOffset.UtcNow.AddMinutes(-2))
+                location = null;
 
             if (location == null)
             {
@@ -670,6 +714,7 @@ public partial class TimeClockPage : ContentPage
             {
                 StatusLabel.Text = "NOT AT JOB SITE - CANNOT CLOCK IN";
                 StatusLabel.TextColor = Red;
+                RetryLocationBtn.IsVisible = true;   // [GPS1] off-site verdict needs a refresh path
             }
             else
             {
@@ -1247,45 +1292,39 @@ public partial class TimeClockPage : ContentPage
             return;
         }
 
-        // Build the destination list first: active projects, excluding the current one.
-        SwitchProjectList.Children.Clear();
-        var candidates = _projects
+        // [RSW5] Build the destination list: active projects, excluding the current one.
+        _switchCandidates = _projects
             .Where(p => _selectedProject == null || p.Id != _selectedProject.Id)
             .ToList();
 
-        if (candidates.Count == 0)
+        if (_switchCandidates.Count == 0)
         {
             await DisplayAlert("Switch Job", "No other projects are available to switch to.", "OK");
             return;
         }
 
-        // [RSW2] Switching clocks you out RIGHT NOW - the travel clock starts the
-        // moment you tap Switch Job, BEFORE choosing the next job. Work time ends
-        // when you decide to leave; choosing + driving is travel; the clock only
-        // reopens at a site (Arrive).
+        SwitchSearchEntry.Text = "";
+        BuildSwitchList("");
+
+        SwitchConfirmSheet.ZIndex = 999;   // [RSW4] confirm first - nothing happens until Yes
+        SwitchConfirmSheet.IsVisible = true;
+    }
+
+    // [RSW4] Yes: clock out now via /leave, then show the picker. Travel time
+    // is backdated to this moment (DepartedAt), so the pick gap is still paid.
+    private async void OnSwitchConfirm(object sender, EventArgs e)
+    {
+        SwitchConfirmSheet.IsVisible = false;
         var left = await DoLeaveNowAsync();
         if (!left) return;   // leave failed - still clocked in, nothing changed
-
-        foreach (var proj in candidates)
-        {
-            var p = proj;
-            var btn = new Button
-            {
-                Text = p.Name,
-                BackgroundColor = Color.FromArgb("#161b22"),
-                TextColor = Color.FromArgb("#e6edf3"),
-                BorderColor = Color.FromArgb("#1c2330"),
-                BorderWidth = 1,
-                FontSize = 14,
-                HeightRequest = 48,
-                CornerRadius = 12
-            };
-            btn.Clicked += (s2, e2) => SetTravelTarget(p);
-            SwitchProjectList.Children.Add(btn);
-        }
-
-        SwitchSheet.ZIndex = 999;   // [RSW2b] travel sheet is visible underneath - keep the picker on top
+        SwitchSheet.ZIndex = 999;
         SwitchSheet.IsVisible = true;
+    }
+
+    // [RSW4] No: nothing happened - still on the clock.
+    private void OnSwitchConfirmCancel(object sender, EventArgs e)
+    {
+        SwitchConfirmSheet.IsVisible = false;
     }
 
     // [RSW2] Closing the list without picking: you're already clocked out and
@@ -1317,7 +1356,8 @@ public partial class TimeClockPage : ContentPage
         StatusLabel.TextColor = Amber;
         try
         {
-            var result = await _api.LeaveJobAsync(_workerLat, _workerLng);
+            string? switchPhoto = await CapturePunchSelfieAsync("JOB SWITCH VERIFICATION");
+            var result = await _api.LeaveJobAsync(_workerLat, _workerLng, photoBase64: switchPhoto);
             System.Diagnostics.Debug.WriteLine("LEAVE: apiNull=" + (result == null) + " err=" + (_api.LastError ?? ""));
             if (result == null)
             {
@@ -1351,6 +1391,76 @@ public partial class TimeClockPage : ContentPage
         }
     }
 
+    // [RSW5] Job-picker search + tappable cards (full-row hit area, address shown).
+    private List<ProjectSummary> _switchCandidates = new();
+
+    private void OnSwitchSearch(object sender, TextChangedEventArgs e)
+    {
+        BuildSwitchList(e.NewTextValue ?? "");
+    }
+
+    private void BuildSwitchList(string filter)
+    {
+        SwitchProjectList.Children.Clear();
+        var f = (filter ?? "").Trim();
+        var list = string.IsNullOrEmpty(f)
+            ? _switchCandidates
+            : _switchCandidates.Where(p =>
+                (p.Name ?? "").Contains(f, StringComparison.OrdinalIgnoreCase) ||
+                (p.Location ?? "").Contains(f, StringComparison.OrdinalIgnoreCase)).ToList();
+        if (list.Count == 0)
+        {
+            SwitchProjectList.Children.Add(new Label
+            {
+                Text = "No jobs match your search",
+                TextColor = Color.FromArgb("#7d8590"),
+                FontSize = 13,
+                HorizontalOptions = LayoutOptions.Center,
+                Margin = new Thickness(0, 10)
+            });
+            return;
+        }
+        foreach (var proj in list)
+        {
+            var p = proj;
+            var stack = new VerticalStackLayout { Spacing = 2 };
+            stack.Children.Add(new Label
+            {
+                Text = p.Name,
+                TextColor = Color.FromArgb("#e6edf3"),
+                FontSize = 14,
+                FontAttributes = FontAttributes.Bold
+            });
+            stack.Children.Add(new Label
+            {
+                Text = string.IsNullOrWhiteSpace(p.Location) ? "No address on file" : p.Location,
+                TextColor = Color.FromArgb("#7d8590"),
+                FontSize = 12
+            });
+            var card = new Border
+            {
+                BackgroundColor = Color.FromArgb("#161b22"),
+                Stroke = Color.FromArgb("#1c2330"),
+                StrokeThickness = 1,
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 12 },
+                Padding = new Thickness(14, 12),
+                Content = stack
+            };
+            // [RSW5b] Native Button overlay - taps inside a ScrollView
+            var hit = new Button
+            {
+                BackgroundColor = Colors.Transparent,
+                BorderWidth = 0,
+                CornerRadius = 12
+            };
+            hit.Clicked += (s2, e2) => SetTravelTarget(p);
+            var cell = new Grid();
+            cell.Children.Add(card);
+            cell.Children.Add(hit);
+            SwitchProjectList.Children.Add(cell);
+        }
+    }
+
     // [RSW2] Pick (or re-point) the destination while already traveling.
     private void SetTravelTarget(ProjectSummary p)
     {
@@ -1360,6 +1470,8 @@ public partial class TimeClockPage : ContentPage
         {
             var back = _travelOrigin != null && p.Id == _travelOrigin.Id;
             TravelToLabel.Text = "\u2192 " + (back ? "back to " : "") + p.Name;
+            TravelAddrLabel.Text = p.Location ?? "";   // [RSW5]
+            TravelAddrLabel.IsVisible = !string.IsNullOrWhiteSpace(p.Location);
             TravelBackBtn.IsVisible = !back;   // [RSW3]
             SwitchSheet.IsVisible = false;
         });
@@ -1381,6 +1493,8 @@ public partial class TimeClockPage : ContentPage
         _exitDetectedAt = null;   // setter clears sw_exit_utc
         if (_travelTarget != null) TravelToLabel.Text = "\u2192 " + _travelTarget.Name;
         else TravelToLabel.Text = "\u2192 choose your next job";   // [RSW2]
+        TravelAddrLabel.Text = _travelTarget?.Location ?? "";   // [RSW5]
+        TravelAddrLabel.IsVisible = !string.IsNullOrWhiteSpace(_travelTarget?.Location);
         TravelBackBtn.Text = "Going back to " + (_travelOrigin?.Name ?? "previous job");   // [RSW3]
         TravelBackBtn.IsVisible = true;
         UpdateTravelTimerLabel();
@@ -1510,11 +1624,26 @@ public partial class TimeClockPage : ContentPage
         MainThread.BeginInvokeOnMainThread(() =>
         {
             TravelToLabel.Text = "\u2192 back to " + _travelTarget.Name;
+            TravelAddrLabel.Text = _travelTarget.Location ?? "";   // [RSW5]
+            TravelAddrLabel.IsVisible = !string.IsNullOrWhiteSpace(_travelTarget.Location);
             TravelBackBtn.IsVisible = false;   // [RSW3]
         });
         ShowTravelMsg("You'll stay on the travel clock - tap Arrive when you're back at " + _travelTarget.Name + ".");
     }
 
+    // [RSW6] Re-point the trip mid-travel: reopen the picker. Picking any job
+    // re-targets via SetTravelTarget; closing without picking changes nothing.
+    private void OnChangeDestination(object sender, EventArgs e)
+    {
+        if (!_traveling) return;
+        _switchCandidates = _projects
+            .Where(p => _travelTarget == null || p.Id != _travelTarget.Id)
+            .ToList();
+        SwitchSearchEntry.Text = "";
+        BuildSwitchList("");
+        SwitchSheet.ZIndex = 999;
+        SwitchSheet.IsVisible = true;
+    }
     private void EndTravel()
     {
         _traveling = false;

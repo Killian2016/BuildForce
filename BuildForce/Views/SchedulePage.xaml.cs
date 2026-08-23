@@ -248,6 +248,19 @@ public partial class SchedulePage : ContentPage
         var right = new VerticalStackLayout { Spacing = 1 };
         var etaText = string.IsNullOrWhiteSpace(v.Eta) ? "--" : v.Eta;
         right.Children.Add(new Label { Text = "ETA " + etaText, FontSize = 14, TextColor = Fg });
+if (v.Status == "OnTheWay") // [VIS2c] tap ETA to update it
+{
+    var vv = v; var tapEta = new TapGestureRecognizer();
+    tapEta.Tapped += async (s2, e2) =>
+    {
+        var o2 = new List<string> { "15 min", "30 min", "45 min", "60 min", "No ETA" };
+        int i2 = await PickerSheetPage.PickIndexAsync(HostNav, "Update ETA", o2, 1);
+        if (i2 < 0) return;
+        int? e3 = i2 switch { 0 => 15, 1 => 30, 2 => 45, 3 => 60, _ => (int?)null };
+        await SetStatus(vv, "OnTheWay", e3);
+    };
+    right.GestureRecognizers.Add(tapEta);
+}
         right.Children.Add(new Label { Text = string.IsNullOrWhiteSpace(v.Eta) ? "no ETA sent yet" : "sent to customer", FontSize = 12,
             TextColor = string.IsNullOrWhiteSpace(v.Eta) ? Muted : Amber });
         info.Add(right, 2, 0);
@@ -376,6 +389,7 @@ public partial class SchedulePage : ContentPage
     {
         var res = await _api.SetVisitStatusAsync(v.Id, status, eta, true);
         if (res != null && status == "OnTheWay") _ = PingAsync(new List<int> { v.Id }); // [LIVEETA1] first ping right away
+        if (res != null && status == "OnTheWay" && !string.IsNullOrWhiteSpace(v.Address)) _ = OpenDirections(v.Address); // [VIS2c] auto-open map
         if (res == null || !res.Success)
         {
             EmptyLabel.Text = _api.LastError ?? "Could not update the visit.";
