@@ -357,9 +357,19 @@ public class ScheduleItem
 
 // [BFJOB1] quick job scheduling from the phone
 public class CrewPick { public int Id { get; set; } public string Name { get; set; } = ""; }
+public class LeadPick
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public string? Company { get; set; }
+    public string? Address { get; set; }
+    public string? City { get; set; }
+}
 public class VisitCreateRequest
 {
     public int CustomerId { get; set; }
+    public string? VisitType { get; set; } // [ESTCOST2]
+    public int? LeadId { get; set; } // [ESTCOST2]
     public string? Title { get; set; }
     public string? ServiceAddress { get; set; }
     public string? VisitDate { get; set; }

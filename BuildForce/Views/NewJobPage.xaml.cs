@@ -9,6 +9,9 @@ public partial class NewJobPage : ContentPage
     private readonly ApiService _api;
     private List<CustomerSummary> _customers = new();
     private CustomerSummary? _customer;
+    private bool _isEstimate; // [ESTCOST2]
+    private List<LeadPick> _leads = new();
+    private LeadPick? _lead;
     private DateTime _month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
     private DateTime _selected = DateTime.Today;
     private TimeSpan? _start;
@@ -39,6 +42,7 @@ public partial class NewJobPage : ContentPage
         try
         {
             _customers = await _api.GetCustomersAsync();
+            _leads = await _api.GetLeadsAsync(); // [ESTCOST2]
             var crew = await _api.GetVisitCrewAsync();
             _crew.Clear();
             _crew.AddRange(crew);
@@ -123,8 +127,43 @@ public partial class NewJobPage : ContentPage
         }
     }
 
+    // [ESTCOST2] Service | Estimate mode
+    private void OnModeService(object sender, TappedEventArgs e) => SetMode(false);
+    private void OnModeEstimate(object sender, TappedEventArgs e) => SetMode(true);
+    private void SetMode(bool est)
+    {
+        if (_isEstimate == est) return;
+        _isEstimate = est;
+        SvcChip.BackgroundColor = est ? Card : Amber;
+        SvcChip.Stroke = new SolidColorBrush(est ? Edge : Amber);
+        SvcChipLbl.TextColor = est ? Fg : Bg;
+        EstChip.BackgroundColor = est ? Amber : Card;
+        EstChip.Stroke = new SolidColorBrush(est ? Amber : Edge);
+        EstChipLbl.TextColor = est ? Bg : Fg;
+        PickSectionLabel.Text = est ? "LEAD" : "CUSTOMER";
+        CustomerLabel.Text = est ? "Tap to choose a lead" : "Tap to choose a customer";
+        CustomerLabel.TextColor = Muted;
+        _customer = null; _lead = null;
+        NotifyRow.IsVisible = !est;
+    }
+    private async Task PickLeadAsync()
+    {
+        if (_leads.Count == 0) { ShowError("No open leads - add one in the Lead Pipeline first."); return; }
+        var names = _leads
+            .Select(l => string.IsNullOrWhiteSpace(l.Company) ? l.Name : l.Name + " (" + l.Company + ")").ToList();
+        int cur = _lead == null ? -1 : _leads.IndexOf(_lead);
+        int idx = await PickerSheetPage.PickIndexAsync(Navigation, "Lead", names, cur);
+        if (idx < 0 || idx >= _leads.Count) return;
+        _lead = _leads[idx];
+        CustomerLabel.Text = names[idx];
+        CustomerLabel.TextColor = Fg;
+        if (string.IsNullOrWhiteSpace(AddressEntry.Text) && !string.IsNullOrWhiteSpace(_lead.Address))
+            AddressEntry.Text = _lead.Address;
+        if (string.IsNullOrWhiteSpace(TitleEntry.Text)) TitleEntry.Text = "Estimate visit - " + _lead.Name;
+    }
     private async void OnPickCustomer(object sender, TappedEventArgs e)
     {
+        if (_isEstimate) { await PickLeadAsync(); return; } // [ESTCOST2]
         if (_customers.Count == 0) { ShowError("No customers yet - add one on the web first."); return; }
         var names = _customers
             .Select(c => string.IsNullOrWhiteSpace(c.Company) ? c.Name : c.Name + " (" + c.Company + ")").ToList();
@@ -187,7 +226,8 @@ public partial class NewJobPage : ContentPage
     private async void OnSave(object sender, EventArgs e)
     {
         ErrorLabel.IsVisible = false;
-        if (_customer == null) { ShowError("Pick a customer first."); return; }
+        if (_isEstimate && _lead == null) { ShowError("Pick a lead first."); return; }
+        if (!_isEstimate && _customer == null) { ShowError("Pick a customer first."); return; }
         if (_start.HasValue && _end.HasValue && _end.Value <= _start.Value)
         {
             ShowError("Arrival window end must be after start.");
@@ -197,15 +237,19 @@ public partial class NewJobPage : ContentPage
         SaveBtn.Text = "Saving...";
         var req = new VisitCreateRequest
         {
-            CustomerId = _customer.Id,
-            Title = string.IsNullOrWhiteSpace(TitleEntry.Text) ? "Service visit" : TitleEntry.Text.Trim(),
+            CustomerId = _isEstimate ? 0 : _customer!.Id,
+            VisitType = _isEstimate ? "Estimate" : "Service", // [ESTCOST2]
+            LeadId = _isEstimate ? _lead!.Id : (int?)null,
+            Title = string.IsNullOrWhiteSpace(TitleEntry.Text)
+                ? (_isEstimate ? "Estimate visit" : "Service visit") : TitleEntry.Text.Trim(),
             ServiceAddress = string.IsNullOrWhiteSpace(AddressEntry.Text) ? null : AddressEntry.Text.Trim(),
             VisitDate = _selected.ToString("yyyy-MM-dd"),
             WindowStart = _start.HasValue ? _start.Value.ToString(@"hh\:mm") : null,
             WindowEnd = _end.HasValue ? _end.Value.ToString(@"hh\:mm") : null,
             CrewEmployeeIds = _picked.ToList(),
             Notes = string.IsNullOrWhiteSpace(NotesEditor.Text) ? null : NotesEditor.Text.Trim(),
-            NotifyEmail = _notify, NotifySms = _notify, SendConfirmation = _notify
+            NotifyEmail = !_isEstimate && _notify, NotifySms = !_isEstimate && _notify,
+            SendConfirmation = !_isEstimate && _notify
         };
         var res = await _api.CreateVisitAsync(req);
         if (res == null || !res.Success)

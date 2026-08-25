@@ -17,7 +17,21 @@
         </Grid>
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="16,4,16,24" Spacing="12">
-                <Label Text="CUSTOMER" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="2" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border x:Name="SvcChip" BackgroundColor="#f0a500" Stroke="#f0a500"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="SvcChipLbl" Text="Service" FontSize="14" FontAttributes="Bold"
+                               TextColor="#080b10" HorizontalOptions="Center" />
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnModeService" /></Border.GestureRecognizers>
+                    </Border>
+                    <Border x:Name="EstChip" Grid.Column="1" BackgroundColor="#161b22" Stroke="#1c2330"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="0,10">
+                        <Label x:Name="EstChipLbl" Text="Estimate" FontSize="14" FontAttributes="Bold"
+                               TextColor="#e6edf3" HorizontalOptions="Center" />
+                        <Border.GestureRecognizers><TapGestureRecognizer Tapped="OnModeEstimate" /></Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+                <Label x:Name="PickSectionLabel" Text="CUSTOMER" FontSize="10" FontAttributes="Bold" TextColor="#7d8590" CharacterSpacing="2" />
                 <Border BackgroundColor="#0d1117" Stroke="#1c2330" StrokeThickness="1"
                         StrokeShape="RoundRectangle 14" Padding="14,12">
                     <Grid ColumnDefinitions="*,Auto">
@@ -83,7 +97,7 @@
                     <Editor x:Name="NotesEditor" Placeholder="Notes for the crew and the customer" PlaceholderColor="#7d8590"
                             TextColor="#e6edf3" BackgroundColor="Transparent" FontSize="14" HeightRequest="90" AutoSize="Disabled" />
                 </Border>
-                <HorizontalStackLayout Spacing="10" Margin="0,4,0,0">
+                <HorizontalStackLayout x:Name="NotifyRow" Spacing="10" Margin="0,4,0,0">
                     <Border x:Name="NotifyBox" WidthRequest="20" HeightRequest="20" BackgroundColor="#f0a500" Stroke="#f0a500"
                             StrokeThickness="1" StrokeShape="RoundRectangle 5" VerticalOptions="Center">
                         <Label x:Name="NotifyTick" Text="&#10003;" FontSize="13" FontAttributes="Bold" TextColor="#080b10"

@@ -354,8 +354,28 @@ if (v.Status == "OnTheWay") // [VIS2c] tap ETA to update it
             var addr2 = v.Address;
             secondary.Add(OutlineAsync(((char)0x2316) + "  Directions", async () => await OpenDirections(addr2)), 1, 0);
         }
-        if (secondary.Children.Count == 1) Grid.SetColumnSpan((BindableObject)secondary.Children[0], 2);
+        if (!muted && !string.IsNullOrWhiteSpace(v.CustomerPhone)) // [MSGVIS] customer visits only
+        {
+            secondary.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+            var vv = v;
+            secondary.Add(OutlineAsync(((char)0x2709) + "  Message", async () => await MessageClient(vv)), secondary.Children.Count, 0);
+        }
+        if (secondary.Children.Count == 1) Grid.SetColumnSpan((BindableObject)secondary.Children[0], secondary.ColumnDefinitions.Count);
         if (secondary.Children.Count > 0) actions.Children.Add(secondary);
+        if (!muted && (v.Status == "Scheduled" || v.Status == "OnTheWay")) // [CANCEL1]
+        {
+            var vc = v;
+            var cancelBtn = OutlineAsync(((char)0x2715) + "  Cancel Visit", async () =>
+            {
+                bool yes = await DisplayAlert("Cancel this visit?",
+                    "The visit will be marked cancelled for " + (vc.CustomerName ?? "the customer") + ".",
+                    "Yes, cancel", "Keep visit");
+                if (yes) await SetStatus(vc, "Cancelled", null);
+            });
+            cancelBtn.TextColor = Color.FromArgb("#ef4444");
+            cancelBtn.BorderColor = Color.FromArgb("#ef4444");
+            actions.Children.Add(cancelBtn);
+        }
         stack.Children.Add(actions);
         return card;
     }
@@ -376,6 +396,25 @@ if (v.Status == "OnTheWay") // [VIS2c] tap ETA to update it
         return b;
     }
 
+    // [MSGVIS] manual message to the customer from the card
+    private async Task MessageClient(VisitItem v)
+    {
+        var opts = new List<string> { "Running about 15 min late", "On my way now", "Just wrapped up - thank you!", "Custom message..." };
+        int idx = await PickerSheetPage.PickIndexAsync(Navigation, "Message " + (v.CustomerName ?? "customer"), opts, -1);
+        if (idx < 0) return;
+        string note = opts[idx];
+        if (idx == 3)
+        {
+            var typed = await DisplayPromptAsync("Message", "Text to send to " + (v.CustomerName ?? "the customer") + ":",
+                "Send", "Cancel", maxLength: 500);
+            if (string.IsNullOrWhiteSpace(typed)) return;
+            note = typed.Trim();
+        }
+        bool okSend = await _api.SendVisitMessageAsync(v.Id, note);
+        await DisplayAlert(okSend ? "Sent" : "Not sent",
+            okSend ? "Your message is on its way." : (_api.LastError ?? "Could not send - check the visit log on the web."), "OK");
+    }
+
     private async Task OnMyWay(VisitItem v)
     {
         var opts = new List<string> { "15 min", "30 min", "45 min", "60 min", "No ETA" };
@@ -389,10 +428,12 @@ if (v.Status == "OnTheWay") // [VIS2c] tap ETA to update it
     {
         var res = await _api.SetVisitStatusAsync(v.Id, status, eta, true);
         if (res != null && status == "OnTheWay") _ = PingAsync(new List<int> { v.Id }); // [LIVEETA1] first ping right away
+        if (res != null && res.Success) { if (status == "OnTheWay") VisitPingService.Track(v.Id); else VisitPingService.Untrack(v.Id); } // [VISPING1] foreground trip pings
         if (res != null && status == "OnTheWay" && !string.IsNullOrWhiteSpace(v.Address)) _ = OpenDirections(v.Address); // [VIS2c] auto-open map
         if (res == null || !res.Success)
         {
             EmptyLabel.Text = _api.LastError ?? "Could not update the visit.";
+            await DisplayAlert("Not updated", EmptyLabel.Text, "OK"); // [STATERR1]
             EmptyLabel.IsVisible = true;
             return;
         }

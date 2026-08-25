@@ -1205,6 +1205,18 @@ public class ApiService
         catch { return new List<CrewPick>(); }
     }
 
+    public async Task<List<LeadPick>> GetLeadsAsync()
+    {
+        try
+        {
+            RefreshToken();
+            var response = await _client.GetAsync("/api/mobile/visits/leads");
+            if (!response.IsSuccessStatusCode) return new List<LeadPick>();
+            return await response.Content.ReadFromJsonAsync<List<LeadPick>>() ?? new List<LeadPick>();
+        }
+        catch { return new List<LeadPick>(); }
+    }
+
     public async Task<VisitCreateResult?> CreateVisitAsync(VisitCreateRequest req)
     {
         LastError = null;
@@ -1259,6 +1271,25 @@ public class ApiService
             return JsonSerializer.Deserialize<List<VisitItem>>(json, options) ?? new List<VisitItem>();
         }
         catch (Exception ex) { LastError = ex.Message; return null; }
+    }
+
+    // [MSGVIS] manual message to the customer for one visit
+    public async Task<bool> SendVisitMessageAsync(int id, string note)
+    {
+        LastError = null;
+        try
+        {
+            RefreshToken();
+            var response = await _client.PostAsJsonAsync("/api/mobile/visits/" + id + "/send", new { note });
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                LastError = TryParseMessage(json) ?? ("Server error " + (int)response.StatusCode);
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex) { LastError = ex.Message; return false; }
     }
 
     // [LIVEETA1] crew phone location ping while a visit is OnTheWay (server stores last position for the tracking page)
