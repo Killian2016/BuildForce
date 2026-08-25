@@ -367,7 +367,7 @@ if (v.Status == "OnTheWay") // [VIS2c] tap ETA to update it
             var vc = v;
             var cancelBtn = OutlineAsync(((char)0x2715) + "  Cancel Visit", async () =>
             {
-                bool yes = await DisplayAlert("Cancel this visit?",
+                bool yes = await Application.Current!.Windows[0].Page!.DisplayAlert("Cancel this visit?",
                     "The visit will be marked cancelled for " + (vc.CustomerName ?? "the customer") + ".",
                     "Yes, cancel", "Keep visit");
                 if (yes) await SetStatus(vc, "Cancelled", null);
@@ -400,12 +400,12 @@ if (v.Status == "OnTheWay") // [VIS2c] tap ETA to update it
     private async Task MessageClient(VisitItem v)
     {
         var opts = new List<string> { "Running about 15 min late", "On my way now", "Just wrapped up - thank you!", "Custom message..." };
-        int idx = await PickerSheetPage.PickIndexAsync(Navigation, "Message " + (v.CustomerName ?? "customer"), opts, -1);
+        int idx = await PickerSheetPage.PickIndexAsync(HostNav, "Message " + (v.CustomerName ?? "customer"), opts, -1);
         if (idx < 0) return;
         string note = opts[idx];
         if (idx == 3)
         {
-            var typed = await DisplayPromptAsync("Message", "Text to send to " + (v.CustomerName ?? "the customer") + ":",
+            var typed = await Application.Current!.Windows[0].Page!.DisplayPromptAsync("Message", "Text to send to " + (v.CustomerName ?? "the customer") + ":",
                 "Send", "Cancel", maxLength: 500);
             if (string.IsNullOrWhiteSpace(typed)) return;
             note = typed.Trim();
