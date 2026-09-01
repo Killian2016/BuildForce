@@ -37,8 +37,8 @@ public static class SiteWatchService
                         _mgr.DesiredAccuracy = CLLocation.AccuracyHundredMeters;
                         _mgr.DistanceFilter = 50;
                         _mgr.PausesLocationUpdatesAutomatically = false;
-                        _mgr.ShowsBackgroundLocationIndicator = true;
-                        _mgr.AllowsBackgroundLocationUpdates = true;
+                        // [254] background location removed for App Store
+                        
                     }
                     _mgr.StartUpdatingLocation();
                 }

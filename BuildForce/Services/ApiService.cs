@@ -913,6 +913,17 @@ public class ApiService
     // GET  /api/mobile/profile/photo/image  -> raw jpeg bytes (auth proxy)
     // POST /api/mobile/profile/photo        -> upload base64 photo
     // ============================================
+    // [DELACC1] self-service account deletion
+    public async Task<bool> DeleteAccountAsync()
+    {
+        try
+        {
+            var response = await _client.PostAsJsonAsync("/api/mobile/account/delete", new { confirm = "DELETE" });
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
     public async Task<ProfileInfo?> GetMyProfileAsync()
     {
         LastError = null;

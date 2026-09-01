@@ -139,6 +139,14 @@
                     </Grid>
                     <BoxView HeightRequest="1" Color="#1c2330" />
                     <Grid Padding="14,12" ColumnDefinitions="*,Auto">
+                        <Label Text="Delete account" FontSize="13" TextColor="#ef4444" VerticalOptions="Center" />
+                        <Label Text="&#x203A;" FontSize="18" TextColor="#7d8590" Grid.Column="1" VerticalOptions="Center" />
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDeleteAccount" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                    <BoxView HeightRequest="1" Color="#1c2330" />
+                    <Grid Padding="14,12" ColumnDefinitions="*,Auto">
                         <Label Text="Sign out" FontSize="13" TextColor="#ef4444"
                                VerticalOptions="Center" />
                         <Label x:Name="VersionLabel" Text="v2.5.1" FontSize="11" TextColor="#7d8590"

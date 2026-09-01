@@ -144,6 +144,28 @@ public partial class ToolsPage : ContentPage
         }
     }
 
+    // [DELACC1] self-service account deletion (Apple 5.1.1v)
+    private async void OnDeleteAccount(object sender, TappedEventArgs e)
+    {
+        var host = HostPage;
+        if (host == null) return;
+        bool go = await host.DisplayAlert("Delete account",
+            "This permanently deletes your login and personal information. Timesheet hour records are retained by your employer as required by wage law, without your personal details. This cannot be undone.",
+            "Continue", "Cancel");
+        if (!go) return;
+        string? typed = await host.DisplayPromptAsync("Confirm deletion",
+            "Type DELETE to permanently delete your account.", "Delete", "Cancel", "DELETE");
+        if (typed != "DELETE")
+        {
+            if (typed != null) await AlertAsync("Not deleted", "You must type DELETE to confirm.");
+            return;
+        }
+        bool okDel = await _api.DeleteAccountAsync();
+        if (!okDel) { await AlertAsync("Error", "Could not delete your account. Please try again."); return; }
+        Preferences.Clear();
+        Application.Current!.MainPage = new LoginPage(_auth);
+    }
+
     private async void OnSignOut(object sender, TappedEventArgs e)
     {
         var host = HostPage;
