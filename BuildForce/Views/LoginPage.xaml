@@ -129,12 +129,12 @@
                                Margin="0,16,0,0" />
 
             <!-- [GSIM1] divider + Continue with Google -->
-            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12" Margin="0,22,0,14">
+            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12" Margin="0,22,0,14" IsVisible="{OnPlatform iOS=false, Default=true}">
                 <BoxView Grid.Column="0" HeightRequest="1" Color="#1e3a5f" VerticalOptions="Center" />
                 <Label Grid.Column="1" Text="or" FontSize="12" TextColor="#6b7280" VerticalOptions="Center" />
                 <BoxView Grid.Column="2" HeightRequest="1" Color="#1e3a5f" VerticalOptions="Center" />
             </Grid>
-            <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1" StrokeShape="RoundRectangle 16">
+            <Border BackgroundColor="#111f38" Stroke="#1e3a5f" StrokeThickness="1" StrokeShape="RoundRectangle 16" IsVisible="{OnPlatform iOS=false, Default=true}">
                 <Grid ColumnDefinitions="Auto,*" Padding="18,0" HeightRequest="54" ColumnSpacing="12">
                     <Label Grid.Column="0" Text="G" FontSize="20" FontAttributes="Bold" TextColor="#4285F4" VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Continue with Google" FontSize="15" FontAttributes="Bold" TextColor="White"
@@ -144,7 +144,7 @@
             </Border>
 
             <!-- Register -->
-            <HorizontalStackLayout HorizontalOptions="Center" Margin="0,24,0,0" Spacing="4">
+            <HorizontalStackLayout HorizontalOptions="Center" Margin="0,24,0,0" Spacing="4" IsVisible="{OnPlatform iOS=false, Default=true}">
                 <Label Text="Don't have an account?"
                        FontSize="13" TextColor="#6b7280" />
                 <Label Text="Start free trial"
